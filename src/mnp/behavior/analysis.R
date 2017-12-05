@@ -13,54 +13,34 @@ library(hglm)
 library(multcomp)
 library(corrplot)
 
-
-normalizeExpressionAfterTransform = T
-
 source("./loadParams.R")
 source("./utils.R")
 source("./mnp/behavior/loadData.R")
 source("./lm/lm.parsing.R")
 source("./lm/fitBoxCoxModels.R")
 source("./mnp/general.R")
-##source("./mnp/jagsVarModel.R")
-#options(contrasts=c("contr.sum","contr.sum"))
-
 
 beh.analysis = new.env(hash=T)
 
 
-##model every phenotype in allmodels, fitting a frequentist lmer or nlme model
-beh.analysis$fitFreqModels <- function(allmodels, dataSet)
+beh.analysis$runAll <- function(phens)
 {
-    outputs = list()
-    for(i in 1:nrow(allmodels))
-    {
-        amodel = allmodels[i,]
-        output = beh.analysis$fitFreqModel(amodel, dataSet)
-        outputs = util$appendToList(outputs, output)
-    }
-    outputs = rbindlist(outputs)
-    return(outputs)
+    df = beh.analysis$run(phens)
+    df1 = beh.analysis$.adjust.pvals(df, phens)
+    fname = outm("phenNew.csv")
+    df2= beh.analysis$.dispSignificantPhen(df1, outb(fname))
+    
+    ## merged = beh$.mergeIntoPipelines(phen=phen)
+    ## ##PCA analysis of the two pipelines
+    ## beh.analysis$.evalPCAphen(merged$pipel1, phen$breedLog, "pipeline_behavior_1")
+    ## beh.analysis$.evalPCAphen(merged$pipel2, phen$breedLog, "pipeline_behavior_2")
+    ## beh.analysis$.plotIntraPipelineCorrelations(merged)
+    return(df2)
 }
 
-beh.analysis$fitFreqModel <- function(amodel, dataSet)
-{
-
-    
-    specificData = dataSet[[amodel$experiment]]
-    if(amodel$derivedSubset!="")
-    {
-        specificData = specificData[[amodel$derivedSubset]]
-    }
-    
-    afit = fit.model.bc$fit(y.mat = specificData[[amodel$phen]],
-                            cov.data = specificData,
-                            covariateModelString)
-}
-    
-    
 beh.analysis$run = function(phen, geneExp = NULL)
 {
+    startlechoice = "Average"
     thename = "nogene"
     if(!is.null(geneExp))
     {
@@ -68,27 +48,20 @@ beh.analysis$run = function(phen, geneExp = NULL)
     }
     df = c()
 
-
     anexpType="lightdark"
     allPhenNames = c("Total.Distance",
                      "Total.Distance.Dark",
                      "Total.Distance.Light",
                      "Pct.Time.Dark",
                      "Pct.Time.Light",
-                     "Total.Transitions", 
-                     "PC1" )
+                     "Total.Transitions")
     
     covariates = " ~ 1 +  as.factor(Batch)  + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID)"
-    ##covariates = " ~ 1 +  as.factor(Batch)  + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) + (1|Run) "
-    dataSet = phen$frame$lightdark
+    dataSet = phen$getExperiment(anexpType)
 
     df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-    ##beh.analysis$.plotPhens(allPhenNames = allPhenNames, anexpType = anexpType, dataSet = dataSet, prefix = thename)
-        
-    
+            
     allPhenNames = c("totdist", 
-                                        #"emo",
-                     "PC1",
                      "pctctr",
                      "avgvel",
                      "jmpcts",
@@ -96,169 +69,116 @@ beh.analysis$run = function(phen, geneExp = NULL)
                      "boli")
     
     covariates = " ~ 1 +  as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
-    dataSet    = phen$frame$openfield
     anexpType  =  "openfield"
+    dataSet = phen$getExperiment(anexpType)
     df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
 ##beh.analysis$.plotPhens(allPhenNames = allPhenNames, anexpType = anexpType, dataSet = dataSet, prefix = thename)
 
     allPhenNames = c("D3.less.D2",
         "dist_d1",
         "dist_d2",
-        "dist_d3",
-        "PC1")
+        "dist_d3")
+
     covariates = " ~ 1 +  as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
-                                        #	covariates = " ~ 1 +  as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) + (1|Run) "
-    dataSet    = phen$frame$cocaine
     anexpType  = "cocaine"
+
+    dataSet = phen$getExperiment(anexpType)
     df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-##beh.analysis$.plotPhens(allPhenNames = allPhenNames, anexpType = anexpType, dataSet = dataSet, prefix = thename)
+
     
-    ##	allPhenNames = c("baseline", "Ten.min.less.baseline")
     allPhenNames = c("Ten.min", "baseline", "Ten.min.less.baseline")
     covariates   = " ~ 1 +  as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
     anexpType    = "cort"
-    dataSet      = phen$frame$cort
+    dataSet      = phen$getExperiment(anexpType)
     df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-##beh.analysis$.plotPhens(allPhenNames = allPhenNames, anexpType = anexpType, dataSet = dataSet, prefix = thename)
+
     
     allPhenNames = c("PctFreeze.120.less.240sec")
     covariates   = " ~ 1 +  as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
     anexpType    = "tail"
-    dataSet      = phen$frame$tail
+
+    dataSet      = phen$getExperiment(anexpType)
     df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-    ##beh.analysis$.plotPhens(allPhenNames = allPhenNames, anexpType = anexpType, dataSet = dataSet, prefix = thename)
+
     
     allPhenNames = c("pctimmob")
     covariates   = " ~ 1 +  as.factor(Batch) + as.factor(Arena) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
     anexpType    = "swim"
-    dataSet      = phen$frame$swim
+    dataSet      = phen$getExperiment(anexpType)
     df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-    ##beh.analysis$.plotPhens(allPhenNames = allPhenNames, anexpType = anexpType, dataSet = dataSet, prefix = thename)
 
     
     allPhenNames = c("temp.1","temp.2","Difference")
     covariates   = "~ 1 +  as.factor(Batch) + Order + Diet   + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID)"
     anexpType    = "SIH"
-    dataSet      = phen$frame$SIH 
+    dataSet      = phen$getExperiment(anexpType)
     df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-    ##beh.analysis$.plotPhens(allPhenNames = allPhenNames, anexpType = anexpType, dataSet = dataSet, prefix = thename)
 
     
-    allPhenNames = c("PctStranger", "TRANSTOTAL","PC1")
+    allPhenNames = c("PctStranger", "TRANSTOTAL")
     covariates   = " ~ 1 +  as.factor(Batch) + Box.Stranger + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
     anexpType    = "sociability" 
-    dataSet      = phen$frame$sociability
+    dataSet      = phen$getExperiment(anexpType)
     out =  beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
     df = rbind(df, out)
-    ##beh.analysis$.plotPhens(allPhenNames = allPhenNames, anexpType = anexpType, dataSet = dataSet, prefix = thename)
 
     
     allPhenNames = startlechoice
-        ## c("Average",
-        ##                                 #					 "Max",
-        ##              "Latency")
     covariates   = " ~ 1 + as.factor(Batch) + Group  + Diet + Sire.is.b6  + Group:Sire.is.b6+ Diet:Sire.is.b6 + (1|Chamber) + (1 | Dam.ID) +(1|ID) "
     anexpType    = "startle"
-    dataSet      = phen$frame$startle
+    dataSet      = phen$getExperiment(anexpType)
     df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-    ##beh.analysis$.plotPhens(allPhenNames = allPhenNames, anexpType = anexpType, dataSet = dataSet, prefix = thename)
 
-    allPhenNames = c("PC1")
-    covariates   = " ~ 1 + as.factor(Batch)  + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID)" #
-    anexpType    = "startle"
-    dataSet      = phen$frame$startleByGroupMean
-    ##beh.analysis$.plotPhens(allPhenNames = colnames(dataSet)[grepl(pattern="mean", colnames(dataSet))], anexpType = anexpType, dataSet = dataSet, prefix = thename, "bygroup")
-    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
-    df  = rbind(df, out)
     
     allPhenNames = c( "as50.Average_normalized",
-                                        #"as50.Max_normalized",
                       "as50.Latency_normalized")
     
     covariates   = " ~ 1 + as.factor(Batch)  + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1|Chamber) + (1 | Dam.ID) "
     anexpType    = "startle"
-    dataSet     = phen$frame$startle[!duplicated(phen$frame$startle$ID)]
-    df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-    
-    allPhenNames = startlechoice
-
-        ## c("Average",
-        ##                                 # "Max",
-        ##              "Latency")
-    
-    covariates   = " ~ 1 + as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1|Chamber) + (1 | Dam.ID) +(1|ID) "
-    anexpType    = "startle"
-    dataSet      = phen$frame$startle[phen$frame$startle$Group=="PP74"]
-    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
-    out$phenotype = paste0(out$phenotype, "ppi74")
-    ##beh.analysis$.plotPhens(allPhenNames = allPhenNames, anexpType = anexpType, dataSet = dataSet, prefix = thename)
-    
-    df = rbind(df, out)
-	
-    allPhenNames = startlechoice
-        ## "Average",
-        ##                                 # "Max",
-        ## "Latency")
-#	+ Body.Weight..g.
-    covariates   = " ~ 1 + as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1|Chamber) + (1 | Dam.ID) +(1|ID) "
-    anexpType    = "startle"
-    dataSet      = phen$frame$startle[phen$frame$startle$Group=="PP78"]
-    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
-    out$phenotype = paste0(out$phenotype, "ppi78")
-    df = rbind(df, out)
-	
-    allPhenNames =
-        startlechoice
-        c("Average",
-       # "Max",
-        "Latency")
-#	+ Body.Weight..g.
-	covariates   = " ~ 1 + as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1|Chamber) + (1 | Dam.ID) +(1|ID) "
-    anexpType    = "startle"
-    dataSet      = phen$frame$startle[phen$frame$startle$Group=="PP82"]
-    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
-    out$phenotype = paste0(out$phenotype, "ppi82")
-    df = rbind(df, out)
-
-	
-    allPhenNames = startlechoice
-    
-    covariates   = " ~ 1 + as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1|Chamber) + (1 | Dam.ID) +(1|ID) "
-    anexpType    = "startle"
-    dataSet      = phen$frame$startle[phen$frame$startle$Group=="PP86"]
-    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
-    out$phenotype = paste0(out$phenotype, "ppi86")
-    df = rbind(df, out)
-	
-    allPhenNames = startlechoice
-
-    covariates   = " ~ 1 + as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1|Chamber) + (1 | Dam.ID) +(1|ID) "
-    anexpType    = "startle"
-    dataSet      = phen$frame$startle[phen$frame$startle$Group=="PP90"]
-    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
-    out$phenotype = paste0(out$phenotype, "ppi90")
-    df = rbind(df, out)
-    
-    allPhenNames = "Body.Weight..g."
-    covariates   = " ~ 1 +  as.factor(Batch) + Diet  + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
-    anexpType    = "weight"
-    dataSet      =phen$frame$weight
+    dataSet      =  phen$getExperiment(anexpType)
+    dataSet      = dataSet[!duplicated(dataSet$ID)]
     df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
 
-    oneBigFrame = mergeIntoPipelines(phen = phen)    
+    for(pp in c("PP74", "PP78", "PP82", "PP86", "PP90"))
+    {
+        allPhenNames = startlechoice
+        covariates   = " ~ 1 + as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1|Chamber) + (1 | Dam.ID) +(1|ID) "
+        anexpType    = "startle"
+        dataSet      = phen$getExperiment(anexpType)
+        dataSet      = dataSet[dataSet$Group==pp]
+
+        
+        out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
+        out$phenotype = paste0(out$phenotype, "ppi", substr(pp, 3,4))
+    
+        df = rbind(df, out)
+    }
+
+
     pipel1Exp = c("lightdark", "startle", "startleByGroup", "SIH", "swim", "cocaine","weight")
     pipel2Exp = c("openfield", "sociability", "tail", "cort")              
-    #pipel1Exp = unique(unlist(lapply(strsplit(colnames(oneBigFrame$pipel1),split="\\."),"[",1)))
-    #pipel2Exp = unique(unlist(lapply(strsplit(colnames(oneBigFrame$pipel2),split="\\."),"[",1)))
     
     pipel1.ind = df$experiment %in% pipel1Exp
     pipel2.ind = df$experiment %in% pipel2Exp
     df$pipeline = NA
     df$pipeline[pipel1.ind]=1
     df$pipeline[pipel2.ind]=2
+
+    browser()
+##    oneBigFrame = mergeIntoPipelines(phen = phen)    
     
     return(df)    
 }
+
+## fit.lambda = getBestLambda(lambdas = lambdas,
+##                            pheno = pheno,
+##                            covariateModelString = covariates,
+##                            dataSet = dataSet,
+##                            uselme = F,
+##                            normalizeBeforeTransform = T,
+##                            normalizeAfterTransform = T,
+##                            checkAnova = T)
+
 
 ##
 ## Model every phenotype in allPhenNames using the same covariates
@@ -273,7 +193,6 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
     {
         geneName = geneExp$name
         geneExp = geneExp$geneExp
-    
 
         covariates = formulaWrapper$appendEffect("geneExp", covariates)$modified.string
 ##        names(geneExp) = sub(names(geneExp), pattern = "Mouse\\.", replacement = "")
@@ -291,15 +210,16 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
         print("****************************")
         print(anexpType)
         print(pheno)
-        
-        fit.lambda = getBestLambda(lambdas = lambdas,
-                                   pheno = pheno,
-                                   covariateModelString = covariates,
-                                   dataSet = dataSet,
-                                   uselme = F,
-                                   normalizeBeforeTransform = T,
-                                   normalizeAfterTransform = T,
-                                   checkAnova = T)
+
+        nullModelString = NULL
+        fit.lambda = fit.model.bc$fit(y.mat = dataSet[[pheno]],
+                                      cov.data = dataSet,
+                                      covariateModelString = covariates,
+                                      modelParser      = fit.model.bc$getDefaultParser(covariateModelString, nullModelString),
+                                      transformParams  = fit.model.bc$getDefaultTransformParams(),
+                                      checkAnova       = T,
+                                      strategy = fit.modelg$getDefaultModelStrategy(anovaComparison = !is.null(nullModelString),
+                                                                                    prefer.lme = F))[["phen_1"]]
         
         if(is.null(fit.lambda))
         {
@@ -347,11 +267,9 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
 
         tsWrapper = lm.parsing$getTsWrapper(fit.with.interaction)
 
-##        browser()
-        
         df = data.frame(experiment        = anexpType,
                         phenotype         = pheno,
-                        selectedLambda    = as.character(fit.lambda$selectedLambda),
+                        selectedLambda    = as.character(fit.lambda$lambda),
                         model             = modelString,
                         sire.b6.effect    = unname(lm.parsing$getFixefVec(fit.with.interaction, "Sire.is.b6TRUE")),
                         sire.b6.se        = unname(tsWrapper[["ts"]][, tsWrapper[["seCol"]]]["Sire.is.b6TRUE"]),
@@ -427,6 +345,34 @@ beh.analysis$.adjust.pvals <- function(df, phen)
     return(df)
 }
 
+##model every phenotype in allmodels, fitting a frequentist lmer or nlme model
+beh.analysis$fitFreqModels <- function(allmodels, dataSet)
+{
+    outputs = list()
+    for(i in 1:nrow(allmodels))
+    {
+        amodel = allmodels[i,]
+        output = beh.analysis$fitFreqModel(amodel, dataSet)
+        outputs = util$appendToList(outputs, output)
+    }
+    outputs = rbindlist(outputs)
+    return(outputs)
+}
+
+beh.analysis$fitFreqModel <- function(amodel, dataSet)
+{
+
+    
+    specificData = dataSet[[amodel$experiment]]
+    if(amodel$derivedSubset!="")
+    {
+        specificData = specificData[[amodel$derivedSubset]]
+    }
+    
+    afit = fit.model.bc$fit(y.mat = specificData[[amodel$phen]],
+                            cov.data = specificData,
+                            covariateModelString)
+}
 
 
 beh.analysis$.dispSignificantPhen <- function(df,outfile) 
@@ -456,190 +402,70 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile)
     return(df)
 }
 
-#Takes results of generating a full phenotype and evaluates them by looking at pca by strain, by diet, by strain by diet.
-beh.analysis$.evalPCAphen <- function(pipel, breedLog, prefix)
+mergeIntoPipelines <- function(phen)
 {
-    id1 = as.numeric(phen$breedLog$ID[breedLog$Pipeline==1])
-    id2 = as.numeric(phen$breedLog$ID[breedLog$Pipeline==2])
-                                        #TODO bring back if we want to do analysis on single frame
+    browser()
+    prepend = function(fram, prefix)
+    {
 
-    ids = pipel$ID
-    pipel$ID = NULL
-    
-    pcinfo = princomp(pipel, cor = T)
-    pipelall = cbind(ID = ids, pipel, pcinfo$scores)
-    setkey(pipelall, "ID")
-    setkey(breedLog, "ID")
-    
-    pipelall = breedLog[pipelall]
-    pipelall$label = NA
-    pipelall$label[as.character(pipelall$Diet)=="Low Protien"]               = "p"
-    pipelall$label[as.character(pipelall$Diet)=="Control B: Vit D, Low Pro"] = "s"
-    pipelall$label[as.character(pipelall$Diet)=="Vitamin D Deficient"]       = "d"
-    pipelall$label[as.character(pipelall$Diet)=="Control A : Methyl"]        = "m"
-    
+        fram = copy(fram)
+        setnames(fram, setdiff(colnames(fram),"ID"), paste0(prefix, ".", setdiff(colnames(fram),"ID"))) 
+        return(fram)
+    }
+
+    makepipeline = function(phenfull, outcomes)
+    {
+        pipel1 = phenfull[,colnames(phenfull) %in% outcomes, with=F]
+        badIds = unique(pipel1[which(rowSums(is.na(pipel1))>0)]$ID)
+        print("bad ids, bad records")
         
-    aplot = ggplot(pipelall, aes(x=Comp.1, y=Comp.2, shape=as.factor(Sire.is.b6), label=label, color=label))
-    aplot = aplot + geom_text(size=5)
-    pdf(outm( paste0(prefix, "_dietpca.pdf")))
-    print(aplot)
-    dev.off()
+        print(badIds)
+        if(length(badIds)>0)
+        {
+            ##
+        }
+        print(data.frame(pipel1[pipel1$ID %in% badIds]))
+        pipel1 = na.omit(pipel1)
+                                        #pipel1$ID = NULL
+        setkey(pipel1,"ID")
+        return(pipel1)
+    }
     
-    aplot = ggplot(pipelall, aes(x=Comp.1, y=Comp.2, shape=label, label=label, color=as.factor(Sire.is.b6)))
-    aplot = aplot + geom_text(size=5)
-    pdf(outm( paste0(prefix, "_dietstrainpca.pdf")))
-    print(aplot)
-    dev.off()
-}
+    pipelineframes = list()
+    framenames   = list()
+    framenames[[1]] = c("lightdark", "startleByGroup", "SIH", "swim", "cocaine", "weight")
+    framenames[[2]]  = c("openfield", "sociability", "tail", "cort")
+    for (pipeline in c(1,2))
+    {
 
-#Generates plots of phenotype pvalues
-beh.analysis$.plotPhenPVals <- function(df) 
-{
-    pdf(outm( "phen-pvals.pdf"))
-    dfgg = df
-    dfgg$diet.pval         = -log(dfgg$diet.pval,         base = 10)
-    dfgg$strain.pval       = -log(dfgg$strain.pval,       base = 10)
-    dfgg$strainByDiet.pval = -log(dfgg$strainByDiet.pval, base = 10)
-    dfgg = melt(dfgg, id = c("experiment","phenotype"))
-    dfgg$rank = rank(-dfgg$value)
-    aplot = ggplot(dfgg,aes(x=rank, y=value, col = variable))
-    aplot = aplot + geom_point()
-    aplot = aplot + ylab("-log_10.pval")
-    aplot = aplot + xlab("pval rank")
-    aplot = aplot + geom_line(aes(y= -log(.05, base=10)), col="black")
-    print(aplot) 
-    dev.off()
-    
-    pdf(outm( "pvalsPerVariable.pdf"))
-
-    aplot = ggplot(dfgg,aes(x=variable, y=value, col=experiment))
-    aplot = aplot + geom_point()
-    aplot = aplot + geom_line(aes(y= -log(.05, base=10), x=as.numeric(ordered(variable))), col="black")
-    aplot = aplot + ylab("-log_10.pval")
-    aplot = aplot + xlab("variable")
-    print(aplot)
-    dev.off()
-}
-
-beh.analysis$.plotCokeData.bydiet <- function(phen) 
-{
-    pdf(outm("cocaine123_bydiet.pdf"))
-    coke.ggpf = data.frame(phen$frame$cocaine)
-    coke.ggpf       = coke.ggpf[ ,c("Diet", "Sire.is.b6", "dist_d1","dist_d2", "dist_d3")]
-    
-    coke.ggpf       = melt(coke.ggpf, c("Diet","Sire.is.b6"))
-    coke.ggpf = data.table(coke.ggpf)
-    
-    coke.ggpf = coke.ggpf[,list(
-        dist_mean = mean(value), 
-        dist_sd   = sd(value)),
-        by=c("Diet", "Sire.is.b6", "variable")]
-    
-    limits = aes(ymax=dist_mean+1*dist_sd, ymin=dist_mean-1*dist_sd)
-    
-    coke.ggpf  = data.table(coke.ggpf)
-    aplot = ggplot(coke.ggpf, aes(x=variable, y=dist_mean, col=Sire.is.b6, group=interaction(Sire.is.b6, Diet)))
-                                        #aplot = aplot + geom_jitter(position = position_jitter(width = .2))
-    aplot = aplot + geom_point() +geom_line() +facet_wrap(~ Diet)
-    aplot = aplot + geom_errorbar(limits, width=.25)
-    print(aplot)
-    dev.off()
-}
-
-beh.analysis$.plotCokeData <- function(phen) 
-{
-    pdf(outm( "cocaine123.pdf"))
-    coke.ggpf = data.frame(phen$frame$cocaine)
-    coke.ggpf = coke.ggpf[ ,c( "Sire.is.b6", "dist_d1","dist_d2", "dist_d3")]
+        for(aframename in framenames[[pipeline]])
+        {
+            aframe = phen$getExperiment(aframename)
+            aframe = aframe[,c("ID",phen$selectedoutcome[[aframename]]),with=F] ##or rawoutcome
+            print(paste0("!!!!!!!", aframename))
+            aframe = prepend(copy(aframe), aframename)
             
-    coke.ggpf = melt(coke.ggpf, c("Sire.is.b6"))
-    coke.ggpf = data.table(coke.ggpf)
+            
+            if(length(pipelineframes)>=pipeline)
+            {
+                pipelineframes[[pipeline]] = merge(pipelineframes[[pipeline]], aframe, all = T)
+            } else {
+                pipelineframes[[pipeline]] = aframe
+            }
+        }
+        pipelineframes[[pipeline]] = makepipeline(pipelineframes[[pipeline]], colnames(pipelineframes[[pipeline]])) 
+    }
     
-    coke.ggpf = coke.ggpf[,list(
-        dist_mean = mean(value), 
-        dist_sd   = sd(value)),
-        by=c("Sire.is.b6", "variable")]
+    pipel1full = phen$breedLog[pipelineframes[[1]], all=T]
+    pipel2full = phen$breedLog[pipelineframes[[2]], all=T]
     
-    limits = aes(ymax=dist_mean+1*dist_sd, ymin=dist_mean-1*dist_sd)
-    
-    coke.ggpf  = data.table(coke.ggpf)
-    aplot = ggplot(coke.ggpf, aes(x=variable, y=dist_mean, col=Sire.is.b6, group=interaction(Sire.is.b6)))
-                                        #aplot = aplot + geom_jitter(position = position_jitter(width = .2))
-    aplot = aplot + geom_point() +geom_line()
-    aplot = aplot + geom_errorbar(limits, width=.25)
-    print(aplot)
-    dev.off()
+    return(list(pipel1=pipelineframes[[1]], pipel2=pipelineframes[[2]], pipel1full = pipel1full, pipel2full = pipel2full))
 }
 
-beh.analysis$.plotSIH <- function(phen) 
-{
-    pdf(outm("sih.1.2.pdf"))
-    sih.ggpf = data.frame(phen$frame$SIH)
-    sih.ggpf$Batch = factor(sih.ggpf$Batch)
-    sih.ggpf       = sih.ggpf[ ,c("ID", "Batch", "Order", "Diet", "Sire.is.b6", "temp.1","temp.2")]
-                                        #sih.ggpf$interactTerm = factor(paste0(sih.ggpf$diet, sih.ggpf$Sire.is.b6))
-    sih.ggpf       = melt(sih.ggpf, c("ID","Batch", "Order", "Diet","Sire.is.b6"))
-    aplot = ggplot(sih.ggpf, aes(x=Sire.is.b6, y=value, col=variable))
-    aplot = aplot + geom_jitter(position = position_jitter(width = .2))
-                                        #sih.ggpf       = sih.ggpf[sih.ggpf$variable %in% c("temp.1","temp.2"),]
-    aplot = aplot + geom_point()
-    print(aplot)
-    dev.off()
-	
-    pdf(outm( "sih.1.2.parcoord.pdf"))
-    sih.ggpf = data.frame(phen$frame$SIH)
-    sih.ggpf$Batch = factor(sih.ggpf$Batch)
-    sih.ggpf       = sih.ggpf[ ,c("ID", "Batch", "Diet", "Sire.is.b6", "temp.1","temp.2")]
-#sih.ggpf$interactTerm = factor(paste0(sih.ggpf$diet, sih.ggpf$Sire.is.b6))
-    sih.ggpf       = melt(sih.ggpf, c("ID","Batch","Diet","Sire.is.b6"))
-    sih.ggpf  = data.table(sih.ggpf)
-    setkey(sih.ggpf, ID, variable)
-    aplot = ggplot(sih.ggpf, aes(x=variable, y=value, group=ID, col=Sire.is.b6))
-#aplot = aplot + geom_jitter(position = position_jitter(width = .2))
-#sih.ggpf       = sih.ggpf[sih.ggpf$variable %in% c("temp.1","temp.2"),]
-    aplot = aplot + geom_point()+geom_line(aes(x=as.numeric(variable), y=value))
-    print(aplot)
-    dev.off()
-    
-    pdf(outm("sih.delta.pdf"))
-    sih.ggpf = data.frame(phen$frame$SIH)
-    sih.ggpf$Batch = factor(sih.ggpf$Batch)
-    sih.ggpf       = sih.ggpf[ ,c("ID", "Batch", "Diet", "Sire.is.b6", "Difference")]
-#sih.ggpf$interactTerm = factor(paste0(sih.ggpf$diet, sih.ggpf$Sire.is.b6))
-    sih.ggpf       = melt(sih.ggpf, c("ID","Batch","Diet","Sire.is.b6"))
-    aplot = ggplot(sih.ggpf, aes(x=Sire.is.b6, y=value, col=variable))
-    aplot = aplot + geom_jitter(position = position_jitter(width = .2))
-#sih.ggpf       = sih.ggpf[sih.ggpf$variable %in% c("temp.1","temp.2"),]
-    aplot = aplot + geom_point()
-    print(aplot)
-    dev.off()
-    
-    pdf(outm( "sih1.vs.order"))
-    plot(phen$frame$SIH$Order, phen$frame$SIH$temp.1,xlab="order", ylab="sih1")
-    dev.off()
-}
 
-beh.analysis$.plotVarianceExplained <- function(df1)
-{
-    colz = colnames(df1)[grepl(pattern = "varexp", colnames(df1))]
-## colz = setdiff(colz, "var.intercept")
-    melted = melt.data.table(data.table(df1), measure.vars = colz, value.name="varexplained", variable.factor=F, variable.name="vartype")
-    aplot = ggplot(melted)
-    aplot = aplot + geom_histogram(aes(x=varexplained, y=..density..))
-    aplot = aplot + facet_grid(.~vartype )
-    pdf(width=15, height = 9, outm( "behaviorVarianceHistograms.pdf"))
-    print(aplot)
-    dev.off()
 
-    pdf(outm( "varianceCors.pdf"))
-    acor = cor(df1[,colz])
 
-    corrplot(acor, method="ellipse")
-    dev.off()
-    pdf(outm( "behviorVarianceScatter.pdf"))
-    plot(df1[,colz])
-    dev.off()
-}
+
 
 beh.analysis$nameMap <- function()
 {
@@ -687,7 +513,6 @@ beh.analysis$.plotIntraPipelineCorrelations <- function(merged)
 
     dfm$startle.Average_mean_No_Stim = NULL
     
-    browser()
     setnames(dfm, old = names(beh.analysis$nameMap), new = beh.analysis$nameMap)
                         
     colinds = 1:ncol(dfm)
@@ -702,11 +527,6 @@ beh.analysis$.plotIntraPipelineCorrelations <- function(merged)
     colinds[c3] = c4
     dfm = dfm[,colinds, with = F]
 
-                      
-                      
-                     
-    
-
     c1 = cor(dfm)
     write.table(c1, file = outm( "pipel1cor.csv"),row.names=T, sep=",")
 
@@ -717,8 +537,6 @@ beh.analysis$.plotIntraPipelineCorrelations <- function(merged)
 
     dfm = merged$pipel2[,lapply(.SD, mean), by = ID]
     dfm = data.frame(dfm[,-1, with=F])
-    
-    browser()
     
     c1  = which(colnames(dfm)== "cort.Ten.min")
     c2  = which(colnames(dfm)== "cort.baseline")
@@ -751,3 +569,190 @@ beh.analysis$.getTopHits <- function(results, vartype)
     return(tophits)
 }
 
+
+
+
+## #Generates plots of phenotype pvalues
+## beh.analysis$.plotPhenPVals <- function(df) 
+## {
+##     pdf(outm( "phen-pvals.pdf"))
+##     dfgg = df
+##     dfgg$diet.pval         = -log(dfgg$diet.pval,         base = 10)
+##     dfgg$strain.pval       = -log(dfgg$strain.pval,       base = 10)
+##     dfgg$strainByDiet.pval = -log(dfgg$strainByDiet.pval, base = 10)
+##     dfgg = melt(dfgg, id = c("experiment","phenotype"))
+##     dfgg$rank = rank(-dfgg$value)
+##     aplot = ggplot(dfgg,aes(x=rank, y=value, col = variable))
+##     aplot = aplot + geom_point()
+##     aplot = aplot + ylab("-log_10.pval")
+##     aplot = aplot + xlab("pval rank")
+##     aplot = aplot + geom_line(aes(y= -log(.05, base=10)), col="black")
+##     print(aplot) 
+##     dev.off()
+    
+##     pdf(outm( "pvalsPerVariable.pdf"))
+
+##     aplot = ggplot(dfgg,aes(x=variable, y=value, col=experiment))
+##     aplot = aplot + geom_point()
+##     aplot = aplot + geom_line(aes(y= -log(.05, base=10), x=as.numeric(ordered(variable))), col="black")
+##     aplot = aplot + ylab("-log_10.pval")
+##     aplot = aplot + xlab("variable")
+##     print(aplot)
+##     dev.off()
+## }
+
+## beh.analysis$.plotCokeData.bydiet <- function(phen) 
+## {
+##     pdf(outm("cocaine123_bydiet.pdf"))
+##     coke.ggpf = data.frame(phen$frame$cocaine)
+##     coke.ggpf       = coke.ggpf[ ,c("Diet", "Sire.is.b6", "dist_d1","dist_d2", "dist_d3")]
+    
+##     coke.ggpf       = melt(coke.ggpf, c("Diet","Sire.is.b6"))
+##     coke.ggpf = data.table(coke.ggpf)
+    
+##     coke.ggpf = coke.ggpf[,list(
+##         dist_mean = mean(value), 
+##         dist_sd   = sd(value)),
+##         by=c("Diet", "Sire.is.b6", "variable")]
+    
+##     limits = aes(ymax=dist_mean+1*dist_sd, ymin=dist_mean-1*dist_sd)
+    
+##     coke.ggpf  = data.table(coke.ggpf)
+##     aplot = ggplot(coke.ggpf, aes(x=variable, y=dist_mean, col=Sire.is.b6, group=interaction(Sire.is.b6, Diet)))
+##                                         #aplot = aplot + geom_jitter(position = position_jitter(width = .2))
+##     aplot = aplot + geom_point() +geom_line() +facet_wrap(~ Diet)
+##     aplot = aplot + geom_errorbar(limits, width=.25)
+##     print(aplot)
+##     dev.off()
+## }
+
+## beh.analysis$.plotCokeData <- function(phen) 
+## {
+##     pdf(outm( "cocaine123.pdf"))
+##     coke.ggpf = data.frame(phen$frame$cocaine)
+##     coke.ggpf = coke.ggpf[ ,c( "Sire.is.b6", "dist_d1","dist_d2", "dist_d3")]
+            
+##     coke.ggpf = melt(coke.ggpf, c("Sire.is.b6"))
+##     coke.ggpf = data.table(coke.ggpf)
+    
+##     coke.ggpf = coke.ggpf[,list(
+##         dist_mean = mean(value), 
+##         dist_sd   = sd(value)),
+##         by=c("Sire.is.b6", "variable")]
+    
+##     limits = aes(ymax=dist_mean+1*dist_sd, ymin=dist_mean-1*dist_sd)
+    
+##     coke.ggpf  = data.table(coke.ggpf)
+##     aplot = ggplot(coke.ggpf, aes(x=variable, y=dist_mean, col=Sire.is.b6, group=interaction(Sire.is.b6)))
+##                                         #aplot = aplot + geom_jitter(position = position_jitter(width = .2))
+##     aplot = aplot + geom_point() +geom_line()
+##     aplot = aplot + geom_errorbar(limits, width=.25)
+##     print(aplot)
+##     dev.off()
+## }
+
+## beh.analysis$.plotSIH <- function(phen) 
+## {
+##     pdf(outm("sih.1.2.pdf"))
+##     sih.ggpf = data.frame(phen$frame$SIH)
+##     sih.ggpf$Batch = factor(sih.ggpf$Batch)
+##     sih.ggpf       = sih.ggpf[ ,c("ID", "Batch", "Order", "Diet", "Sire.is.b6", "temp.1","temp.2")]
+##                                         #sih.ggpf$interactTerm = factor(paste0(sih.ggpf$diet, sih.ggpf$Sire.is.b6))
+##     sih.ggpf       = melt(sih.ggpf, c("ID","Batch", "Order", "Diet","Sire.is.b6"))
+##     aplot = ggplot(sih.ggpf, aes(x=Sire.is.b6, y=value, col=variable))
+##     aplot = aplot + geom_jitter(position = position_jitter(width = .2))
+##                                         #sih.ggpf       = sih.ggpf[sih.ggpf$variable %in% c("temp.1","temp.2"),]
+##     aplot = aplot + geom_point()
+##     print(aplot)
+##     dev.off()
+	
+##     pdf(outm( "sih.1.2.parcoord.pdf"))
+##     sih.ggpf = data.frame(phen$frame$SIH)
+##     sih.ggpf$Batch = factor(sih.ggpf$Batch)
+##     sih.ggpf       = sih.ggpf[ ,c("ID", "Batch", "Diet", "Sire.is.b6", "temp.1","temp.2")]
+## #sih.ggpf$interactTerm = factor(paste0(sih.ggpf$diet, sih.ggpf$Sire.is.b6))
+##     sih.ggpf       = melt(sih.ggpf, c("ID","Batch","Diet","Sire.is.b6"))
+##     sih.ggpf  = data.table(sih.ggpf)
+##     setkey(sih.ggpf, ID, variable)
+##     aplot = ggplot(sih.ggpf, aes(x=variable, y=value, group=ID, col=Sire.is.b6))
+## #aplot = aplot + geom_jitter(position = position_jitter(width = .2))
+## #sih.ggpf       = sih.ggpf[sih.ggpf$variable %in% c("temp.1","temp.2"),]
+##     aplot = aplot + geom_point()+geom_line(aes(x=as.numeric(variable), y=value))
+##     print(aplot)
+##     dev.off()
+    
+##     pdf(outm("sih.delta.pdf"))
+##     sih.ggpf = data.frame(phen$frame$SIH)
+##     sih.ggpf$Batch = factor(sih.ggpf$Batch)
+##     sih.ggpf       = sih.ggpf[ ,c("ID", "Batch", "Diet", "Sire.is.b6", "Difference")]
+## #sih.ggpf$interactTerm = factor(paste0(sih.ggpf$diet, sih.ggpf$Sire.is.b6))
+##     sih.ggpf       = melt(sih.ggpf, c("ID","Batch","Diet","Sire.is.b6"))
+##     aplot = ggplot(sih.ggpf, aes(x=Sire.is.b6, y=value, col=variable))
+##     aplot = aplot + geom_jitter(position = position_jitter(width = .2))
+## #sih.ggpf       = sih.ggpf[sih.ggpf$variable %in% c("temp.1","temp.2"),]
+##     aplot = aplot + geom_point()
+##     print(aplot)
+##     dev.off()
+    
+##     pdf(outm( "sih1.vs.order"))
+##     plot(phen$frame$SIH$Order, phen$frame$SIH$temp.1,xlab="order", ylab="sih1")
+##     dev.off()
+## }
+
+## beh.analysis$.plotVarianceExplained <- function(df1)
+## {
+##     colz = colnames(df1)[grepl(pattern = "varexp", colnames(df1))]
+## ## colz = setdiff(colz, "var.intercept")
+##     melted = melt.data.table(data.table(df1), measure.vars = colz, value.name="varexplained", variable.factor=F, variable.name="vartype")
+##     aplot = ggplot(melted)
+##     aplot = aplot + geom_histogram(aes(x=varexplained, y=..density..))
+##     aplot = aplot + facet_grid(.~vartype )
+##     pdf(width=15, height = 9, outm( "behaviorVarianceHistograms.pdf"))
+##     print(aplot)
+##     dev.off()
+
+##     pdf(outm( "varianceCors.pdf"))
+##     acor = cor(df1[,colz])
+
+##     corrplot(acor, method="ellipse")
+##     dev.off()
+##     pdf(outm( "behviorVarianceScatter.pdf"))
+##     plot(df1[,colz])
+##     dev.off()
+## }
+
+## #Takes results of generating a full phenotype and evaluates them by looking at pca by strain, by diet, by strain by diet.
+## beh.analysis$.evalPCAphen <- function(pipel, breedLog, prefix)
+## {
+##     id1 = as.numeric(phen$breedLog$ID[breedLog$Pipeline==1])
+##     id2 = as.numeric(phen$breedLog$ID[breedLog$Pipeline==2])
+##                                         #TODO bring back if we want to do analysis on single frame
+
+##     ids = pipel$ID
+##     pipel$ID = NULL
+    
+##     pcinfo = princomp(pipel, cor = T)
+##     pipelall = cbind(ID = ids, pipel, pcinfo$scores)
+##     setkey(pipelall, "ID")
+##     setkey(breedLog, "ID")
+    
+##     pipelall = breedLog[pipelall]
+##     pipelall$label = NA
+##     pipelall$label[as.character(pipelall$Diet)=="Low Protien"]               = "p"
+##     pipelall$label[as.character(pipelall$Diet)=="Control B: Vit D, Low Pro"] = "s"
+##     pipelall$label[as.character(pipelall$Diet)=="Vitamin D Deficient"]       = "d"
+##     pipelall$label[as.character(pipelall$Diet)=="Control A : Methyl"]        = "m"
+    
+        
+##     aplot = ggplot(pipelall, aes(x=Comp.1, y=Comp.2, shape=as.factor(Sire.is.b6), label=label, color=label))
+##     aplot = aplot + geom_text(size=5)
+##     pdf(outm( paste0(prefix, "_dietpca.pdf")))
+##     print(aplot)
+##     dev.off()
+    
+##     aplot = ggplot(pipelall, aes(x=Comp.1, y=Comp.2, shape=label, label=label, color=as.factor(Sire.is.b6)))
+##     aplot = aplot + geom_text(size=5)
+##     pdf(outm( paste0(prefix, "_dietstrainpca.pdf")))
+##     print(aplot)
+##     dev.off()
+## }
