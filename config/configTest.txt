@@ -1,0 +1,8 @@
+
+#########  OVERRIDES   ###############
+dataDir                           : ../test/data/
+numRIXPerSet                       : 2
+numRIXSetsPerRandomSearch          : 100
+
+existingP1                         : []
+existingP2                         : []

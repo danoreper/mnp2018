@@ -1,0 +1,9 @@
+onCluster: yes #yes
+system.type: longleaf
+tmpdir: /pine/scr/d/o/doreper/scm_tmpdir
+## output: ../outputLong
+
+## mnp:
+##   mode: INTERACTION
+##   output: ../outputLong/mnp
+

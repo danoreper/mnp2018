@@ -1,0 +1,101 @@
+resources: /nas/depts/006/valdar-lab/users/doreper/resources	
+
+saveIntermediates: yes ##yes					
+
+data:   ../data
+tmpdir: /netscr/doreper/tmp
+onCluster: yes #yes #yes
+system.type: killdevil
+output: ../outputdel
+
+mnp:
+  data:   ../data/mnp
+  output: ../outputdel/mnp
+  mc.cores: 1 #5
+  limit: .na
+  SSVA.numperm: 400 #400 #400 #100 #100 ##400 #20
+
+  tiny: no
+  freed: no #no
+  ssva.resid: yes    
+  synch: yes
+  mode: ALL
+
+  evalprobelimit: .na
+  recomputeProbeInfo: no
+
+crowley:
+  ## The type of surrogate variable computation. Options include SSVA, SVA, and SSVA_perm
+  surrogat: SSVA	
+  num.sv: 7 
+
+  ## Number of probesets which will be modelled, and in which we will test for significance of POE
+  limit: .na ##20  ##.na    ## .na is yaml version of NA
+
+  mc.cores: 1 #3
+
+
+external:
+  kallisto: kallisto
+  bowtie: bowtie
+  #bam.to.emase: /nas/depts/006/valdar-lab/users/doreper/emase/scripts/bam-to-emase
+  bam.to.emase: bam-to-emase
+  combine.emase.files: combine-emase-files
+  run.emase: run-emase
+  gbrs: gbrs
+  samtools: samtools
+  featureCounts: featureCounts    
+
+
+variantdb:
+  dbfolder: isvdb-test
+  ##num variants allowed
+  var_limit: .na
+  ##num cc lines allowed
+  cc_limit: .na
+  chr_range: .na
+  # - '16'
+  # - '17'
+  # - '18'
+  # - '19'
+  # - 'X'
+  # - 'Y'
+  # - 'MT'
+  # - '1'
+  # - '2'
+  # - '3'
+  # - '4'
+  # - '5'
+  # - '6'
+  # - '7'
+  # - '8'
+  # - '9'
+  # - '10'
+
+  full:
+    name: full_1410
+    rebuildVCF: yes
+    rebuildFounder: yes
+    rebuildCC: yes
+
+  exon:
+    name: exon_1410
+    rebuildVCF: no
+    rebuildFounder: yes
+    rebuildCC: yes
+
+  imprinted:
+    name: imprinted_1410
+    rebuildVCF: yes
+    rebuildFounder: yes
+    rebuildCC: yes
+ 
+ovx:
+  numPerm: 1000
+  numImp: 500
+  iter: 20000
+  mc.cores: 1        
+  rebuildData: yes
+  normalizeBeforeTransform: no
+  normalizeAfterTransform: no
+

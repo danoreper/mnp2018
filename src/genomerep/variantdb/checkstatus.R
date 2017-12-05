@@ -1,0 +1,1 @@
+eval(parse(text=gsub(gsub(gsub(system("sudo du -hs /data/mysql/* |sort -h|cut -f1| paste -sd+", intern=T), pattern="G", replacement=""), pattern = "M", replacement = "/1000"), pattern="K", replacement = "/1000000")))-406

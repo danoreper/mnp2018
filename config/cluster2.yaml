@@ -1,0 +1,26 @@
+external:
+  kallisto: kallisto
+  bowtie: bowtie
+  #bam.to.emase: /nas/depts/006/valdar-lab/users/doreper/emase/scripts/bam-to-emase
+  bam.to.emase: bam-to-emase
+  combine.emase.files: combine-emase-files
+  run.emase: run-emase
+  gbrs: gbrs
+
+output: ../outputBig
+tmpdir: ../outputBig/tmp
+onCluster: yes
+
+mnp:
+  mc.cores: 4
+  limit: .na
+  evalprobelimit: .na #10000 .na
+  recomputeProbeInfo: no
+  output: ../outkill
+  computeBehaviorCor: no
+  SSVA.numperm: 20
+
+ovx:
+  numPerm: 1000
+  numImp: 1000
+  iter: 20000

@@ -1,0 +1,134 @@
+
+
+model {
+
+    ##################################
+    ##  Priors for intercept
+    ##############################
+    intercept[1] ~ dnorm(0, .000001)
+    intercept[2] ~ dnorm(0, .000001)
+
+    ###################################
+    ## f.Batch Effect
+    ##################################
+    ## i=1 for direct effects, i=2 for effects on mediator
+    precision.Batch <- .0000001
+    for(i in 1:2)
+    {
+        f.Batch[i,1]  <- 0
+	for(j in 2:n.Batch)
+	{
+             f.Batch[i,j] ~ dnorm(0, precision.Batch)
+        }
+    }
+
+    #################################
+    ## f.Pipeline Effect
+    ##################################
+    precision.Pipeline <- .0000001
+    for(i in 1:2)
+    {
+        f.Pipeline[i,1]  <- 0
+    	for(j in 2:n.Pipeline)
+    	{
+             f.Pipeline[i,j] ~ dnorm(0, precision.Pipeline)
+        }
+    }
+
+
+    ###################################
+    ## f.Strain Effect
+    ###################################
+    precision.Strain <- .0000001
+    for(i in 1:2)
+    {
+        f.Strain[i,1]  <- 0
+    	for(j in 2:n.Strain)
+    	{
+             f.Strain[i,j] ~ dnorm(0, precision.Strain)
+        }
+    }
+
+
+    ###################################
+    ## f.Diet Effect
+    ##################################
+    precision.Diet <- .0000001
+    for(i in 1:2)
+    {
+        f.Diet[i,1]  <- 0
+    	for(j in 2:n.Diet)
+    	{
+             f.Diet[i,j] ~ dnorm(0, precision.Diet)
+        }
+    }
+
+    ###################################
+    ## f.Strain-by-f.Diet-effect
+    ##################################
+    precision.Strain.Diet <- .0000001
+    for(i in 1:2)
+    {
+        f.Strain.Diet[i,1]  <- 0
+    	for(j in 2:n.Diet)
+    	{
+             f.Strain.Diet[i,j] ~ dnorm(0, precision.Strain.Diet)
+        }
+    }
+
+    ###################################
+    ## dam effect
+    ##################################
+    for(i in 1:2)
+    {
+        std.Dam[i] ~ dunif(0,1000)
+        precision.Dam[i] <- pow(std.Dam[i],-2)
+        for(j in 1:n.Dam.ID)
+    	{
+    	     ranef.Dam[i,j] ~ dnorm(0, precision.Dam[i])
+    	}
+    }
+
+    ############################################################
+    ## Beta- the effect of the mediator m on y.
+    ## Assumed to be independent of all other covariates.
+    ############################################################
+    beta ~ dnorm(0, .0000001)
+    ##beta <- 0
+
+    ############################
+    ## Sigmas for y and mediator.
+    ############################
+    for(i in 1:2)
+    {
+        std.epsilon[i] ~ dunif(0,1000)
+        precision.epsilon[i] <- pow(std.epsilon[i],-2)
+    }
+
+
+    #########################################
+    # Likelihood functions, indexed by s, the sample
+    ###############################################
+    for(s in 1:n)
+    {
+       ##compute the means first
+       for(i in 1:2)
+       {
+       u[i,s] <- intercept[i]                    +
+                 f.Batch[i,       Batch.j[s]]      +
+		 f.Pipeline[i,    Pipeline.j[s]]   +
+
+                 f.Strain[i,      Strain.j[s]]     +
+		 f.Diet[i,        Diet.j[s]]       +
+		 f.Strain.Diet[i, (Strain.j[s]-1)*(Diet.j[s]-1)+1] +
+		 ranef.Dam[i,     Dam.ID.j[s]]
+       }
+
+       ##The mediator likelihood.
+       mediator[s] ~ dnorm(u[2,s], precision.epsilon[2])
+       ##Data likelihood
+       y[s] ~ dnorm(u[1,s] + beta*mediator[s], precision.epsilon[1])
+
+##       epsilon[1,s] <- y[s] - u[1,s]
+    }
+}

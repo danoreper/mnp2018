@@ -1,0 +1,45 @@
+external:
+  kallisto: kallisto
+  bowtie: bowtie
+  #bam.to.emase: /nas/depts/006/valdar-lab/users/doreper/emase/scripts/bam-to-emase
+  bam.to.emase: bam-to-emase
+  combine.emase.files: combine-emase-files
+  run.emase: run-emase
+  gbrs: gbrs
+
+output: ../output2
+tmpdir: ../output2/tmp
+onCluster: no
+
+mnp:
+  mc.cores: 4
+  limit: .na
+  evalprobelimit: .na #10000 .na
+  recomputeProbeInfo: no
+  output: ../outkill
+  computeBehaviorCor: no
+  SSVA.numperm: 20
+
+ovx:
+  numPerm: 1000
+  numImp: 500
+  iter: 20000
+  mc.cores: 47
+  rebuildData: no
+  extra.imp.multiple: 1 
+  normalizeBeforeTransform: no
+  normalizeAfterTransform: no
+  gurka: no
+
+  lambdasToTry:
+  - -3.0
+  - -2.0
+  - -1.0
+  - -0.5
+  - -3.333e-01
+  - 0.0
+  - 5.0e-01       ## floats in a yaml vector are parsed incorrectly if the decimal point is on the front without a 0 after it
+  - 3.33333e-01
+  - 1.0  ## if the decimal point is not included for this number, the vector will load up as a list instead, as the types (integer and float) will be different, and a vector cant hold different types
+  - 2.0
+  - 3.0
