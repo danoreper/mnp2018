@@ -3,10 +3,6 @@ source("./mnp/getExpressionData2.R")
 
 
 
-outb <- function(...)
-{
-    outf("mnp/behavior", ...)
-}
 ##requires gene expression analysis to have already been run; if it hasnt been run, no psids
 psids = NA ##if nothing is loaded, no expression will be considered
 load.flag = try(load(outb("/gold/all2.RData")))
