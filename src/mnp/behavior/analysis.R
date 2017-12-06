@@ -23,12 +23,17 @@ source("./mnp/general.R")
 beh.analysis = new.env(hash=T)
 
 
+outb <- function(...)
+{
+    outf("mnp/behavior", ...)
+}
+
 beh.analysis$runAll <- function(phens)
 {
     df = beh.analysis$run(phens)
     df1 = beh.analysis$.adjust.pvals(df, phens)
-    fname = outm("phenNew.csv")
-    df2= beh.analysis$.dispSignificantPhen(df1, outb(fname))
+    fname = outb("phenNew.csv")
+    df2= beh.analysis$.dispSignificantPhen(df1, fname)
     
     ## merged = beh$.mergeIntoPipelines(phen=phen)
     ## ##PCA analysis of the two pipelines
@@ -164,7 +169,6 @@ beh.analysis$run = function(phen, geneExp = NULL)
     df$pipeline[pipel1.ind]=1
     df$pipeline[pipel2.ind]=2
 
-    browser()
 ##    oneBigFrame = mergeIntoPipelines(phen = phen)    
     
     return(df)    
@@ -315,26 +319,10 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
 beh.analysis$.adjust.pvals <- function(df, phen)
 {
     df = copy(df)
-    oneBigFrame = mergeIntoPipelines(phen = phen)
-    pipel1 = oneBigFrame$pipel1
-    pipel1$ID = NULL
-    pipel1$startle.trialCount = NULL
-    z = princomp(pipel1,cor=T)
-    numPcs1 =which(cumsum(z$sdev^2)/sum(z$sdev^2)>=.95)[1]
-       
-    pipel2 = oneBigFrame$pipel2
-    pipel2$ID = NULL
-    z = princomp(pipel2,cor=T)
 
-    numPcs2 =which(cumsum(z$sdev^2)/sum(z$sdev^2)>=.95)[1]
-    
-    pipel = c(1,2)
-    pcs = c(numPcs1, numPcs2)
-
-    pvalcols = colnames(df)[!colnames(df) %in% c("experiment", "phenotype","sire.b6.effect","sire.b6.se", "pipeline","model","selectedLambda", colnames(df)[grepl("varexp",colnames(df))])]
-
-    
-    for(p in pipel)
+##    browser()
+    pvalcols = c("strain.pval","diet.pval", "strainByDiet.pval", colnames(df)[18:29])
+    for(p in c(1,2))
     {
         for(pvalcol in pvalcols)
         {
@@ -399,6 +387,7 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile)
     }
 
     write.table(df,file=outfile, row.names=F, sep=",")
+##    browser()
     return(df)
 }
 
