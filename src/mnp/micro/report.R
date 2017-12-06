@@ -41,6 +41,8 @@ micro.report$reportAnalysis <- function(exp.mat,
                 row.names=FALSE,sep="\t") 
     
     micro.report$.writeLimitedCols(toWrite, siglevel)
+    micro.report$.writeLimitedCols(toWrite, 1)
+    
 
     write.table(file=outm(paste0("SignifGenes_p_5000_", siglevel, ".csv")), toWrite[minDistToImprinted>5000], row.names=FALSE,sep="\t")
     write.table(file=outm(paste0("SignifGenes_q_5000_", siglevel, ".csv")),
