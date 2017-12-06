@@ -1,7 +1,11 @@
 print("starting")
-####################3 
+#################### 
 # Author: doreper
 ###############################################################################
+##
+## The main entry point for running all analyses
+##
+##
 
 try(rm("prop"))
 sources <- function()
@@ -21,9 +25,12 @@ sources <- function()
 
 sources()
 dir.create(prop$mnp$output, showWarnings = F, recursive = T)
+
+##load inputs to all analysis; microarray, qpcr, behavior. 
 inp  = loadAllData$createAllInputs()
 alphas = c(.05)
 
+#Run microarray expression analysis. If fromFile, load it up from file.
 fromFile = F
 if(!fromFile)
 {
@@ -44,6 +51,7 @@ if(!fromFile)
     sources()
 }
 
+#Generate plots for microarray analysis
 micro.report$reportAnalysis(inp$exp.mat,
                             inp$cov.data.full,
                             out$ident.full$results,
@@ -53,10 +61,17 @@ micro.report$reportAnalysis(inp$exp.mat,
                             out$threshholds,
                             inp$karyo)
 
+##Run qpcr analysis, and also generate plots for Carmil1 and meg3, (on microarray data too)
 qpcr.analysis$run(inp)
 
-beh.analysis$run(inp)
+##Run behavior analysis
+beh.analysis$run(inp$phens)
 
+##Run mediation analysis.
+source("./mnp/mediation/runMedBayes3.R")
+
+##Generate plots of mediation analysis results.
+source("./mnp/mediation/mediationPlots2.R")
 
 
 check.tf <- function()

@@ -171,7 +171,6 @@ getTaqmanData <- function(toExamine)
 
     followup$ID = paste0("Mouse.", followup$ID)
     setkey(followup, "ID")
-
    
     return(followup)
 }
