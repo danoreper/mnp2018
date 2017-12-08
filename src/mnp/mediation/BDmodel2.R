@@ -16,7 +16,7 @@ mnp.med$get.BD.inputBuilder <- function(M.measures, Y.measures, discardMissingGe
         outcomeID = paste0(phenotypeSpec$experiment, "_", phenotypeSpec$phen)
     }
     
-    froot = outm("mediation3")
+    froot = outm("mediation")
     dir.create(froot, showWarnings = F, recursive = T)
     observeInfo = c("Strain.f[1,2]", "Strain.f[2,2]", "Strain.Diet.f", "beta")
 

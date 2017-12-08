@@ -19,16 +19,16 @@ source("./mnp/mediation/mediationBayes3.R")
 
 
 
-strain.results = outm(fp("micro", "effect.table", "p_all_Strain.csv"))
+strain.results = fread(outm(fp("micro", "effect.table", "p_all_Strain.csv")))
 strain.results$Probe.Set.ID = as.character(strain.results$Probe.Set.ID)
 
 cands.all  = as.character(strain.results$Probe.Set.ID)
-cands.imp  = as.character(strain.results[imprinted]$Probe.Set.ID)
+cands.imp  = as.character(strain.results[imprinted=="Y"]$Probe.Set.ID)
 
 cands.lrrc = as.character(strain.results[gene_name=="Lrrc16a"]$Probe.Set.ID)
 cands.airn = "10441787"
 
-tops = strain.results[["-log10.qval"]]< -log10(.05) & strain.results[["imprinted"]]
+tops = strain.results[["-log10.qval"]]> -log10(.05) & strain.results[["imprinted"]]=="Y"
 cands.top =  as.character(strain.results[tops]$Probe.Set.ID)
 
 raw.data.BD = loadAllData$createAllInputs()
@@ -67,7 +67,6 @@ for (i in 1:length(Y.measures.all))
         froot = outm("mediation")
         postfix = paste0(discard, "_", qpcrmerge, "_",  paste(M.measures, collapse=","), "_", paste(Y.measures, collapse = ","))
         tokeep = mnp.med$saveOutputs(output, froot = fp(froot,  postfix))
-##        browser()
         print("all done")
     }
 }
@@ -165,9 +164,8 @@ for (discardMissingGeneExpression in missingGeneExpressions)
             outs = accum$runAll()
             outs = accum$getAllOutputs(outs, removeFailing = T)
             outputs = rbindlist(outs)
-##            browser()
             
-            froot = outm("mediation3")
+            froot = outm("mediation")
             postfix = paste0(discardMissingGeneExpression, "_", qpcrmerge, "_", paste(M.measures, collapse=","), "_", paste(Y.measures, collapse = ","))
             tokeep = mnp.med$saveOutputs(outputs, froot = fp(froot,  postfix))
             tokeep$postfix = postfix
