@@ -799,7 +799,25 @@ plotting$plotPermScan <- function(full,
         ## {
         ##     figh.mult = 2
         ## }
-        pdf(fp(outdir, paste0(plot.type, "_", filterpostfix, ".pdf")),width=figwid, height=figheight*figh.mult)
+
+        plotname = plot.type
+        if(plotname == "Diet.2")
+        {
+            plotname = "Diet"
+        }
+        if(plotname == "Diet.4")
+        {
+            plotname = "Diet_fwersig"
+        }
+
+        if(filterpostfix!="")
+        {
+            fname = fp(outdir, paste0(plotname, "_", filterpostfix, ".pdf"))
+        } else {
+            fname = fp(outdir, paste0(plotname, ".pdf"))
+        }
+
+        pdf(fname,width=figwid, height=figheight*figh.mult)
             
         ##print(aplot)
         grid.draw(aplot.1)
@@ -812,7 +830,7 @@ plotting$buildManyScans <- function(results, outdir, thresh, karyo)
 
     print("building many scans!!!") 
     
-    outdirpeak = file.path(outdir,"/peaks")
+    outdirpeak = fp(outdir,"micro","manhattan")
     
     dir.create(outdir, recursive = T, showWarnings =F)
     dir.create(outdirpeak, recursive = T, showWarnings = F)
@@ -825,7 +843,7 @@ plotting$buildManyScans <- function(results, outdir, thresh, karyo)
     ## fulls[[4]] = full[chrom =="12"]
 ##    fulls[[3]] = full[chrom=="7" & probesetStart>5.92*10^7 & probesetStart<6*10^7]
 ##    fulls[[4]] = full[chrom=="12" & probesetStart>1.096*10^8 & probesetStart<1.098*10^8]
-    nmz = c("all", "_712", "7", "12")
+    nmz = c("", "_712", "7", "12")
     for(i in 1:length(fulls))
     {
         

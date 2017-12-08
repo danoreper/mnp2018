@@ -12,58 +12,34 @@ micro.report$reportAnalysis <- function(exp.mat,
                                         threshholds,
                                         karyo)
 {
-    reportDir = outm("report")
+    reportDir = outm("micro")
     dir.create(reportDir, showWarnings = F)
-    
+
+
     results = micro.report$postProcessResults(originalResults,
                                               annot.data,
                                               cov.data,
                                               probesetInfo)
 
-    
-    fwrite(results$full, fp(reportDir, "fullmerged.csv"), sep ="\t")
-
-    
-    
     ##writing tables to file etc.
     toWrite = results$full
+
     
-    ##TODO write out the effect sizes per effect type as well.
-    write.table(file=outm(paste0("AllGenes.csv")), toWrite, row.names=FALSE,sep="\t")
-    
+    fwrite(file=outm(fp("micro", paste0("all_results.csv"))), toWrite, sep="\t")
+
+        
     siglevel = .05
-    toWrite = toWrite[is.na(anova.p.value)| anova.p.value<=siglevel,]
+##    toWrite = toWrite[is.na(anova.p.value)| anova.p.value<=siglevel,]
     
-    
-    write.table(file=outm( paste0("SignifGenes_p", siglevel, ".csv")), toWrite, row.names=FALSE,sep="\t")
-    write.table(file=outm( paste0("SignifGenes_q", siglevel, ".csv")),
-                toWrite[anova.q.value <= siglevel & is.finite(anova.p.value), ],
-                row.names=FALSE,sep="\t") 
-    
-    micro.report$.writeLimitedCols(toWrite, siglevel)
-    micro.report$.writeLimitedCols(toWrite, 1)
-    
+    plotting$buildManyScans(results = results, outdir=prop$mnp$output, thresh = threshholds, karyo = karyo)
 
-    write.table(file=outm(paste0("SignifGenes_p_5000_", siglevel, ".csv")), toWrite[minDistToImprinted>5000], row.names=FALSE,sep="\t")
-    write.table(file=outm(paste0("SignifGenes_q_5000_", siglevel, ".csv")),
-                toWrite[minDistToImprinted>5000 & anova.q.value <= siglevel & is.finite(anova.p.value), ],
-                row.names=FALSE,sep="\t") 
-
-    micro.report$.writeLimitedCols(toWrite[minDistToImprinted>5000], siglevel)
-
-    plotting$buildManyScans(results = results, outdir=prop$mnp$output, thresh = threshholds,
-                            karyo = karyo)
-
-
-
-    mainReport = fp(reportDir, "report.txt")
+    mainReport = fp(reportDir, "long_summary.txt")
 #    unlink(mainReport)
 #    mainReport = file(mainReport, "w")
 
     toReport = function(str)
     {
         print(str)
-        ##sink(str, con = mainReport)
     }
 
     reportTable = function(df)
@@ -102,7 +78,7 @@ micro.report$reportAnalysis <- function(exp.mat,
     for(analpha in c(.05))##unique(threshholds$permStatistics$alpha))
     {
 
-        for(avar in unique(threshholds$variable))
+        for(avar in c("Diet", "Strain", "Diet:Strain"))#unique(threshholds$variable))
         {
             toReport("                                          ")
             toReport("                                          ")
@@ -110,17 +86,25 @@ micro.report$reportAnalysis <- function(exp.mat,
             toReport(ps("#### variable type: ", avar))
 
             toWrite.sub=toWrite[variable==avar]
-         
+            df = micro.report$.formatTable(toWrite.sub, results$per.variable, results$per.level, avar)
+            dir.create(fp(reportDir, "effect.table"), recursive=T, showWarnings=F)
+
+            pfile = fp(reportDir, "effect.table", paste0("p_all_", avar,".csv"))
+            write.table(file=pfile, df, row.names=FALSE, sep="\t")
+            
+
+  
+
+            
             relevantThresh = threshholds[variable==avar]
             relevantThreshVal  = util$lookupByFloat(df=relevantThresh, floatkeyCol = "alpha", floatkey = analpha, valueCol = "threshhold.gev") 
 
-            
             
             toReport("##Permutation stats")
             toWrite.perm = toWrite.sub[anova.p.value<relevantThreshVal & anova.q.value<analpha]
             
             df = micro.report$.formatTable(toWrite.perm, results$per.variable, results$per.level, avar)
-            pfile = fp(reportDir, paste0("pvals_", avar, "_perm", ".csv"))
+
             
             
             df.summary                = reportTable(df)
@@ -165,7 +149,8 @@ micro.report$reportAnalysis <- function(exp.mat,
             toReport("#p-value table")
             toReport(df)
 
-           
+
+            pfile = fp(reportDir, "effect.table", paste0("p_", analpha, "_", avar, "_fwer", ".csv"))
             ## df$newname = NULL
             
             ## library("ReporteRs")
@@ -176,15 +161,13 @@ micro.report$reportAnalysis <- function(exp.mat,
             
             ## ##                df$Probe.Set.ID = NULL
             ## writeDoc(doc, file = paste(pfile,".docx"))
-            
-            
             write.table(file=pfile, df, row.names=FALSE, sep="\t")
-            ##}                           
+            
             
             toReport("##FDR stats")
             toWrite.fdr   = toWrite.sub[anova.q.value <analpha]
             df = micro.report$.formatTable(toWrite.fdr, results$per.variable, results$per.level, avar, thresh = relevantThreshVal)
-            pfile = fp(reportDir, paste0("pvals_", avar, "_fdr", ".csv"))
+            pfile = fp(reportDir, "effect.table", paste0("p_", analpha, "_",  avar, "_fdr", ".csv"))
 
             df.summary = reportTable(df)
             df.prepend = data.frame(effect.type = avar,
@@ -220,13 +203,13 @@ micro.report$reportAnalysis <- function(exp.mat,
     }
     df.summaries = do.call(rbind, df.summaries)
     df.summaries = data.table(df.summaries, key = c("effect.type", "threshold.type" ))
-    write.table(df.summaries, fp(reportDir, "basic.df.summary.txt"), row.names = F, sep=",")
+    write.table(df.summaries, fp(reportDir, "short_summary.txt"), row.names = F, sep=",")
     sink()
 
 
 ##    write.table(threshholds$permStatistics, sep ="\t", row.names = F, file = outm( "perms.csv")
     
-    plotting$pcaExpression(exp.mat = exp.mat, cov.data = cov.data, prop$mnp$output)
+##    plotting$pcaExpression(exp.mat = exp.mat, cov.data = cov.data, prop$mnp$output)
 
 
 
@@ -397,8 +380,6 @@ micro.report$.writeLimitedCols <- function(sigpq, siglevel)
     limitedCols = c("variable",
                     "anova.p.value",
                     "anova.q.value",
-            ##        "anova.p.value",
-            ##        "anova.q.value",
                     "gene_id",
                     "gene_name",
                     "Probe.Set.ID",
@@ -415,26 +396,30 @@ micro.report$.writeLimitedCols <- function(sigpq, siglevel)
                     "hasvariant",
 
                     "B6.NOD.expression",
-                    "NOD.B6.expression",
-                    "GO.Biological.Process.ID",
-                    "GO.Biological.Process.Term",
-                    "GO.Cellular.Component.ID",
-                    "GO.Cellular.Component.Term",    
-                    "GO.Molecular.Function.ID",
-                    "GO.Molecular.Function.Term",
-                    "Pathway.Name")
+                    "NOD.B6.expression"
+                   ##,
+
+                    ## "GO.Biological.Process.ID",
+                    ## "GO.Biological.Process.Term",
+                    ## "GO.Cellular.Component.ID",
+                    ## "GO.Cellular.Component.Term",    
+                    ## "GO.Molecular.Function.ID",
+                    ## "GO.Molecular.Function.Term",
+                    ## "Pathway.Name"
+                    )
 
     limitedTable = sigpq[,limitedCols, with=F]
 
     setkey(limitedTable, "anova.p.value")
-    write.table(file=outm( paste0("limited_p", siglevel, ".csv")),
+    
+    write.table(file=outm( fp("micro", paste0("sigp_", siglevel, "_allvariables",".csv"))),
                 limitedTable,
                 row.names=FALSE,
                 sep="\t")
     
-    for(variablelevel in unique(limitedTable$variable))
+    for(variablelevel in c("Strain", "Diet", "Diet:Strain"))##unique(limitedTable$variable))
     {
-        outfile = outm(paste0("limited_", variablelevel, "_p_", siglevel, ".csv"))
+        outfile = outm(fp("micro", paste0("sigp_", siglevel, "_", variablelevel, ".csv")))
         subt = limitedTable[limitedTable$variable==variablelevel,] 
         write.table(file= outfile, subt, row.names = F, sep="\t")
     }

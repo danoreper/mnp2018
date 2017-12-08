@@ -20,6 +20,7 @@ toReport = function(str)
 
 qpcr.analysis$run <- function(inp)
 {
+    modes = c(2)
     exp.mat                 = inp$exp.mat
     probesetInfo            = inp$probesetInfo
     goi = c("Lrrc16a", "Meg3", "Rfng")
@@ -51,8 +52,6 @@ qpcr.analysis$run <- function(inp)
 
         m.string = " ~ 1  + Pipeline + Diet + Strain + Strain:Diet + (1|Dam.ID) + (1|batchplate)"
 
-
-        
         regresstypes = list(full = alldata,
                             old = alldata[!is.na(Carmil1.mic)],
                             new = alldata[is.na(Carmil1.mic)])
@@ -100,11 +99,11 @@ qpcr.analysis$run <- function(inp)
 
 ##        results$logp = -log10(results$pvalue)
         
-        write.table(file = outm(paste0(assay,"_qpcr.regressOnStrain.csv")), results, row.names = F)
+        write.table(file = outm(fp("qPCR", paste0(assay,"_qpcr.regressOnStrain.csv"))), results, row.names = F)
         ##TODO: move plotting out of here?
         toplot = alldata
         toplot$y = -toplot$Delta.Ct
-        for(mode in 1:2)
+        for(mode in modes)
         {
             atitle = bquote(italic(.(assay))*": qPCR")
             legend.position = NULL
@@ -117,19 +116,19 @@ qpcr.analysis$run <- function(inp)
             aplot = plot.poe.data(toplot,
                                   ylabel = expression(paste("-", Delta,"Ct")),
                                   atitle = atitle, mode = mode, legend.position = legend.position)
-            show.and.write(aplot, atitle, mode, fname = paste0(assay,".","qPCR"))
+            show.and.write(aplot, atitle, mode, fname = fp("qPCR", paste0(assay,".","qPCR")))
         }
         
         
         toplot = alldata
         toplot$y = alldata[[paste0(assay, ".mic")]]
-        for(mode in 1:2)
+        for(mode in modes)
         {
             print(paste0("mode=",mode))
             atitle = bquote(italic(.(assay))*": microarray")
             alabel = bquote("log"[2] * "(expression)")
             aplot = plot.poe.data(toplot, ylabel = alabel, atitle = atitle, mode = mode)
-            show.and.write(aplot, atitle, mode, fname = paste0(assay,".","micro"))
+            show.and.write(aplot, atitle, mode, fname = fp("micro", paste0(assay,".","micro")))
         }
         resultsAll = util$appendToList(resultsAll, results)
     }

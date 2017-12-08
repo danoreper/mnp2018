@@ -18,30 +18,23 @@ source("./bayes/processSamples.R")
 source("./mnp/mediation/mediationBayes3.R")
 
 
-## outm = function(...)
-## {
-##     outf("mnp", ...)
-## }
 
-## datm = function(...)
-## {
-##     dat("mnp", ...)
-## }
-
-
-strain.results = fread(datm("2017-05_strainResults.csv"))
+strain.results = outm(fp("micro", "effect.table", "p_all_Strain.csv"))
 strain.results$Probe.Set.ID = as.character(strain.results$Probe.Set.ID)
-cands.lrrc = as.character(strain.results[gene_name=="Lrrc16a"]$Probe.Set.ID)
-cands.top =  as.character(strain.results[anova.q.value<.05 & minDistToImprinted<5000]$Probe.Set.ID)
-cands.all  = as.character(strain.results$Probe.Set.ID)
-cands.imp  = as.character(strain.results[minDistToImprinted<5000]$Probe.Set.ID)
-cands.airn = "10441787"
-raw.data.BD = loadAllData$createAllInputs()
-phenrepo    = raw.data.BD$phens ##loadBehavior$getPhenotypeRepository()
 
+cands.all  = as.character(strain.results$Probe.Set.ID)
+cands.imp  = as.character(strain.results[imprinted]$Probe.Set.ID)
+
+cands.lrrc = as.character(strain.results[gene_name=="Lrrc16a"]$Probe.Set.ID)
+cands.airn = "10441787"
+
+tops = strain.results[["-log10.qval"]]< -log10(.05) & strain.results[["imprinted"]]
+cands.top =  as.character(strain.results[tops]$Probe.Set.ID)
+
+raw.data.BD = loadAllData$createAllInputs()
+phenrepo    = raw.data.BD$phens 
 
 print("Expression Mediation")
-
 
 ############################################
 print("running BD expression analysis")
@@ -71,7 +64,7 @@ for (i in 1:length(Y.measures.all))
         output = mnp.med$run(inputBuilder = BD.inputbuilder, mediator.ids = cands.all, original.strain.results = strain.results)
         output = output[moderators == "Diet=Ave"]
 
-        froot = outm("mediation3")
+        froot = outm("mediation")
         postfix = paste0(discard, "_", qpcrmerge, "_",  paste(M.measures, collapse=","), "_", paste(Y.measures, collapse = ","))
         tokeep = mnp.med$saveOutputs(output, froot = fp(froot,  postfix))
 ##        browser()

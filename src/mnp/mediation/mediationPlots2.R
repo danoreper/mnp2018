@@ -11,7 +11,7 @@ source("./mnp/micro/preprocess/extractFromProbes.R")
 
 getFile = function( mediator, outcome, discardMissing, mergeQPCR)
 {
-    froot = fp(prop$mnp$output, "mediation3")
+    froot = fp(prop$mnp$output, "mediation")
     if(outcome == "behavior")
     {
         fle = fp(froot, paste0(discardMissing, "_", mergeQPCR, "_", mediator,"_",outcome),"mediationAll.csv")
@@ -181,7 +181,7 @@ limitedPhen = beh[strain.pval =="o" | grepl(pattern = "\\*", strain.pval)]
 limitedPhen = paste0(limitedPhen$experiment, "_", limitedPhen$phenotype)
 ##limitedPhen = setdiff(limitedPhen, c("PC1", "PC2"))
 
-outdir = fp(outm("mediation3", "plots"))
+outdir = fp(outm("mediation", "plots"))
 raw.data = loadAllData$createAllInputs()
 lrrc16a  = getProbesetId(raw.data$probesetInfo, "Lrrc16a")
 airn     = "10441787"

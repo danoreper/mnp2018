@@ -146,6 +146,7 @@ beh.analysis$run = function(phen, geneExp = NULL)
 
     for(pp in c("PP74", "PP78", "PP82", "PP86", "PP90"))
     {
+        print(pp)
         allPhenNames = startlechoice
         covariates   = " ~ 1 + as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1|Chamber) + (1 | Dam.ID) +(1|ID) "
         anexpType    = "startle"
@@ -320,7 +321,6 @@ beh.analysis$.adjust.pvals <- function(df, phen)
 {
     df = copy(df)
 
-##    browser()
     pvalcols = c("strain.pval","diet.pval", "strainByDiet.pval", colnames(df)[18:29])
     for(p in c(1,2))
     {
@@ -387,7 +387,6 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile)
     }
 
     write.table(df,file=outfile, row.names=F, sep=",")
-##    browser()
     return(df)
 }
 

@@ -25,29 +25,31 @@ sources <- function()
 
 sources()
 dir.create(prop$mnp$output, showWarnings = F, recursive = T)
+dir.create(fp(prop$mnp$output,"micro"), showWarnings = F, recursive = T)
 
 ##load inputs to all analysis; microarray, qpcr, behavior. 
 inp  = loadAllData$createAllInputs()
 alphas = c(.05)
 
 #Run microarray expression analysis. If fromFile, load it up from file.
-fromFile = F
+fromFile = T
 if(!fromFile)
 {
     print("running no perm")
     out = micro.analysis$run.noperm(inp)
     print("done running no perm")
-    util$save(list =ls(), file = outm("noperm.RData"))
+    
+    util$save(list =ls(), file = outm(fp("micro", "noperm.RData")))
     
     if(prop$mnp$SSVA.numperm>0)
     {
         print("running all perms")
         out = micro.analysis$runallPerms(inp)
         print("done all perms")
-        util$save(file = outm("perm.RData"), list = ls())
+        util$save(file = outm(fp("micro", "perm.RData")), list = ls())
     }
 } else {
-    load(outm("perm.RData"))
+    load(outm(fp("micro","perm.RData")))
     sources()
 }
 
@@ -65,8 +67,9 @@ micro.report$reportAnalysis(inp$exp.mat,
 qpcr.analysis$run(inp)
 
 ##Run behavior analysis
-beh.analysis$run(inp$phens)
-
+beh.analysis$runAll(inp$phens)
+print("done with behavior")
+browser()
 ##Run mediation analysis.
 source("./mnp/mediation/runMedBayes3.R")
 

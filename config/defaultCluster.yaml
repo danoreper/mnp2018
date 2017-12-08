@@ -6,11 +6,11 @@ data:   ../data
 tmpdir: /netscr/doreper/tmp
 onCluster: yes  #yes
 system.type: killdevil
-output: ../outputfinal
+output: ../output ##../outputfinal
 
 mnp:
   data:   ../data/mnp
-  output: ../outputfinal/mnp
+  output: ../output/mnp ##../outputfinal/mnp
   mc.cores: 1 #5
   limit: .na
   SSVA.numperm: 400 #20
