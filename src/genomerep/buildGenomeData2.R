@@ -24,7 +24,6 @@ buildGenomeData$buildAllData=function(buildVariantDb = F)
     genomeData = new.env(hash=T)
 
     genomeData$founders = read.table(dat(prop$genome$foundersMap),header=T, sep=",")$founder
-    ##genomeData$karyotype = buildGenomeData$getKaryotype(dat( prop$genome$dnaReferenceFile))
     genomeData$karyotype = buildGenomeData$getKaryotype(dat( prop$genome$karyotype))
 
     genomeData$snords = buildGenomeData$getSnords()
@@ -149,19 +148,6 @@ buildGenomeData$getGeneInfo <- function(gtfFile = dat( prop$genome$exonReference
     return(geneRanges)
 }
 
-## ##create a data frame containing length per chromosome
-## buildGenomeData$getKaryotype <- function(referenceFile =  dat(prop$genome$dnaReferenceFile)) 
-## {
-##     refstring = readDNAStringSet(referenceFile)
-##     chrname   = strsplit(names(refstring), " ")
-##     chrname   = unlist(lapply(chrname, "[", 1))
-##     lengths   = width(refstring)
-##     rm(refstring)
-##     gc()
-##     karyotypeFrame = data.frame(chrname = chrname , len=lengths)
-##     rownames(karyotypeFrame) = chrname
-##     return(karyotypeFrame)
-## }
 buildGenomeData$getKaryotype <- function(referenceFile =  dat(prop$genome$karyotype)) 
 {
     ##    browser()
