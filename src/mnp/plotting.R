@@ -224,9 +224,8 @@ plotting$plotHighestGenes <- function(stackedPQdata,
 plotting$prepForPlot <- function(subd, xVar, yVar, 
                                  chromz = c(as.character(1:19), "X","Y"),
                                  bp.sep = 75000000,
-                                 karyo = buildGenomeData$getKaryotype(dat( prop$genome$dnaReferenceFile)))
+                                 karyo)
 {
-
     chromz = chromz[chromz %in% subd$chrom]
     
     lens = karyo[chromz]$len + bp.sep
@@ -281,9 +280,6 @@ plotting$plotPermScan <- function(full,
                                   alphalevel=prop$mnp$alphalevel,
                                   karyo)
 {
-##    karyo = buildGenomeData$getKaryotype(dat( prop$genome$dnaReferenceFile))
-##    print("done karyo."
-    
     figwid = 8.5
     figheight = 5
     

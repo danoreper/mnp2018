@@ -133,7 +133,6 @@ loadAllData$createAllInputs <- function()
     setnames(probesetInfo, old = "meta_probesetId", new = "Probe.Set.ID")
 
     karyo = buildGenomeData$getKaryotype(dat( prop$genome$karyotype))
-##    karyo = buildGenomeData$getKaryotype(dat( prop$genome$dnaReferenceFile))
     
     inp = list(exp.mat            = exp.mat,
   ##             exp.mat.control    = exp.mat.control,
