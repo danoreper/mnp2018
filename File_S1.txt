@@ -1,0 +1,184 @@
+All files/figures/tables except for the github code repository are in Zenodo, at XXX
+
+
+File_S1.txt (this file): Data documentation.
+
+
+File_S2_mm10.chrom.sizes.txt:   the mm10 sizes of every chromosome, derived from http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&chromInfoPage=,   on  April 14, 2015
+-column1: Chromosome/contig name
+-column2: Chromosome/contig size in bp.
+
+
+File_S3_Mus_musculus.GRCm38.75.gtf: Exon data (and other genomic features) for BL38.75 in gtf format.
+Crucially, this file is used in the code to determine gene locations.
+Originally downloaded from ftp://ftp.ensembl.org/pub/release-75/gtf/mus_musculus/Mus_musculus.GRCm38.75.gtf.gz
+
+
+File_S4_Snord.zip: The set of all GRCm38.75 Snord regions, with a separate csv file per snord family.
+This is essentially used in the code as a list of ensembl ids per snord whose other fields are looked up elsewhere.
+Note that location is not included (and is drawn from the ensembl db directly in code)
+Fields include:
+-id_with_url: the ensembl id of a given snord region
+-name: the snord mgi symbol
+-species: mouse (repetitive, could have been removed from the download)
+-feature type: gene (repetitive, could have been removed from the download
+-description: general description of the gene. (Unused)
+
+
+File_S5_crowley_2015_brain_imprinted_genes.csv: The genes identified as imprinted in Crowley, 2015. As with the snords, the primary field used from this file is the ensembl id. Location and name info  is referenced from elsewhere.
+Fields include:
+-Ensembl name: The ensembl id of a gene found to be imprinted in crowley 2015.
+-Chr: (unused, we query ensembl GrcM38.75 db directly)
+-start (mm10): start of gene (unused, we query ensembl GrcM38.75 db directly)
+-end (mm10):  end of gene (unused, we query ensembl GrcM38.75 db directly)
+-Gene: mgi name (unused, we query ensembl GrcM38.75 db directly)
+-Description: misc info about gene
+-Expressed allele: whether the maternal or paternal allele is more expressed (unused).
+-Strain effect?: whether or not a strain-by-POE was observed on this gene.
+-Novel?: whether the gene was, previous to Crowley, 2015, identified as imprinted (unused).
+-FG/GF/FH/HF/GH/HG: Allele specific expression ratios for F1s of each type, where F is short for CAST/EiJ, G is PWK/PhJ, and H is WSB/EiJ. For example, the FG column provides the fraction of CAST expression relative to total expression of the given gene, in the context of a cross of maternal CAST with paternal PWK. (unused) 
+
+File_S6_Literature_Imprinted_Genes.csv: Mousebook imprinted genes. As with the snords, the primary field used from this file is the ensembl id. Location and name info  is referenced from elsewhere.
+Fields include:
+-Ensembl Gene ID: The ensembl id of a gene described as imprinted in Mousebook. The only field that is used
+-Chr: (unused)
+-Gene Start (bp): (unused, we query ensembl GrcM38.75 db directly)
+-Gene end (bp): (unused, we query ensembl GrcM38.75 db directly)
+-Aliases: Alternate names for the gene (unused)
+-Expressed allele: the expressed allele, maternal or paternal, for each imprinted gene.
+-Gene: Mgi gene name (unused, we query ensembl GrcM38.75 db directly)
+-Biotype: The type of gene (e.g. protein coding) (unused)
+-Notes: Misc notes about the gene.
+
+
+File_S7_feb2014.archive.ensembl.org_allImprintedGenes.csv: The collated set of all imprinted genes, (mousebook and crowley) complete with their locations as pulled from the ensembl 38.75 database (Feb2014). This is the KEY file describing which genes are imprinted.
+Fields include:
+-ensembl_gene_ID: The ensembl gene id
+-mgi_symbol: The MGI symbol of the Gene
+-brainImprinted: whether or not the gene was identified in the crowley data set.
+-strainEffect: whether or not a strain-by-POE was identified in the crowley data set on this gene.
+-Expressed.allele: Whether maternal or paternal allele was more expressed in the crowley data set.
+-description: the description of the gene, if it existed in the crowley dataset
+-chromosome_name: the chromosome of the gene.
+-strand: the strand coding the gene.
+-start_position: Start position of the gene in basepairs
+-end_position: End position of the gene in basepairs
+-snordType: If the gene is part of a snorm family, the name of the specific snord family. NA if not snord.
+
+
+File_S8_2017-02-13_breederLog.csv: The true (as opposed to certain fields in the behavior files) covariates for mice bred in this experiment (e.g., diet, strain, etc). The covariates from this breeding file are considered correct, and take precedence over any identical (in name or meaning) covariates in any of the phenotype files.
+Fields include:
+-Batch: The breeding batch of this mouse. Can be 1,2, or 3.
+-ID: Integer ID of the mouse. 178 unique integer IDs rangeing
+-DOB: Mouse date of birth
+-Weaned: Mouse date of weaning
+-Dam ID: Integer id of this mouse's dam. Note that the id is unique ONLY within a strain. To get a truly unique id, concatenate Dam and Dam ID.
+-Dam: Strain of the dam, either NOD or B6
+-Dam DOB: Dam date of birth
+-Date on Diet: The date the dam went on the experimental diet.
+-Dam Age at Diet: Dam's age at time of diet
+-Sire ID: The integer id of the sire
+-Diet: A string indicating which of the 4 diets the mouse's dam was exposed to. 
+-Pipeline: Either 1 or 2, depending on which set of behavioral experiments was performed.
+-DOT: Date testing began.
+-Age Date: Age of mouse (in days) on the date of testing.
+
+File_S9_behaviorModels: For each (simple) experiment and phenotype within that experiment, the lmer version of the formula used in mediation modelling. Startle PPI models are complicated, so they are specified in the code.
+
+File_S10_cel_files.zip: The CEL files (an affymetrix format) from the Affy 1.1ST exon array, specifiying gene expression scores for every microarray probeset, as measured in every mouse. Each file is named according to the mouse being probed.
+
+File_S11_d_b6.variants.zip: the snp/indel variant positions (and the variant sequences) that vary between NOD and B6. Extracted from ISVdb2.0. Used for masking variants.
+Fields include:
+-strain1: This is always NOD
+-strain2: This is always B6
+-variant_id: a positive integer ID specifying the variant. Unique to every variant; chromosomes don't share variant_id.
+However, this ID is shared across strains.
+-chr: the chromosome of the variant
+-pos: positive integer specifying variant position in bp along chromosome.
+-transcript_name: the ensembl transcript id (if available) of a transcript affected by the variant.
+-gene_name: the name of a gene enclosing the variant.
+-allele1: the NOD allele at this position
+-allele2: the B6 allele at this position.
+-consequence_1: the functional consequence of the NOD allele on transcript_name, with respect to the B6 reference allele. 
+-consequence_2: the functional consequence of B6-- "reference".
+-prob: the probability that the unphased diplotype of the variant at this position is (allele_1, allele_2) 
+
+Although not relevant to this paper's use of the data, in this file, note that there may multiple records per variant if the diplotype of the variant is uncertain; in such a case there is one row per non-zero diplotype probability, and the probabilities add approximately to 1. There also may be multiple rows per variant if a variant is enclosed by more than one gene.
+-transcript_name: the name of a transcript enclosing the variant.
+
+File_S12_behaviorModels.csv: The models (in lmer formula format) employed per behavior, for the most straightforward behaviors; a handful of other behaviors, in particular the PPI related ones, are entirely specified programmatically rather than in a document.
+
+File_S13_log2RMA-GENE-DEFAULT-Group1.txt: Affymetrix power tools (APT) output from the cel files,
+but with default APT params and especially NO masking; used solely for its probeset annotations.
+Each row describes the expression across all samples of a single probeset.
+Fields include:
+-Probe Set ID: the probe set id.
+-1.rma-gene-default-signal/2.rma-gene-default-signal/.../196.rma-gene-default-signal:
+The RMA default expression scores for sample1, sample2, ... all the way to 196
+-Gene.Acession: 
+-Gene.Symbol: mgi symbol
+-Gene.Description: 
+-Cytoband: chromsomal location
+-mRNA.Accession:                 
+-mRNA Source: name of database containing mRNA                
+-mRna Description: description of mrna function if applicatble             
+-mRNA xhyb: 1 if this assignment is a cross hybridization                   
+-UniGene ID:                     
+-UniGene Expression.Information: 
+-GO.Biological.Process.ID: 
+-GO.Biological.Process.Term:                                 
+-GO.Cellular.Component.ID:       
+-GO.Cellular.Component.Term:     
+-GO.Molecular.Function.ID:       
+-GO.Molecular.Function.Term:     
+-Pathway.Source:
+-Pathway.Name:
+
+
+
+File_S14_MatNut_validation_samplelist_072516.csv: list of all samples and their status (pulverized or not, etc) as of 072516.
+Primarily used for qPCR planning. Most fields are redundant with the breeder log.
+Fields include
+-ID: Mouse ID
+-Microarray: whether this sample has already been measured by microarray.
+-Extracted RNA: whether RNA had yet been extracted 
+-pulverized brain: whether the brain had been pulverized yet.
+-Left Hemisphere: whether the sample was from the left or right hemisphere
+
+mnp/Microarray_Animals_maybe_05-26-16.csv: list of samples used for... TODO
+
+File_S15_mnp/microarray_lib_files: The affymetrix library files for the MoGene1.0 and MoGene1.1 exon ST arrays. Used to
+generate expression matrix across all samples with proper normalization using affymetrix power tools,
+as well as to identify probes to mask
+
+mnp/MoGene-1_0-st-v1_probeinfo_b.txt: The MoGene1.0 exon st probe binding locations, as pulled from ensembl38.75 (see getEnsemblProbeAligns.sh)
+
+
+mnp/phenotypes: the behavioral phenotype data.
+Note that all the covariates specified in the breederLog file are specified here too, but they may be incorrect; thus, many of the covariates in these files are unused, and are pulled from the breederLog file instead.
+mnp/BodyWeight_8.12.14.csv: the bodyweight data
+mnp/phenotypes/Cocaine/cokedata_final_1-14-16.csv: the cocaine response data
+mnp/phenotypes/ForcedSwim/newFSTdata_12-8-15.csv: the forced swim data
+mnp/phenotypes/LightDark/dietstudy_light_dark.csv: the light dark test data
+mnp/phenotypes/OpenField/dietstudy_openfield.csv: the open field test data
+mnp/phenotypes/Restraint Stress/cortdata_1-14-16.csv: the restraint stress test data
+mnp/phenotypes/SIH/dietstudy_allsih_1-14-16.csv: the SIH test data
+mnp/phenotypes/sociability/SocialHabSoc.csv: the sociability data.
+mnp/phenotypes/Startle_PPI/PPI_Rawdatafiles_combined.csv: the PPI data.
+mnp/phenotypes/TailSuspension: dietstudy_tst.csv: the tail suspension test data.
+
+
+Software
+Github Code repository: https://github.com/danoreper/mnp2018.git
+
+
+
+
+
+
+
+
+
+
+
+

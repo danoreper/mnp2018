@@ -1,7 +1,5 @@
-
 library(data.table)
 followup = fread("../data/mnp/MatNut_validation_samplelist_072516.csv")
-## original = fread("../data/mnp/expressionChoice/expression_choice_20120411.csv")[Expression==T]
 ## followup$original = paste0(followup$ID) %in% original$ID
 
 
