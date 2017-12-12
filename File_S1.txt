@@ -4,14 +4,17 @@ All files/figures/tables except for the github code repository are in Zenodo, at
 File_S1.txt (this file): Data documentation.
 
 
+
 File_S2_mm10.chrom.sizes.txt:   the mm10 sizes of every chromosome, derived from http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&chromInfoPage=,   on  April 14, 2015
 -column1: Chromosome/contig name
 -column2: Chromosome/contig size in bp.
 
 
+
 File_S3_Mus_musculus.GRCm38.75.gtf: Exon data (and other genomic features) for BL38.75 in gtf format.
 Crucially, this file is used in the code to determine gene locations.
 Originally downloaded from ftp://ftp.ensembl.org/pub/release-75/gtf/mus_musculus/Mus_musculus.GRCm38.75.gtf.gz
+
 
 
 File_S4_Snord.zip: The set of all GRCm38.75 Snord regions, with a separate csv file per snord family.
@@ -23,6 +26,7 @@ Fields include:
 -species: mouse (repetitive, could have been removed from the download)
 -feature type: gene (repetitive, could have been removed from the download
 -description: general description of the gene. (Unused)
+
 
 
 File_S5_crowley_2015_brain_imprinted_genes.csv: The genes identified as imprinted in Crowley, 2015. As with the snords, the primary field used from this file is the ensembl id. Location and name info  is referenced from elsewhere.
@@ -38,6 +42,8 @@ Fields include:
 -Novel?: whether the gene was, previous to Crowley, 2015, identified as imprinted (unused).
 -FG/GF/FH/HF/GH/HG: Allele specific expression ratios for F1s of each type, where F is short for CAST/EiJ, G is PWK/PhJ, and H is WSB/EiJ. For example, the FG column provides the fraction of CAST expression relative to total expression of the given gene, in the context of a cross of maternal CAST with paternal PWK. (unused) 
 
+
+
 File_S6_Literature_Imprinted_Genes.csv: Mousebook imprinted genes. As with the snords, the primary field used from this file is the ensembl id. Location and name info  is referenced from elsewhere.
 Fields include:
 -Ensembl Gene ID: The ensembl id of a gene described as imprinted in Mousebook. The only field that is used
@@ -49,6 +55,7 @@ Fields include:
 -Gene: Mgi gene name (unused, we query ensembl GrcM38.75 db directly)
 -Biotype: The type of gene (e.g. protein coding) (unused)
 -Notes: Misc notes about the gene.
+
 
 
 File_S7_feb2014.archive.ensembl.org_allImprintedGenes.csv: The collated set of all imprinted genes, (mousebook and crowley) complete with their locations as pulled from the ensembl 38.75 database (Feb2014). This is the KEY file describing which genes are imprinted.
@@ -64,6 +71,7 @@ Fields include:
 -start_position: Start position of the gene in basepairs
 -end_position: End position of the gene in basepairs
 -snordType: If the gene is part of a snorm family, the name of the specific snord family. NA if not snord.
+
 
 
 File_S8_2017-02-13_breederLog.csv: The correct (as opposed to certain fields in the behavior files) covariates for mice bred in this experiment (e.g., diet, strain, etc). The covariates from this breeding file are considered correct, and take precedence over any identical (in name or meaning) covariates in any of the phenotype files.
@@ -83,9 +91,15 @@ Fields include:
 -DOT: Date testing began.
 -Age Date: Age of mouse (in days) on the date of testing.
 
+
+
 File_S9_behaviorModels: For each (simple) experiment and phenotype within that experiment, the lmer version of the formula used in mediation modelling. Startle PPI models are complicated, so they are specified in the code.
 
+
+
 File_S10_cel_files.zip: The CEL files (an affymetrix format) from the Affy 1.1ST exon array, specifiying gene expression scores for every microarray probeset, as measured in every mouse. Each file is named according to the mouse being probed.
+
+
 
 File_S11_d_b6.variants.zip: the snp/indel variant positions (and the variant sequences) that vary between NOD and B6. Extracted from ISVdb2.0. Used for masking variants.
 Fields include:
@@ -106,10 +120,14 @@ However, this ID is shared across strains.
 Although not relevant to this paper's use of the data, in this file, note that there may multiple records per variant if the diplotype of the variant is uncertain; in such a case there is one row per non-zero diplotype probability, and the probabilities add approximately to 1. There also may be multiple rows per variant if a variant is enclosed by more than one gene.
 -transcript_name: the name of a transcript enclosing the variant.
 
+
+
 File_S12_behaviorModels.csv:
 The models (in lmer formula format) employed for mediation analysis per behavior.
 This is specified for the most straightforward behaviors; a handful of other behaviors,
 in particular the PPI related ones, are entirely specified programmatically rather than in any data file.
+
+
 
 File_S13_log2RMA-GENE-DEFAULT-Group1.txt: Affymetrix power tools (APT) output from the cel files,
 but with default APT params and especially NO masking; used solely for its probeset annotations.
@@ -194,8 +212,10 @@ The format of the annotation files is specified in
 -GeneArray_NetAffx-CSV-File.README.txt
 
 
+
 File_S16_MoGene-1_0-libs.zip: The same sorts of library files as described in File_S15, but for the MoGene1.0 exon ST arrays.
 na33.2 version. These library files are all here for completeness, but really they are only used to map 1.0 gene names to 1.1 gene names.
+
 
 
 File_S17_MoGene-1_0_st-v1_probeinfo_b.txt
@@ -211,7 +231,9 @@ Fields include:
 -mismatches: The number of probe alignment mismatches
 -cigar_line: The cigar string representing the alignment.
 
-File_S18_qpcrData.csv. qPCR data from Carmil1 (a.k.a. Lrrc16a), Meg3, and the reference, which in all cases is Rfng.
+
+
+File_S18_qpcrData.csv: qPCR data from Carmil1 (a.k.a. Lrrc16a), Meg3, and the reference, which is always rfng.
 Fields include: 
 -Plate: An integer, 4,5, or 6 for Carmil1 data, and 7,8, or 9 for Meg3 data
 -ID: The mouse interger ID.
@@ -239,61 +261,176 @@ Fields include:
 -Body Weight (g): The body weight in grams
 -Test Weighed: The test during which the mouse was weighed. This is always the startle/PPI test.
 
+
+
 File_S20_cocaine.csv: The cocaine response data. Fields include:
-Batch,ID,DOB,Weaned, Unused, Dam ID, Date on Diet, Sire ID, Strain, dietnum, Diet, dietname, Pipeline, DOT, Age Date: These are all unused and pulled from breeder log instead.
+Batch,ID,DOB,Weaned, Unused, Dam ID, Date on Diet, Sire ID, Strain, dietnum, Diet, dietname, Pipeline, DOT, Age Date: These are all unused and should be pulled from breeder log instead.
 -Run: the run index of testing
 -dist_d3: the distance on day 3 of the test in cm.
 -dist_d2: the distance on day 2 of the test in cm.
 -dist_d1: the distance on day 1 of the test in cm.
 -D3-D2: the delta of distances between day 3 and day 2 in cm.
 
+
+
 File_S21_forced_swim.csv: The forced swim data. Fields include:
--Diet,Strain,Batch: These are all unused and pulled from the breeder log instead.
--Trial:
--Arena:
--id:
--totdist:
--immobdur:
--immobfreq:
--immoblatfirst:
--immoblatlast:
--immobmean:
--immobstdev:
--immobster:
--immobvar:
--mobdur:
--mobfreq:
--moblatstart:
--moblatend:
--mobmean:
--mobstdev:
--mobsterr:
--mobvar:
--velocity:
--Total Time:
--pctimmob:
-
-
-mnp/phenotypes/LightDark/dietstudy_light_dark.csv: the light dark test data
-mnp/phenotypes/OpenField/dietstudy_openfield.csv: the open field test data
-mnp/phenotypes/Restraint Stress/cortdata_1-14-16.csv: the restraint stress test data
-mnp/phenotypes/SIH/dietstudy_allsih_1-14-16.csv: the SIH test data
-mnp/phenotypes/sociability/SocialHabSoc.csv: the sociability data.
-mnp/phenotypes/Startle_PPI/PPI_Rawdatafiles_combined.csv: the PPI data.
-mnp/phenotypes/TailSuspension: dietstudy_tst.csv: the tail suspension test data.
-
-
-Software
-Github Code repository: https://github.com/danoreper/mnp2018.git
+-Diet,Strain,Batch: These are all unused and should be pulled from the breeder log instead.
+-Trial: XXX
+-Arena: the arena-- an integer 1-4
+-id: the mouse id
+-totdist: distance swam (cm)
+-immobdur: time spent immobile (seconds)
+-immobfreq: XXX
+-immoblatfirst: XXX
+-immoblatlast: XXX
+-immobmean: XXX
+-immobstdev: XXX
+-immobster: XXX
+-immobvar: XXX 
+-mobdur: time spent mobile (seconds)
+-mobfreq: XXX
+-moblatstart: XXX
+-moblatend: XXX
+-mobmean: XXX
+-mobstdev: XXX
+-mobsterr: XXX
+-mobvar: XXX
+-velocity: XXX
+-Total Time: XXX
+-pctimmob: percent of time during test spent immobile
 
 
 
+File_S22_light_dark.csv: the light dark test data.
+Fields include:
+-DOB, Weaned, Dam, Date on Diet, Strain, Sire ID, Diet, Dietname, Pipeline, DOT, Age Date:
+these were unused and should all be pulled from the breeder log.
+-ID: mouse ID
+-Run: 
+-Total Distance Dark: Distance run in the dark part of the chamber (cm)
+-Total Distance Light: Distance run in the light part of the chamber (cm)
+-Total Distance Residual: XXX
+-Total Distance: Total distance run anywhere (cm)
+-% Time Dark: The percentage of time spent in the dark part of the chamber
+-% Time Light: The percentage of time spent in the light part of the chamber
+-% Time Residual: XXX
+-Dark Entries: The number of times the dark part of the chamber was entered
+-Light Entries: The number of times the light part of the chamber was entered
+-Residual Entries: XXX
+-Total Transitions: XXX
+-LDTransitions: XXX
 
 
 
+File_S23_openfield.csv
+Batch,  Strain, Diet: These fields are unused and should be pulled from the breeder log
+-ID: mouse ID
+-Boli #: Number of fecal boli generated 
+-pctctr: Percentage of time spent in the center of the chamber
+-totdist: Total distance moved (cm)
+-ambtime: Time spent moving (HHH:MM:SS.SS)
+-ambcts: XXX
+-stertime: XXX 
+-stercts: XXX
+-resttime: Time spent resting (HHH:MM:SS.SS)
+-vertcts: XXX
+-verttime: XXX
+-zoneentry: XXX 
+-jmpcts: XXX
+-jmptime: XXX
+-avgvel: XXX
+-ambepis: XXX
+-totdist_30: XXX
+-ambtime_30: XXX
+-ambcts_30: XXX
+-stertime_30: XXX
+-stercts_30: XXX
+-resttime_30: XXX
+-vertcts_30: XXX
+-verttime_30: XXX
+-zonentry_30: XXX 
+-jumpcts_30: XXX
+-jumptime_30: XXX
+-avgvel_30: XXX
+-ambepis_30: XXX 
+-time_30: XXX 
 
 
 
+File_S24_cort.csv: the restraint stress test data.
+Fields include:
+-Strain, Diet: Unused, these should be pulled from breeder log
+-ID: mouse integer id
+-10min: plasma cort level after 10 mins in Broome style restraint (XXX units)
+-baseline: plasma cort level before Broome style restraint (XXX units)
+-10min-baseline: Difference in plasma levels after restraint vs. before (XXX units)
 
 
+
+File_S25_SIH.csv: the stress induced hyperthermia test data.
+-Pipeline, Batch, Diet, Test Date, Cage #: Unused, pulled from breeder log  
+-Mouse #: Mouse ID
+-Order: The order within a cage in which temperature was measured, relative to the other mice in the cage.    
+-Temp 1: Temperature measured when first inserting rectal thermometer (Celsius)
+-Temp 2: Temperature measured when again inserting rectal thermometer 10mins later (Celsius)    
+-Difference: The temperature difference between the second and first temperature measurement.
+
+
+
+File_S26_sociability.csv: the social interaction test data.
+Fields include:
+-Batch, Strain, DOB, Weaned, Dam ID, Date on Diet, Sire ID, Diet, Pipeline, DOT, Age Date:
+Unused, typically pulled from breeder log
+-ID: Mouse ID
+-Box Stranger: the index of the box holding the stranger mouse.     
+-HAB Chamber 1(min): XXX
+-HAB Chamber 2(min): XXX
+-HAB Chamber 3(min): XXX
+-HABTrans 1:2: XXX     
+-HABTrans 2:1: XXX     
+-HABTrans 2:3: XXX     
+-HABTrans 3:2: XXX     
+-TRANSTOTAL: XXX        
+-SOC Chamber 1(min): XXX 
+-SOC Chamber 2(min): XXX
+-SOC Chamber 3(min): XXX 
+-SOCTrans 1:2: XXX     
+-SOCTrans 2:1: XXX     
+-SOCTrans 2:3: XXX     
+-SOCTrans 3:2: XXX     
+-Notes: XXX             
+-PctStranger: XXX        
+
+
+
+File_S27_startle_PPI: The startle/prepulse inhibition data.
+Fields include:
+-Test Date: testing Date DD/MM/YYYY 
+-Test time: testing time HH:MM:SS
+-Test: this is always PPI      
+-Subject ID: mouse ID
+-Column 5: Unnamed column, ignore
+-Column 6: Unnamed column, ignore
+-Trial: each experiment on a given mouse is rerun multiple times; XXX     
+-Group: AS50, No_Stim, PP74, PP78, PP82, PP86, or PP90, corresponding to the 40ms/120db startle stimulus, to no stimulus,
+or to prepulse intensity of 74, 78, 82, 86 or 90 decibels.
+-Column 9: Unnamed column, ignore        
+-Chamber: the chamber in which the experiment was performed, index 1-8   
+-Start: XXX     
+-Max: The maximum response to startle stimulus       
+-Latency: The time in XXX before startle response occurred  
+-Average: The average startle response over XXX
+
+
+
+File_S28_tail.csv: Tail suspension test data
+Fields include:
+-Batch, Strain, DOB, Weaned, Date on Diet, Sire ID, Diet, Pipeline, DOT, Age Date:
+Unused in this file, should be pulled from breeder log.      
+-ID: Mouse id.                 
+-%Freeze 120-240sec: percent time the mouse was not moving XXX 
+-Notes: misc notes about this mouse              
+
+
+Github code repository: https://github.com/danoreper/mnp2018.git
 
