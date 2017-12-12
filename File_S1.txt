@@ -66,7 +66,7 @@ Fields include:
 -snordType: If the gene is part of a snorm family, the name of the specific snord family. NA if not snord.
 
 
-File_S8_2017-02-13_breederLog.csv: The true (as opposed to certain fields in the behavior files) covariates for mice bred in this experiment (e.g., diet, strain, etc). The covariates from this breeding file are considered correct, and take precedence over any identical (in name or meaning) covariates in any of the phenotype files.
+File_S8_2017-02-13_breederLog.csv: The correct (as opposed to certain fields in the behavior files) covariates for mice bred in this experiment (e.g., diet, strain, etc). The covariates from this breeding file are considered correct, and take precedence over any identical (in name or meaning) covariates in any of the phenotype files.
 Fields include:
 -Batch: The breeding batch of this mouse. Can be 1,2, or 3.
 -ID: Integer ID of the mouse. 178 unique integer IDs rangeing
@@ -106,7 +106,10 @@ However, this ID is shared across strains.
 Although not relevant to this paper's use of the data, in this file, note that there may multiple records per variant if the diplotype of the variant is uncertain; in such a case there is one row per non-zero diplotype probability, and the probabilities add approximately to 1. There also may be multiple rows per variant if a variant is enclosed by more than one gene.
 -transcript_name: the name of a transcript enclosing the variant.
 
-File_S12_behaviorModels.csv: The models (in lmer formula format) employed per behavior, for the most straightforward behaviors; a handful of other behaviors, in particular the PPI related ones, are entirely specified programmatically rather than in a document.
+File_S12_behaviorModels.csv:
+The models (in lmer formula format) employed for mediation analysis per behavior.
+This is specified for the most straightforward behaviors; a handful of other behaviors,
+in particular the PPI related ones, are entirely specified programmatically rather than in any data file.
 
 File_S13_log2RMA-GENE-DEFAULT-Group1.txt: Affymetrix power tools (APT) output from the cel files,
 but with default APT params and especially NO masking; used solely for its probeset annotations.
@@ -135,7 +138,6 @@ The RMA default expression scores for sample1, sample2, ... all the way to 196
 -Pathway.Name:
 
 
-
 File_S14_MatNut_validation_samplelist_072516.csv: list of all samples and their status (pulverized or not, etc) as of 072516.
 Primarily used for qPCR planning. Most fields are redundant with the breeder log.
 Fields include
@@ -145,20 +147,133 @@ Fields include
 -pulverized brain: whether the brain had been pulverized yet.
 -Left Hemisphere: whether the sample was from the left or right hemisphere
 
-mnp/Microarray_Animals_maybe_05-26-16.csv: list of samples used for... TODO
-
-File_S15_mnp/microarray_lib_files: The affymetrix library files for the MoGene1.0 and MoGene1.1 exon ST arrays. Used to
-generate expression matrix across all samples with proper normalization using affymetrix power tools,
-as well as to identify probes to mask
-
-mnp/MoGene-1_0-st-v1_probeinfo_b.txt: The MoGene1.0 exon st probe binding locations, as pulled from ensembl38.75 (see getEnsemblProbeAligns.sh)
 
 
-mnp/phenotypes: the behavioral phenotype data.
-Note that all the covariates specified in the breederLog file are specified here too, but they may be incorrect; thus, many of the covariates in these files are unused, and are pulled from the breederLog file instead.
-mnp/BodyWeight_8.12.14.csv: the bodyweight data
-mnp/phenotypes/Cocaine/cokedata_final_1-14-16.csv: the cocaine response data
-mnp/phenotypes/ForcedSwim/newFSTdata_12-8-15.csv: the forced swim data
+File_S15_MoGene-1_1-libs.zip: The affymetrix library files for the MoGene1.1 exon ST arrays. na34 version.
+Used to generate expression matrix across all samples with proper normalization using affymetrix power tools,
+as well as to identify probes to mask.
+Files include:
+
+*.clf (CEL Layout File): which indicates the location of 
+  each probe within the CERevision Date 20090608:L matrix
+
+*.pgf (Probe Group File): which indicates the groupings of 
+  probes into probesets. 
+
+*.bgp (BackGround Probe file): The bgp files lists the 
+  probe IDs for the background probes for use with the
+  PM-GCBG intensity method. 
+
+*.ps (ProbeSet list file): This file lists a particular
+  set of probesets. This file may be used to process
+  only a specific subset of the chip or it may be used to
+  call out a special set of probesets on the chip.
+  
+*.mps (Meta ProbeSet file): This file is used for gene
+  level analysis on WT-based Gene and Exon arrays. It lists
+  probesets in the PGF file to be merged together to create
+  a gene level probeset.
+
+*.qcc (QC Control file): This file lists various controls
+  on the chip. It is used by EC to determine which controls
+  are listed in the CHP file headers (and by what name they
+  are listed) and it also classifies controls into various
+  groups for reporting purposes.
+
+(Above is taken from the Affymetrix MoGene-1_1-st-v1.r4.README.txt in the zip file)
+
+-MoGene-1_1-st-v1.r4.README.txt (the README describing the above special format library files)
+
+As well as annotations for probeset and trancscript clusters:
+-MoGene-1_1-st-v1.na34.mm10.probeset.csv
+-MoGene-1_1-st-v1.na34.mm10.transcript.csv 
+But we note that we don't use the locations specified in these files; we instead use probe locations downloaded from ensembl
+(see File_S17)
+
+The format of the annotation files is specified in
+-GeneArray_NetAffx-CSV-File.README.txt
+
+
+File_S16_MoGene-1_0-libs.zip: The same sorts of library files as described in File_S15, but for the MoGene1.0 exon ST arrays.
+na33.2 version. These library files are all here for completeness, but really they are only used to map 1.0 gene names to 1.1 gene names.
+
+
+File_S17_MoGene-1_0_st-v1_probeinfo_b.txt
+-mnp/MoGene-1_0-st-v1_probeinfo_b.txt: The MoGene1.0 exon st probe binding locations,
+as pulled from ensembl GRCm38.75 database (see getEnsemblProbeAligns.sh)
+Fields include:
+-probename: a unique name for the probe
+-seqname: contig/chromosome the probe binds to
+-seq_region_start: start of the region probe binds to in bp
+-seq_region_end: end of region probe binds to in bp
+-seq_region_strand: strand the probe binds to
+-analysis_id:
+-mismatches: The number of probe alignment mismatches
+-cigar_line: The cigar string representing the alignment.
+
+File_S18_qpcrData.csv. qPCR data from Carmil1 (a.k.a. Lrrc16a), Meg3, and the reference, which in all cases is Rfng.
+Fields include: 
+-Plate: An integer, 4,5, or 6 for Carmil1 data, and 7,8, or 9 for Meg3 data
+-ID: The mouse interger ID.
+-Trow: the row of the well for the sample in the plate, a letter from A-H.
+-Tcolumn: the column of the well for the sample in the plate, an integer 1-12.
+-Sample.name: always Sample1
+-Well.Position: the concatenated Trow and Tcolumn.
+-FAM.Ct: the raw cycle threshold for the gene being assayed (i.e., not normalizaed)
+-VIC.Ct: the raw cycle threshold for the reference gene, rfng.
+-Delta.Ct: delta of the cycle threshhold, FAM.Ct - VIC.Ct. This is the value that is modelled in our qpcr analysis.
+-Strain: either NOD.B6 or B6.NOD
+-Assay: either Meg3, or Lrrc16a (a.k.a. Carmil1), depending on which gene was being measured.
+
+
+Behavioral phenotype data.
+Note that many of the the covariates specified in the breederLog file are specified in the behavioral phenotype data as well,
+but these latter files may have mistakes. Thus, many of the covariates in these files are unused, and are pulled from the breederLog file instead.
+
+File_S19_bodyweight.csv: Bodyweight data for a subset of mice.
+Fields include:
+-Pipeline: Unused, pulled from breeder log
+-Batch: Unused, pulled from breeder log
+-Mouse #: The integer mouse id.
+-Cage #: The cage id
+-Body Weight (g): The body weight in grams
+-Test Weighed: The test during which the mouse was weighed. This is always the startle/PPI test.
+
+File_S20_cocaine.csv: The cocaine response data. Fields include:
+Batch,ID,DOB,Weaned, Unused, Dam ID, Date on Diet, Sire ID, Strain, dietnum, Diet, dietname, Pipeline, DOT, Age Date: These are all unused and pulled from breeder log instead.
+-Run: the run index of testing
+-dist_d3: the distance on day 3 of the test in cm.
+-dist_d2: the distance on day 2 of the test in cm.
+-dist_d1: the distance on day 1 of the test in cm.
+-D3-D2: the delta of distances between day 3 and day 2 in cm.
+
+File_S21_forced_swim.csv: The forced swim data. Fields include:
+-Diet,Strain,Batch: These are all unused and pulled from the breeder log instead.
+-Trial:
+-Arena:
+-id:
+-totdist:
+-immobdur:
+-immobfreq:
+-immoblatfirst:
+-immoblatlast:
+-immobmean:
+-immobstdev:
+-immobster:
+-immobvar:
+-mobdur:
+-mobfreq:
+-moblatstart:
+-moblatend:
+-mobmean:
+-mobstdev:
+-mobsterr:
+-mobvar:
+-velocity:
+-Total Time:
+-pctimmob:
+
+
 mnp/phenotypes/LightDark/dietstudy_light_dark.csv: the light dark test data
 mnp/phenotypes/OpenField/dietstudy_openfield.csv: the open field test data
 mnp/phenotypes/Restraint Stress/cortdata_1-14-16.csv: the restraint stress test data
