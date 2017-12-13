@@ -4,6 +4,7 @@ All files/figures/tables except for the github code repository are in Zenodo, at
 File_S1.txt (this file): Data documentation.
 
 
+Genomic reference files:
 
 File_S2_mm10.chrom.sizes.txt:   the mm10 sizes of every chromosome, derived from http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&chromInfoPage=,   on  April 14, 2015
 -column1: Chromosome/contig name
@@ -74,34 +75,7 @@ Fields include:
 
 
 
-File_S8_2017-02-13_breederLog.csv: The correct (as opposed to certain fields in the behavior files) covariates for mice bred in this experiment (e.g., diet, strain, etc). The covariates from this breeding file are considered correct, and take precedence over any identical (in name or meaning) covariates in any of the phenotype files.
-Fields include:
--Batch: The breeding batch of this mouse. Can be 1,2, or 3.
--ID: Integer ID of the mouse. 178 unique integer IDs rangeing
--DOB: Mouse date of birth
--Weaned: Mouse date of weaning
--Dam ID: Integer id of this mouse's dam. Note that the id is unique ONLY within a strain. To get a truly unique id, concatenate Dam and Dam ID.
--Dam: Strain of the dam, either NOD or B6
--Dam DOB: Dam date of birth
--Date on Diet: The date the dam went on the experimental diet.
--Dam Age at Diet: Dam's age at time of diet
--Sire ID: The integer id of the sire
--Diet: A string indicating which of the 4 diets the mouse's dam was exposed to. 
--Pipeline: Either 1 or 2, depending on which set of behavioral experiments was performed.
--DOT: Date testing began.
--Age Date: Age of mouse (in days) on the date of testing.
-
-
-
-File_S9_behaviorModels: For each (simple) experiment and phenotype within that experiment, the lmer version of the formula used in mediation modelling. Startle PPI models are complicated, so they are specified in the code.
-
-
-
-File_S10_cel_files.zip: The CEL files (an affymetrix format) from the Affy 1.1ST exon array, specifiying gene expression scores for every microarray probeset, as measured in every mouse. Each file is named according to the mouse being probed.
-
-
-
-File_S11_d_b6.variants.zip: the snp/indel variant positions (and the variant sequences) that vary between NOD and B6. Extracted from ISVdb2.0. Used for masking variants.
+File_S8_d_b6.variants.zip: the snp/indel variant positions (and the variant sequences) that vary between NOD and B6. Extracted from ISVdb2.0. Used for masking variants.
 Fields include:
 -strain1: This is always NOD
 -strain2: This is always B6
@@ -121,53 +95,29 @@ Although not relevant to this paper's use of the data, in this file, note that t
 -transcript_name: the name of a transcript enclosing the variant.
 
 
+Covariates shared by all sources of data:
 
-File_S12_behaviorModels.csv:
-The models (in lmer formula format) employed for mediation analysis per behavior.
-This is specified for the most straightforward behaviors; a handful of other behaviors,
-in particular the PPI related ones, are entirely specified programmatically rather than in any data file.
-
-
-
-File_S13_log2RMA-GENE-DEFAULT-Group1.txt: Affymetrix power tools (APT) output from the cel files,
-but with default APT params and especially NO masking; used solely for its probeset annotations.
-Each row describes the expression across all samples of a single probeset.
+File_S9_2017-02-13_breederLog.csv: The correct (as opposed to certain fields in the behavior files) covariates for mice bred in this experiment (e.g., diet, strain, etc). The covariates from this breeding file are considered correct, and take precedence over any identical (in name or meaning) covariates in any of the phenotype files.
 Fields include:
--Probe Set ID: the probe set id.
--1.rma-gene-default-signal/2.rma-gene-default-signal/.../196.rma-gene-default-signal:
-The RMA default expression scores for sample1, sample2, ... all the way to 196
--Gene.Acession: 
--Gene.Symbol: mgi symbol
--Gene.Description: 
--Cytoband: chromsomal location
--mRNA.Accession:                 
--mRNA Source: name of database containing mRNA                
--mRna Description: description of mrna function if applicatble             
--mRNA xhyb: 1 if this assignment is a cross hybridization                   
--UniGene ID:                     
--UniGene Expression.Information: 
--GO.Biological.Process.ID: 
--GO.Biological.Process.Term:                                 
--GO.Cellular.Component.ID:       
--GO.Cellular.Component.Term:     
--GO.Molecular.Function.ID:       
--GO.Molecular.Function.Term:     
--Pathway.Source:
--Pathway.Name:
+-Batch: The breeding batch of this mouse. Can be 1,2, or 3.
+-ID: Integer ID of the mouse. 178 unique integer IDs rangeing
+-DOB: Mouse date of birth
+-Weaned: Mouse date of weaning
+-Dam ID: Integer id of this mouse's dam. Note that the id is unique ONLY within a strain. To get a truly unique id, concatenate Dam and Dam ID.
+-Dam: Strain of the dam, either NOD or B6
+-Dam DOB: Dam date of birth
+-Date on Diet: The date the dam went on the experimental diet.
+-Dam Age at Diet: Dam's age at time of diet
+-Sire ID: The integer id of the sire
+-Diet: A string indicating which of the 4 diets the mouse's dam was exposed to. 
+-Pipeline: Either 1 or 2, depending on which set of behavioral experiments was performed.
+-DOT: Date testing began.
+-Age Date: Age of mouse (in days) on the date of testing.
 
 
-File_S14_MatNut_validation_samplelist_072516.csv: list of all samples and their status (pulverized or not, etc) as of 072516.
-Primarily used for qPCR planning. Most fields are redundant with the breeder log.
-Fields include
--ID: Mouse ID
--Microarray: whether this sample has already been measured by microarray.
--Extracted RNA: whether RNA had yet been extracted 
--pulverized brain: whether the brain had been pulverized yet.
--Left Hemisphere: whether the sample was from the left or right hemisphere
+Microarray data
 
-
-
-File_S15_MoGene-1_1-libs.zip: The affymetrix library files for the MoGene1.1 exon ST arrays. na34 version.
+File_S10_MoGene-1_1-libs.zip: The affymetrix library files for the MoGene1.1 exon ST arrays. na34 version.
 Used to generate expression matrix across all samples with proper normalization using affymetrix power tools,
 as well as to identify probes to mask.
 Files include:
@@ -206,19 +156,19 @@ As well as annotations for probeset and trancscript clusters:
 -MoGene-1_1-st-v1.na34.mm10.probeset.csv
 -MoGene-1_1-st-v1.na34.mm10.transcript.csv 
 But we note that we don't use the locations specified in these files; we instead use probe locations downloaded from ensembl
-(see File_S17)
+(see File_S12)
 
 The format of the annotation files is specified in
 -GeneArray_NetAffx-CSV-File.README.txt
 
 
 
-File_S16_MoGene-1_0-libs.zip: The same sorts of library files as described in File_S15, but for the MoGene1.0 exon ST arrays.
+File_S11_MoGene-1_0-libs.zip: The same sorts of library files as described in File_S10, but for the MoGene1.0 exon ST arrays.
 na33.2 version. These library files are all here for completeness, but really they are only used to map 1.0 gene names to 1.1 gene names.
 
 
 
-File_S17_MoGene-1_0_st-v1_probeinfo_b.txt
+File_S12_MoGene-1_0_st-v1_probeinfo_b.txt
 -mnp/MoGene-1_0-st-v1_probeinfo_b.txt: The MoGene1.0 exon st probe binding locations,
 as pulled from ensembl GRCm38.75 database (see getEnsemblProbeAligns.sh)
 Fields include:
@@ -233,7 +183,53 @@ Fields include:
 
 
 
-File_S18_qpcrData.csv: qPCR data from Carmil1 (a.k.a. Lrrc16a), Meg3, and the reference, which is always rfng.
+
+File_S13_cel_files.zip: The CEL files (an affymetrix format) from the Affy 1.1ST exon array, specifiying gene expression scores for every microarray probeset, as measured in every mouse. Each file is named according to the mouse being probed.
+
+
+
+File_S14_log2RMA-GENE-DEFAULT-Group1.txt: Affymetrix power tools (APT) output from the cel files,
+but with default APT params and especially NO masking; used solely for its probeset annotations.
+Each row describes the expression across all samples of a single probeset.
+Fields include:
+-Probe Set ID: the probe set id.
+-1.rma-gene-default-signal/2.rma-gene-default-signal/.../196.rma-gene-default-signal:
+The RMA default expression scores for sample1, sample2, ... all the way to 196
+-Gene.Acession: 
+-Gene.Symbol: mgi symbol
+-Gene.Description: 
+-Cytoband: chromsomal location
+-mRNA.Accession:                 
+-mRNA Source: name of database containing mRNA                
+-mRna Description: description of mrna function if applicatble             
+-mRNA xhyb: 1 if this assignment is a cross hybridization                   
+-UniGene ID:                     
+-UniGene Expression.Information: 
+-GO.Biological.Process.ID: 
+-GO.Biological.Process.Term:                                 
+-GO.Cellular.Component.ID:       
+-GO.Cellular.Component.Term:     
+-GO.Molecular.Function.ID:       
+-GO.Molecular.Function.Term:     
+-Pathway.Source:
+-Pathway.Name:
+
+
+
+qPCR related data
+
+File_S15_MatNut_validation_samplelist_072516.csv: list of all samples and their status (pulverized or not, etc) as of 07/25/16.
+Primarily used for planning qPCR. Most fields are redundant with the breeder log.
+Fields include
+-ID: Mouse ID
+-Microarray: whether this sample has already been measured by microarray.
+-Extracted RNA: whether RNA had yet been extracted 
+-pulverized brain: whether the brain had been pulverized yet.
+-Left Hemisphere: whether the sample was from the left or right hemisphere
+
+
+
+File_S16_qpcrData.csv: qPCR data from Carmil1 (a.k.a. Lrrc16a), Meg3, and the reference, which is always rfng.
 Fields include: 
 -Plate: An integer, 4,5, or 6 for Carmil1 data, and 7,8, or 9 for Meg3 data
 -ID: The mouse interger ID.
@@ -248,11 +244,19 @@ Fields include:
 -Assay: either Meg3, or Lrrc16a (a.k.a. Carmil1), depending on which gene was being measured.
 
 
+Behavior data:
+
+File_S17_behaviorModels.csv:
+The models (in lmer formula format) employed for mediation analysis per behavior.
+This is specified for the most straightforward behaviors; a handful of other behaviors,
+in particular the PPI related ones, are entirely specified programmatically rather than in any data file.
+
+
 Behavioral phenotype data.
 Note that many of the the covariates specified in the breederLog file are specified in the behavioral phenotype data as well,
 but these latter files may have mistakes. Thus, many of the covariates in these files are unused, and are pulled from the breederLog file instead.
 
-File_S19_bodyweight.csv: Bodyweight data for a subset of mice.
+File_S18_bodyweight.csv: Bodyweight data for a subset of mice.
 Fields include:
 -Pipeline: Unused, pulled from breeder log
 -Batch: Unused, pulled from breeder log
@@ -263,7 +267,7 @@ Fields include:
 
 
 
-File_S20_cocaine.csv: The cocaine response data. Fields include:
+File_S19_cocaine.csv: The cocaine response data. Fields include:
 Batch,ID,DOB,Weaned, Unused, Dam ID, Date on Diet, Sire ID, Strain, dietnum, Diet, dietname, Pipeline, DOT, Age Date: These are all unused and should be pulled from breeder log instead.
 -Run: the run index of testing
 -dist_d3: the distance on day 3 of the test in cm.
@@ -273,7 +277,7 @@ Batch,ID,DOB,Weaned, Unused, Dam ID, Date on Diet, Sire ID, Strain, dietnum, Die
 
 
 
-File_S21_forced_swim.csv: The forced swim data. Fields include:
+File_S20_forced_swim.csv: The forced swim data. Fields include:
 -Diet,Strain,Batch: These are all unused and should be pulled from the breeder log instead.
 -Trial: XXX
 -Arena: the arena-- an integer 1-4
@@ -301,7 +305,7 @@ File_S21_forced_swim.csv: The forced swim data. Fields include:
 
 
 
-File_S22_light_dark.csv: the light dark test data.
+File_S21_light_dark.csv: the light dark test data.
 Fields include:
 -DOB, Weaned, Dam, Date on Diet, Strain, Sire ID, Diet, Dietname, Pipeline, DOT, Age Date:
 these were unused and should all be pulled from the breeder log.
@@ -322,7 +326,7 @@ these were unused and should all be pulled from the breeder log.
 
 
 
-File_S23_openfield.csv
+File_S22_openfield.csv
 Batch,  Strain, Diet: These fields are unused and should be pulled from the breeder log
 -ID: mouse ID
 -Boli #: Number of fecal boli generated 
@@ -357,7 +361,7 @@ Batch,  Strain, Diet: These fields are unused and should be pulled from the bree
 
 
 
-File_S24_cort.csv: the restraint stress test data.
+File_S23_cort.csv: the restraint stress test data.
 Fields include:
 -Strain, Diet: Unused, these should be pulled from breeder log
 -ID: mouse integer id
@@ -367,7 +371,7 @@ Fields include:
 
 
 
-File_S25_SIH.csv: the stress induced hyperthermia test data.
+File_S24_SIH.csv: the stress induced hyperthermia test data.
 -Pipeline, Batch, Diet, Test Date, Cage #: Unused, pulled from breeder log  
 -Mouse #: Mouse ID
 -Order: The order within a cage in which temperature was measured, relative to the other mice in the cage.    
@@ -377,7 +381,7 @@ File_S25_SIH.csv: the stress induced hyperthermia test data.
 
 
 
-File_S26_sociability.csv: the social interaction test data.
+File_S25_sociability.csv: the social interaction test data.
 Fields include:
 -Batch, Strain, DOB, Weaned, Dam ID, Date on Diet, Sire ID, Diet, Pipeline, DOT, Age Date:
 Unused, typically pulled from breeder log
@@ -403,7 +407,7 @@ Unused, typically pulled from breeder log
 
 
 
-File_S27_startle_PPI: The startle/prepulse inhibition data.
+File_S26_startle_PPI: The startle/prepulse inhibition data.
 Fields include:
 -Test Date: testing Date DD/MM/YYYY 
 -Test time: testing time HH:MM:SS
@@ -423,7 +427,7 @@ or to prepulse intensity of 74, 78, 82, 86 or 90 decibels.
 
 
 
-File_S28_tail.csv: Tail suspension test data
+File_S27_tail.csv: Tail suspension test data
 Fields include:
 -Batch, Strain, DOB, Weaned, Date on Diet, Sire ID, Diet, Pipeline, DOT, Age Date:
 Unused in this file, should be pulled from breeder log.      
