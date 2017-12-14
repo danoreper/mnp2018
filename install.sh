@@ -23,6 +23,7 @@ mkdir $datadir/mnp/phenotypes/TailSuspension
 #replace with wget or curl to zenodo
 cp -r ~/Desktop/zenodo/ $datadir/zenodo
 cd $datadir/zenodo
+datadir=../
 
 mv File_S2_mm10.chrom.sizes.txt       $datadir/b6_reference/mm10.chrom.sizes
 
