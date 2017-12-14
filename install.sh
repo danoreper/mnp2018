@@ -1,8 +1,8 @@
 datadir=./data/
 
 rm -rf $datadir
-mkdir $datadir
 
+mkdir $datadir
 mkdir $datadir/b6_reference/
 mkdir $datadir/b6_reference/mus_musculus.GRCm38.75/
 mkdir $datadir/imprinted_genes_list/
@@ -21,8 +21,8 @@ mkdir $datadir/mnp/phenotypes/Startle_PPI
 mkdir $datadir/mnp/phenotypes/TailSuspension
 
 #replace with wget or curl to zenodo
-cp -r ~/Desktop/zenodo $datadir
-cd $datadir
+cp -r ~/Desktop/zenodo/ $datadir/zenodo
+cd $datadir/zenodo
 
 mv File_S2_mm10.chrom.sizes.txt       $datadir/b6_reference/mm10.chrom.sizes
 
