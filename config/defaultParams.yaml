@@ -322,7 +322,7 @@ mnp:
   probeAlignmentFile:  MoGene-1_0-st-v1_probeinfo_b.txt
 
   ## A file pulled from the ISVdb specifying the NOD and B6 variants for probe masking; at the time this was slow (getHHet.R)
-  NOD.B6.variantsFile: nod.b6.variants.txt
+  NOD.B6.variantsFile: nod.b6.variants.csv
 
 ##Are these used?
   apt.outdir:  apt_output_mask_rel1410_3-21_exonfilter

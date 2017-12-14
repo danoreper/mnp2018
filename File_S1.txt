@@ -12,7 +12,7 @@ File_S2_mm10.chrom.sizes.txt:   the mm10 sizes of every chromosome, derived from
 
 
 
-File_S3_Mus_musculus.GRCm38.75.gtf: Exon data (and other genomic features) for BL38.75 in gtf format.
+File_S3_Mus_musculus.GRCm38.75.gtf.zip: Exon data (and other genomic features) for BL38.75 in gtf format.
 Crucially, this file is used in the code to determine gene locations.
 Originally downloaded from ftp://ftp.ensembl.org/pub/release-75/gtf/mus_musculus/Mus_musculus.GRCm38.75.gtf.gz
 
@@ -117,7 +117,7 @@ Fields include:
 
 Microarray data
 
-File_S10_MoGene-1_1-libs.zip: The affymetrix library files for the MoGene1.1 exon ST arrays. na34 version.
+File_S10_MoGene-1_1_libs.zip: The affymetrix library files for the MoGene1.1 exon ST arrays. na34 version.
 Used to generate expression matrix across all samples with proper normalization using affymetrix power tools,
 as well as to identify probes to mask.
 Files include:
@@ -163,7 +163,7 @@ The format of the annotation files is specified in
 
 
 
-File_S11_MoGene-1_0-libs.zip: The same sorts of library files as described in File_S10, but for the MoGene1.0 exon ST arrays.
+File_S11_MoGene-1_0_libs.zip: The same sorts of library files as described in File_S10, but for the MoGene1.0 exon ST arrays.
 na33.2 version. These library files are all here for completeness, but really they are only used to map 1.0 gene names to 1.1 gene names.
 
 
