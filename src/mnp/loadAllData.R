@@ -27,7 +27,7 @@ loadAllData$createAllInputs <- function()
         probedGenes = suppressWarnings(fread(input = fp(computedProbeDataDir, probeDataBundle, "probedGenes.csv"), showProgress = F))
         probesetInfo = suppressWarnings(fread(input = fp(computedProbeDataDir, probeDataBundle, "probesetInfo.csv"), showProgress = F))
     } else {
-        browser()
+        
         ##TODO different property for crowley data. OR create it on the fly? Check whether allele thing matters.
         ##Consider passing in a set of files representing each chromosome instead?
         ##Consider passing in zipped file

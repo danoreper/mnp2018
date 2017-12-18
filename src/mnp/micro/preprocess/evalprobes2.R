@@ -38,7 +38,6 @@ computeAllProbeInformation <- function(computedProbeDataDir, variantFile, cel.di
                                        recomputeApt = T,
                                        removeBadProbes = T)
 {
-    browser()
     ##the microarray library data
     pracma::tic()
     mic = affylibReader$readMicroArrayMetaData(pgfFile = datm(prop$mnp$pgfFile),
@@ -193,6 +192,7 @@ getProbesetInfo <- function(probedGenes, mic)
 {
     probedGenes                 = data.table(probedGenes, "meta_probesetId")
     probedGenes$meta_probesetId = as.character(probedGenes$meta_probesetId)
+    browser()
     probesetInfo                = probedGenes[,list(chrom = paste(unique(seqname), collapse=","),
                                                     probesetStart = min(seq_region_start),
                                                     probesetEnd = max(seq_region_end),
