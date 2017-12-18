@@ -120,38 +120,3 @@ affylibReader$plotControlProbes <- function(mic)
     agrid[cbind(controlLocations$y+1, controlLocations$x+1)] = 1
     image(z=agrid, x=1:nrow(agrid), y=1:ncol(agrid))
 }
-
-#build micro array data, compile a library using pdinfobuilder
-#library("pdInfoBuilder")
-#
-#baseDir = "../data/mnp/affy11/MoGene-1_1-st-v1.r4.analysis-lib-files"
-#pgfFile   <- file.path(baseDir, "MoGene-1_1-st-v1.r4.pgf") 
-#clfFile   <- file.path(baseDir, "MoGene-1_1-st-v1.r4.clf")
-#probeFile <- file.path(baseDir, "MoGene-1_1-st-v1.na34.mm10.probeset.csv" )
-#transFile <- file.path(baseDir, "MoGene-1_1-st-v1.na34.mm10.transcript.csv")
-#mpsFile   <- file.path(baseDir, "MoGene-1_1-st-v1.r4.mps")
-#
-#seed <- new("AffyGenePDInfoPkgSeed",
-#	# old annotation data, eventually get rid of this.	pgfFile = pgfFile, clfFile = clfFile, coreMps = mpsFile,
-#		probeFile = probeFile, author = "doreper",
-#		transFile = transFile,
-#		email = "doreper@email.unc.edu",
-#		biocViews = "AnnotationData",
-#		genomebuild = "NCBI Build 36",
-#		organism = "Mouse",
-#		species = "Mus Musculus",
-#		url = "http://www.biostat.jhsph.edu/~bcarvalh")
-#
-#makePdInfoPackage(seed, destDir = ".")
-
-#read the automatically built table using the pdinfobuilder
-affylibReader$read.pd.library <- function() 
-{
-	library(pd.mogene.1.1.st.v1)
-	db = pd.mogene.1.1.st.v1@getdb()
-	dbListTables(db)
-	probeSetsInfo = dbGetQuery(db, 'SELECT * FROM featureSet')
-	probeInfo = dbGetQuery(db, 'SELECT * FROM pmfeature')
-	
-	print(head(table(probeInfo$fid)[table(probeInfo$fid)>1]))
-}

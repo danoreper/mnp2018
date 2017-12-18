@@ -9,7 +9,6 @@ library(data.table)
 library(lme4)
 library(utils)
 
-##library(runjags)
 source("./loadParams.R")
 source("./mnp/loadAllData.R")
 source("./utils.R")

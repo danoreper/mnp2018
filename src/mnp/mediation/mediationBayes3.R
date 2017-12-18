@@ -1,4 +1,4 @@
-library("rjags")
+library(rjags)
 source("./loadParams.R")
 source("./bayes/processSamples.R")
 

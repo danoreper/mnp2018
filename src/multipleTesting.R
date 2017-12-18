@@ -1,3 +1,4 @@
+library(evir)
 multipleTesting = new.env(hash=T)
 
 ## multipleTesting$median.correct <- function(pvals)
@@ -20,7 +21,7 @@ multipleTesting$median.correct.2 <- function(pvals)
 
 multipleTesting$minp.gev <- function(pvals, alphas)
 {
-    library(evir)
+
     pvals = na.omit(pvals)
     evd.pars <- gev(-log10(pvals))$par.ests
     gev.thresh <- qgev(p=(1-alphas), xi=evd.pars["xi"], sigma=evd.pars["sigma"], mu=evd.pars["mu"])

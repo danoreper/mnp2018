@@ -2,20 +2,18 @@
 # 
 # Author: doreper
 ###############################################################################
-library("affxparser")
-library("data.table")
-library("biomaRt")
+library(affxparser)
+library(data.table)
+library(biomaRt)
 library(Rsamtools)
 library(Biostrings)
 library(GenomicRanges)
-#library(WVmisc)
 library(data.table)
 
 
 source("./loadParams.R")
 source("./genomerep/buildGenomeData2.R")
 source("./mnp/micro/preprocess/affylibReader.R")
-##source("./mnp/loadAllData.R")
 
 ##either loads or recomputes probe info
 getProbeInfo <- function(computedProbeDataDir, variantFile, cel.dir, recomputeApt = T, removeBadProbes = T)
