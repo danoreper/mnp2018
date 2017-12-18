@@ -2,9 +2,9 @@
 # 
 # Author: doreper
 ###############################################################################
-library("igraph")
-library("IRanges")
-library("GenomicRanges")
+library(igraph)
+library(IRanges)
+library(GenomicRanges)
 source("./strainselection/idConversion.R")
 
 buildIBD = new.env(hash=T)

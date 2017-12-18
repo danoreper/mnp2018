@@ -3,7 +3,7 @@
 # Author: doreper
 ###############################################################################
 
-library("biomaRt")
+library(biomaRt)
 library(data.table)
 
 buildImprintedGenes = new.env(hash=T)

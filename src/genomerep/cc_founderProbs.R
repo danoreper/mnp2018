@@ -6,11 +6,11 @@
 ##
 ## Author: doreper
 ###############################################################################
-library("igraph")
-library("IRanges")
-library("stringr")
-library("data.table")
-library("GenomicRanges")
+library(igraph)
+library(IRanges)
+library(stringr)
+library(data.table)
+library(GenomicRanges)
 
 source("./stringutils.R")
 

@@ -3,17 +3,11 @@ library("rjags")
 library("coda")
 library("mvtnorm")
 library("pracma")
-##library("coefplot2")
+
 library(ggplot2)
 load.module("glm")
 options(warnPartialMatchDollar=T)
-
 showTiming = F
-##library("gdata")
-##install.packages("coefplot2",repos="http://www.math.mcmaster.ca/bolker/R",type="source")
-##library("caterplot")
-##caterplot(mcobj[,rownames(sigterms)])
-##coefplot2(mcobj[,rownames(sigterms)])
 
 library(mcmcplots)
 
