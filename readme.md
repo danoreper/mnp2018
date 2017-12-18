@@ -1,73 +1,105 @@
+# MNP
+Code to generate results for "F1 reciprocal crosses of common inbred lines ..., Oreper, 2017 "
+
+# Requirements
+* OSX or linux
+* R>=3.3.1
+* Python>=2.7.12
+* R CRAN packages: data.table, reshape, ggplot2, grid, lmerTest, lme4, nlme, hglm, stringr, parallel 
+* R Bioconductor packages: Biostrings, IRanges, biomaRt, GenomicRanges, rtracklayer, affxparser, BiocGenerics
+* Python packages: PyYAML
+
+# Download
+Git or SVN checkout using the web URL: https://github.com/danoreper/mnp2018.git
+
+# Install
+Enter the following at the command line, from mnp2018\_LOCATION (the cloned, local mnp2018 repository):
+mnp2018\_LOCATION\$ bash install.sh 
+
+For now, this install script only downloads data files (that are too large for github), and places them in their expected location relative to source code. Note that the time to complete installation may be lengthy, depending on network speed. R Python, and Python and R libraries need to be self-installed by the user.
+
+2a. Running locally will require on the order of a week . If you have access to an LSF based cluster, computation can finish in a few hours. To use an LSF based system, enter the following on killdevil:
+
+mnp2018\_LOCATION/src$ R CMD BATCH '--args ../config/defaultCluster.yaml' ./mnp/runAll.R
+
+* **variantdb:  var\_limit: .na** The max number of variants of each type (indel, snp) that the vcf parsing will bother storing. Meant for testing. .na means build them all.
+ 
+* **variantdb: varcc\_limit: .na** The max number of cc lines that variant db will bother storing. Meant for testing. .na means build all.
+
+* **variantdb:  chr\_range: .na** The chromosomes that will be built. .na means build them all
 
 
-Files within /data
+# Directory structure
+* mnp2018\_LOCATION/src: The source code that generates all analysis results
+* mnp2018\_LOCATION/config: configuration files for running locally or on killdevil.
+* mnp2018\_LOCATION/data: Data files for running analysis. Populated by install.sh
 
-b6_reference: data pertaining to the b6 reference genome
+* mnp2018\_LOCATION/output/isvdb: Generated genotype and diplotype files, for both exon and whole genome
+* mnp2018\_LOCATION/output/isvdb/exon1410: exon information
+* mnp2018\_LOCATION/output/isvdb/full1410: whole genome information
 
-b6_reference/mm10.chrom.sizes:   the mm10 sizes of every chromosome, derived from http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&chromInfoPage=,   on  April 14, 2015
+Restricting description to exons,
+* mnp2018\_LOCATION/output/isvdb/exon1410/genotype: exon genotypes
+* mnp2018\_LOCATION/output/isvdb/exon1410/diplotype: exon diplotypes
+* mnp2018\_LOCATION/output/isvdb/exon1410/genotype\_sampling: genotype sampling files (useful for simulating crosses)
+* mnp2018\_LOCATION/output/isvdb/exon1410/diplotype\_sampling: diplotype sampling files (useful for simulating crosses)
 
-b6_reference/mus_musculus.GRCm38.75: folder for 38.75 reference in particular
+* mnp2018\_LOCATION/v1.1: version 1.1 of this project, which used an SQL representation, and only contained exons+/- 100bp rather than the whole genome.
 
-b6_reference/mus_musculus.GRCm38.75/genome.fa: The fasta sequence of the B6 genome including all chromosome and MT
+# Output file organization
+Output files are organized in folders according to strain and then chromosome. For example, 
+mnp2018\_LOCATION/output/isvdb/exon1410/diplotype contains a folder corresponding to the diplotypes for StrainName1, with a separate file per chromosome.
 
-b6_reference/mus_musculus.GRCm38.75/Mus_musculus.GRCm38.75.gtf: The gtf which crucially contains exon locations
+---StrainName1
 
-b6_reference/mus_musculus.GRCm38.75/snord: the Snord ensembl ids in csv files, with a separate csv per Snord family. Locations left off.
+------1.txt.tar.gz
 
+------2.txt.tar.gz
 
-imprinted_genes_list/crowley_2015_brain_imprinted_genes.csv: The genes identified as imprinted in the crowley paper. The locations aren't used, but the names of the genes are.
+------3.txt.tar.gz
 
-imprinted_genes_list/Literature_Imprinted_Genes.csv: the mousebook imprinted genes, positions are unused.
+------...
 
-imprinted_genes_list/feb2014.archive.ensembl.org_allImprintedGenes.csv: The collated set of all imprinted genes, (mousebook and crowley) complete with their locations as pulled from the ensembl 38.75 database (Feb2014). This is the KEY file describing which genes are imprinted.
+------MT.txt.tar.gz
 
-mnp/2017-02-13_breederLog.csv: The true (non-behavior) covariates for all animals bred for this experiment (e.g., diet, strain, etc).The covariates from this breeding file are considered correct, and take precedence over any identical (in name or meaning) covariates in any of the phenotype files.
+------X.txt.tar.gz
 
-mnp/allcovariates_2011_12_08.csv: The covariates file used to decide which animals should be sequenced; there are some mistakes with respect to the breederLog, but we maintain this file for reproducibility.
+------Y.txt.tar.gz
 
-mnp/behaviorModels.csv: The models employed per behavior for the most straightforward behaviors; a handful of other behaviors, in particular the PPI related ones, are entirely specified programmatically rather than in a document.
+# Diplotype output format
+Each *.txt.tar.gz file in the diplotypes folder is a compressed csv file of diplotypes for a particular strain and chromosome, with 2 header rows:
+1) A row specifying the strain and chromosome of the format: strain:strainname,chr:chrname 
+2) The fields stored in the csv file. 
 
-mnp/cel_files: The cel files from the Affy 1.1ST exon array. Each is named according to the animal sample id that was measured.
-
-expression_choice/expression_choice_20120411.csv: The output of the algorithm to choose which animals would be sequenced
-
-mnp/log2RMA-GENE-DEFAULT-Group1.txt:
-APT applied with defaults and no masking; used primarily for its probeset annotations
-
-mnp/MatNut_validation_samplelist_072516.csv: list of all samples and their status (pulverized or not, etc) as of 072516.
-Primarily used for qPCR planning
-
-mnp/microarray_lib_files: The affymetrix library files for the MoGene1.0 and MoGene1.1 exon ST arrays. Used to
-generate expression matrix across all samples with proper normalization using affymetrix power tools,
-as well as to identify probes to mask
-
-mnp/MoGene-1_0-st-v1_probeinfo_b.txt: The MoGene1.0 exon st probe binding locations, as pulled from ensembl38.75 (see getEnsemblProbeAligns.sh)
-
-mnp/nod.b6.variants.txt: the snp/indel variant positions (and the variant sequences) that vary between NOD and B6. Extracted from
-ISVdb. Used for masking variants. 
-
-mnp/phenotypes: the behavioral phenotype data. Not that all the covariates specified in the breederLog file are specified here too, but they may ben incorrect; thus, many of the covariates in these files are unused, and are pulled from the breederLog file instead.
-mnp/BodyWeight_8.12.14.csv: the bodyweight data
-mnp/phenotypes/Cocaine/cokedata_final_1-14-16.csv: the cocaine response data
-mnp/phenotypes/ForcedSwim/newFSTdata_12-8-15.csv: the forced swim data
-mnp/phenotypes/LightDark/dietstudy_light_dark.csv: the light dark test data
-mnp/phenotypes/OpenField/dietstudy_openfield.csv: the open field test data
-mnp/phenotypes/Restraint Stress/cortdata_1-14-16.csv: the restraint stress test data
-mnp/phenotypes/SIH/dietstudy_allsih_1-14-16.csv: the SIH test data
-mnp/phenotypes/sociability/SocialHabSoc.csv: the sociability data.
-mnp/phenotypes/Startle_PPI/PPI_Rawdatafiles_combined.csv: the PPI data.
-mnp/phenotypes/TailSuspension: dietstudy_tst.csv: the tail suspension test data.
+The fields consist of the following:
+* variant_id: a positive integer ID specifiying the variant. Unique to every variant; chromosomes don't share variant_id. However, this ID is shared across strains, and is consistent between the diplotype dump and the genotype dump files.
+* pos: positive integer specifying variant position in bp along chromosome.
+* founder\_1: one of the founder haplotypes at this variant for the file-specified strain and chromosome. This is part of an unphased diplotype.
+* founder\_2: the second founder haplotypes at this variant for the file-specified strain and chromosome. This is part of an unphased diplotype.
+* prob: the probability on [0,1] that the unphased diplotype of the variant at this position is (founder\_1, founder\_2) 
+* gene_name: the name of a gene enclosing the variant.
 
 
+Note that there may be multiple records per variant if the diplotype of the variant is uncertain; in such a case there is one row per non-zero diplotype probability, and the probabilities add approximately to 1. There also may be multiple rows per variant if a variant is enclosed by more than one gene.
 
 
+# Genotype output format
+Each *.txt.tar.gz file in the genotype folder is a compressed csv file of genotypes for a particular strain and chromosome, with 2 header rows:
+1) A row specifying the strain and chromosome of the format: strain:strainname,chr:chrname 
+2) The fields stored in the csv file. 
+The fields consist of the following:
+* variant_id: a positive integer ID specifiying the variant. Unique to every variant; chromosomes don't share variant_id. However, this ID is shared across strains, and is consistent between the diplotype dump and the genotype dump files.
+* pos: positive integer specifying variant position in bp along chromosome.
+* allele\_1: one of the alleles at this variant for the file-specified strain. This is part of an unphased genotype.
+* allele\_2: the second alelle at this variant for the file-specified strain. This is part of an unphased diplotype.
+* prob: the probability that the unphased diplotype of the variant at this position is (allele_1, allele_2) 
+* is\_max: whether this is the max likelihood genotype for this variant in this strain. Redundant with prob, but available for convenience.
+* gene\_name: the name of a gene enclosing the variant.
+Note that there may multiple records per variant if the diplotype of the variant is uncertain; in such a case there is one row per non-zero diplotype probability, and the probabilities add approximately to 1. There also may be multiple rows per variant if a variant is enclosed by more than one gene.
+* transcript\_name: the name of a transcript enclosing the variant.
+* consequence\_1: the function consequence of allele_1 on transcript transcript_name, with respect to the B6 reference allele. If the allele_2 is the reference allele, the consequence is "reference". 
+* consequence\_2: the function consequence of allele_2 on transcipt ranscript_name, with respect to the B6 reference allele. If allele_2 is the reference allele, the consequence is "reference". 
 
-
-
-
-
-
-
-
+Note that there may multiple records per variant if the genotype of the variant is uncertain; in such a case there is one row per non-zero genotype probability, and the probabilities add approximately to 1. There also may be multiple rows per variant if a variant is enclosed by more than one gene and/or more than one transcript, as the consequence changes depending on the transcript.
 
 

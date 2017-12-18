@@ -1,4 +1,5 @@
 library(rjags)
+library(hglm)
 
 n.chains = 1
 n.iter   = 100000
