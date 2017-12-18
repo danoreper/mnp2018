@@ -5,9 +5,29 @@ Code to generate results for "F1 reciprocal crosses of common inbred lines ..., 
 * OSX or linux
 * R>=3.3.1
 * Python>=2.7.12
-* R CRAN packages: data.table, reshape, ggplot2, grid, lmerTest, lme4, nlme, stringr, parallel 
-* R Bioconductor packages: Biostrings, IRanges, biomaRt, GenomicRanges, rtracklayer, affxparser, BiocGenerics, Rsamtools
+* R CRAN packages: Cairo, car, caterplot, coda, corrplot, data.table, evir, ggplot2, ggrepel, grid, gdata, reshape, reshape2, lme4, lmerTest, nlme,  parallel, pracma, rjags, stringr,tools, utils, yaml,
+* R Bioconductor packages: affxparser, BiocGenerics, biomaRt, Biostrings, GenomicRanges, IRanges, oligo, Rsamtools, rtracklayer
 * Python packages: PyYAML
+
+
+                  
+                "coefplot2"                        
+
+               "igraph"              
+"IRanges"             "lattice"             "lme4"                
+"lmerTest"            "MASS"                "mcmcplots"           
+"multcomp"            "mvtnorm"             "nlme"                
+               "parallel"             
+       "pracma"                         
+                                        
+"RMySQL"              "WVmisc"                             
+
+
+
+
+
+
+
 
 # Download
 Git or SVN checkout using the web URL: https://github.com/danoreper/mnp2018.git
@@ -41,7 +61,7 @@ mnp2018\_LOCATION/src$ R CMD BATCH '--args ../config/defaultCluster.yaml' ./mnp/
 Restricting description to exons,
 * mnp2018\_LOCATION/output/isvdb/exon1410/genotype: exon genotypes
 * mnp2018\_LOCATION/output/isvdb/exon1410/diplotype: exon diplotypes
-* mnp2018\_LOCATION/output/isvdb/exon1410/genotype\_sampling: genotype sampling files (useful for simulating crosses)
+* mnp2018\_LOCATION/output/isvdb/exon1410/genotype\_sampling: genotype sampling files (useful for simulating crosses) 
 * mnp2018\_LOCATION/output/isvdb/exon1410/diplotype\_sampling: diplotype sampling files (useful for simulating crosses)
 
 * mnp2018\_LOCATION/v1.1: version 1.1 of this project, which used an SQL representation, and only contained exons+/- 100bp rather than the whole genome.
