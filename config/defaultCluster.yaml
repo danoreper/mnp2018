@@ -23,7 +23,7 @@ mnp:
   medianAdjust.p.values: yes
 
   evalprobelimit: .na
-  recomputeProbeInfo: no
+  recomputeProbeInfo: yes #no
 
 crowley:
   ## The type of surrogate variable computation. Options include SSVA, SVA, and SSVA_perm

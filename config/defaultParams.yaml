@@ -228,7 +228,7 @@ mnp:
   num.sv: 7 
 
   ## Number of probesets which will be modelled, and in which we will test for significance of POE
-  limit: .na ##100 ##20  ##.na    ## .na is yaml version of NA
+  limit: 20 #.na ##100 ##20  ##.na    ## .na is yaml version of NA
 
   tiny: no
   freed: no
@@ -283,7 +283,7 @@ mnp:
 
   ##Should probe and probeset info be recomputed based on probeset alignments and snp locations,
   ##or just loaded up from file (its slow)
-  recomputeProbeInfo: no
+  recomputeProbeInfo: yes
 
   ## The file delineating all sample covariates.
   breedinglog: 2017-02-13_breederLog.csv
