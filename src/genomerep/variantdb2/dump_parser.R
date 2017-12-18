@@ -1,6 +1,8 @@
+library(data.table)
+
 source("./loadParams.R")
 source("./bsub.R")
-library(data.table)
+
 
 db_builder = new.env(hash=T)
 

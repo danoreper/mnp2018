@@ -2,7 +2,7 @@
 library(IRanges)
 library(data.table)
 library(reshape2)
-library("Biostrings")
+library(Biostrings)
 
 source("./loadParams.R")
 source("./genomerep/cc_founderProbs.R")
