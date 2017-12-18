@@ -5,8 +5,8 @@ Code to generate results for "F1 reciprocal crosses of common inbred lines ..., 
 * OSX or linux
 * R>=3.3.1
 * Python>=2.7.12
-* R CRAN packages: data.table, reshape, ggplot2, grid, lmerTest, lme4, nlme, hglm, stringr, parallel 
-* R Bioconductor packages: Biostrings, IRanges, biomaRt, GenomicRanges, rtracklayer, affxparser, BiocGenerics
+* R CRAN packages: data.table, reshape, ggplot2, grid, lmerTest, lme4, nlme, stringr, parallel 
+* R Bioconductor packages: Biostrings, IRanges, biomaRt, GenomicRanges, rtracklayer, affxparser, BiocGenerics, Rsamtools
 * Python packages: PyYAML
 
 # Download

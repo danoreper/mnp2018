@@ -194,6 +194,15 @@ util$bjobs <- function()
     print(ss("bjobs"))
 }
 
+util$getLibs <- function()
+{
+    command = "grep -rohP '(?<=library\\().*(?=\\))' *"
+    x = system(command, intern=T)
+    x = gsub(x, pattern = "\"", replacement="")
+    x = sort(unique(x))
+    return(x)
+}
+
 #intentionally in global scope for ease of typing
 fp = file.path
 ss = system
