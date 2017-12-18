@@ -5,22 +5,12 @@ Code to generate results for "F1 reciprocal crosses of common inbred lines ..., 
 * OSX or linux
 * R>=3.3.1
 * Python>=2.7.12
-* R CRAN packages: Cairo, car, caterplot, coda, corrplot, data.table, evir, ggplot2, ggrepel, grid, gdata, reshape, reshape2, lme4, lmerTest, nlme,  parallel, pracma, rjags, stringr,tools, utils, yaml,
-* R Bioconductor packages: affxparser, BiocGenerics, biomaRt, Biostrings, GenomicRanges, IRanges, oligo, Rsamtools, rtracklayer
+* R CRAN packages: Cairo, car, caterplot, coda, corrplot, data.table, evir, ggplot2, ggrepel, grid, gdata, igraph, reshape, reshape2, lattice, lme4, lmerTest, MASS,  mcmcplots,  mvtnorm, multcomp, nlme,  parallel, pracma, rjags, stringr,tools, utils, yaml.
+* R Bioconductor packages: affxparser, BiocGenerics, biomaRt, Biostrings, GenomicRanges, IRanges, oligo, Rsamtools, rtracklayer.
 * Python packages: PyYAML
 
 
-                  
-                "coefplot2"                        
 
-               "igraph"              
-"IRanges"             "lattice"             "lme4"                
-"lmerTest"            "MASS"                "mcmcplots"           
-"multcomp"            "mvtnorm"             "nlme"                
-               "parallel"             
-       "pracma"                         
-                                        
-"RMySQL"              "WVmisc"                             
 
 
 
