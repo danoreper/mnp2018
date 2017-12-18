@@ -1,7 +1,9 @@
-library("nlme")
-library("lmerTest")
-source("./utils.R")
+library(nlme)
+library(lmerTest)
 library(data.table)
+
+source("./utils.R")
+
 
 lm.parsing = new.env(hash=T)
 

@@ -1,5 +1,6 @@
 micro.report = new.env(hash=T)
 
+## library(ReporteRs)
 library(data.table)
 source("./mnp/plotting.R")
 source("./mnp/micro/analysis.R")
@@ -153,7 +154,7 @@ micro.report$reportAnalysis <- function(exp.mat,
             pfile = fp(reportDir, "effect.table", paste0("p_", analpha, "_", avar, "_fwer", ".csv"))
             ## df$newname = NULL
             
-            ## library("ReporteRs")
+
             ## doc = docx()
             ## doc = addFlexTable(doc, FlexTable(df,
             ##                                   header.text.props = textBold( color = "black" )))

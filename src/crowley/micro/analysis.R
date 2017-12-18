@@ -1,5 +1,4 @@
 library(multcomp)
-library(WVmisc)
 library(nlme)
 library(MASS)
 library(data.table)
@@ -9,7 +8,6 @@ library(reshape)
 library(ggplot2)
 library(parallel)
 library("biomaRt")
-##library(lmerTest) #for lmerTest, caTools, bitOps, and possibly others need to be intentionally installed, automatic dependency checking doesnt work right. really annoying.
 options(warn=1)
 
 source("./utils.R") 

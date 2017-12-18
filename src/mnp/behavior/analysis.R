@@ -1,5 +1,4 @@
 ##Phenotype analysis methods
-##library(WVmisc)
 library(nlme)
 library(data.table)
 library(lme4)

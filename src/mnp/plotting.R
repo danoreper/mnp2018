@@ -3,7 +3,7 @@ library(ggplot2)
 library(data.table)
 library(grid)
 library(ggrepel)
-
+library(oligo)
 source("./multipleTesting.R")
 
 resol = 600
@@ -54,7 +54,7 @@ plotting$plotControls <- function(annot.data, probeTable, outdir)
 
 plotting$plot.cel.files <- function()
 {
-    library(oligo)
+
     celdir = datm(prop$mnp$cel.dir)
     cfnames =  list.celfiles(celdir)
     badcfnames = sort(c(25, 105,14,156,17,180,182,194,1,43,59,97))

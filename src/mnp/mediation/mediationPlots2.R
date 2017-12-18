@@ -1,4 +1,5 @@
-library("data.table")
+library(data.table)
+library(Cairo)
 source("./enrichmentTesting.R")
 source("./mnp/loadAllData.R")
 source("./mnp/mediation/mediationBayes3.R")
@@ -326,7 +327,7 @@ for(outcome in c( "behavior", "micro"))
 
 ##    aplot = aplot + theme(strip.background = element_rect(fill = outcome2, colour = NA))
     
-    library(Cairo)
+
     ggsave(fp(outdir, paste0(outcome, "_facet.pdf")), width = 12, height = 8, device = cairo_pdf)
 }
 
