@@ -31,7 +31,7 @@ inp  = loadAllData$createAllInputs()
 alphas = c(.05)
 
 #Run microarray expression analysis. If fromFile, load it up from file.
-fromFile = T
+fromFile = F
 if(!fromFile)
 {
     print("running no perm")
@@ -68,7 +68,7 @@ qpcr.analysis$run(inp)
 ##Run behavior analysis
 beh.analysis$runAll(inp$phens)
 print("done with behavior")
-browser()
+
 ##Run mediation analysis.
 source("./mnp/mediation/runMedBayes3.R")
 

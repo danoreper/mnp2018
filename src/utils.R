@@ -203,6 +203,12 @@ util$getLibs <- function()
     return(x)
 }
 
+util$bioc <- function(alib="")
+{
+    source("https://bioconductor.org/biocLite.R")
+    biocLite(alib)
+}
+
 #intentionally in global scope for ease of typing
 fp = file.path
 ss = system
