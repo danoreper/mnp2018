@@ -1,5 +1,5 @@
 ##Phenotype analysis methods
-library(WVmisc)
+##library(WVmisc)
 library(nlme)
 library(data.table)
 library(lme4)
@@ -9,7 +9,7 @@ library(ggplot2)
 library(corrplot)
 library(coda)
 #library(car)
-library(hglm)
+#library(hglm)
 library(multcomp)
 library(corrplot)
 

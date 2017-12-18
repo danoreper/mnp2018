@@ -8,7 +8,7 @@ library("biomaRt")
 library(Rsamtools)
 library(Biostrings)
 library(GenomicRanges)
-library(WVmisc)
+#library(WVmisc)
 library(data.table)
 
 
