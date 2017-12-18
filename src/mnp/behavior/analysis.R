@@ -1,8 +1,5 @@
 ##Phenotype analysis methods
 ##library(WVmisc)
-#library(car)
-##library(hglm)
-
 library(nlme)
 library(data.table)
 library(lme4)
