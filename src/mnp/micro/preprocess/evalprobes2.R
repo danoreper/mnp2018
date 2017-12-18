@@ -18,6 +18,7 @@ source("./mnp/micro/preprocess/affylibReader.R")
 ##either loads or recomputes probe info
 getProbeInfo <- function(computedProbeDataDir, variantFile, cel.dir, recomputeApt = T, removeBadProbes = T)
 {
+    
     probeData = computeAllProbeInformation(computedProbeDataDir, variantFile, cel.dir, recomputeApt = recomputeApt, removeBadProbes = removeBadProbes)
     probeDataBundle = "probeData"
 
@@ -37,7 +38,7 @@ computeAllProbeInformation <- function(computedProbeDataDir, variantFile, cel.di
                                        recomputeApt = T,
                                        removeBadProbes = T)
 {
-    
+    browser()
     ##the microarray library data
     pracma::tic()
     mic = affylibReader$readMicroArrayMetaData(pgfFile = datm(prop$mnp$pgfFile),
@@ -602,7 +603,9 @@ getKillFileName <- function(computedProbeDataDir)
 #apt.outdir must contain the killlist already. 
 run.apt.probeset.summarize <- function(apt.outdir, cel.dir)
 {
-    aptBinPath = file.path(prop$resources, "apt-1.18.0-x86_64-intel-linux/bin")
+    browser()
+    ##    aptBinPath = file.path(prop$resources, "apt-1.18.0-x86_64-intel-linux/bin")
+    aptBin = file.path(prop$external$apt)
     aptLibPath = datm("microarray_lib_files/MoGene-1_1-st-v1.r4.analysis-lib-files")
     apt.killfile = getKillFileName(apt.outdir)
 
@@ -611,7 +614,7 @@ run.apt.probeset.summarize <- function(apt.outdir, cel.dir)
     apt.logfile = file.path(apt.outdir, "aptlog")
 
     command = paste(
-      file.path(aptBinPath, "apt-probeset-summarize"),
+        aptBin,
       "-o", apt.outdir,
       "-a rma",
       "-c ", file.path(aptLibPath, "MoGene-1_1-st-v1.r4.clf"),

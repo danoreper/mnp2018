@@ -22,6 +22,8 @@ system.type: killdevil
 
 ##The location of external resources/packages, etc. Often overriden on the cluster
 external:
+
+  apt: ../external/apt-1.18.0-x86_64-intel-linux/apt-probeset-summarize	
   #The location of the kallisto executable. If on path, just do ./kallisto
   kallisto: ~/resources/kallisto_linux-v0.42.4/kallisto
 
