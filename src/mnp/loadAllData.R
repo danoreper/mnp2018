@@ -377,12 +377,13 @@ read.annot.data <- function(annot.old.expression.file, outdir)
     
 ############# Processing annotated but unmasked expression data###
                                         # clean up irregular column names
-    colnames(annot.data) <- map.eq(colnames(annot.data),
-                                   list(
-                                       "mRNA..Source"       = "mRNA.Source",
-                                       "mRna...Description" = "mRNA.Description",
-                                       "mRNA...xhyb"        = "mRNA.xhyb"))
-    
+
+    nmz = colnames(annot.data)
+    names(nmz) = nmz
+    nmz[c("mRNA..Source", "mRna...Description", "mRNA...xhyb")] =
+        c("mRNA.Source", "mRNA.Description", "mRNA.xhyb")
+    colnames(annot.data) = unname(nmz)
+        
     ## make mice "Mouse.N" where N is mouse id
     mouse.cols <- grep("\\.rma.gene\\.default\\.Signal", colnames(annot.data))
     colnames(annot.data)[mouse.cols] <- 

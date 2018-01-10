@@ -16,14 +16,14 @@ tmpdir: ../output/tmp
 mc.cores: 1.0
 
 ##whether we are running on the cluster or on local machine
-onCluster: yes
+onCluster: no
 
 system.type: killdevil
 
 ##The location of external resources/packages, etc. Often overriden on the cluster
 external:
 
-  apt: ../external/apt-1.18.0-x86_64-intel-linux/apt-probeset-summarize	
+  apt: ../external/apt-1.18.0-x86_64-intel-linux/bin/apt-probeset-summarize	
   #The location of the kallisto executable. If on path, just do ./kallisto
   kallisto: ~/resources/kallisto_linux-v0.42.4/kallisto
 
@@ -230,7 +230,7 @@ mnp:
   num.sv: 7 
 
   ## Number of probesets which will be modelled, and in which we will test for significance of POE
-  limit: 20 #.na ##100 ##20  ##.na    ## .na is yaml version of NA
+  limit: 5000 #.na ##100 ##20  ##.na    ## .na is yaml version of NA
 
   tiny: no
   freed: no

@@ -192,7 +192,6 @@ getProbesetInfo <- function(probedGenes, mic)
 {
     probedGenes                 = data.table(probedGenes, "meta_probesetId")
     probedGenes$meta_probesetId = as.character(probedGenes$meta_probesetId)
-    browser()
     probesetInfo                = probedGenes[,list(chrom = paste(unique(seqname), collapse=","),
                                                     probesetStart = min(seq_region_start),
                                                     probesetEnd = max(seq_region_end),
@@ -603,9 +602,8 @@ getKillFileName <- function(computedProbeDataDir)
 #apt.outdir must contain the killlist already. 
 run.apt.probeset.summarize <- function(apt.outdir, cel.dir)
 {
-    browser()
     ##    aptBinPath = file.path(prop$resources, "apt-1.18.0-x86_64-intel-linux/bin")
-    aptBin = file.path(prop$external$apt)
+    aptBin = fp(prop$external$apt)
     aptLibPath = datm("microarray_lib_files/MoGene-1_1-st-v1.r4.analysis-lib-files")
     apt.killfile = getKillFileName(apt.outdir)
 
