@@ -73,9 +73,14 @@ micro.report$reportAnalysis <- function(exp.mat,
     sink(mainReport)
     toReport("####")
     toReport(ps("Total num probesets: ", nrow(results$per.probe)))
-    toReport(ps("Total num unique genes: ",    length(toUnique(results$per.probe$gene_name))))
+    toReport(ps("Total num unique genes: ",              length(toUnique(results$per.probe$gene_name))))
+
+    toReport(ps("Num imprinted probesets: ",             nrow(results$per.probe[imprinted=="Y"]))
+    toReport(ps("Num unique imprinted genes: ", length(toUnique(results$per.probe[imprinted=="Y"]$gene_name))))
 
     df.summaries = list()
+
+    
     for(analpha in c(.05))##unique(threshholds$permStatistics$alpha))
     {
 
@@ -92,7 +97,16 @@ micro.report$reportAnalysis <- function(exp.mat,
 
             pfile = fp(reportDir, "effect.table", paste0("p_all_", avar,".csv"))
             write.table(file=pfile, df, row.names=FALSE, sep="\t")
-            
+
+            if(avar=="Strain")
+            {
+                toReport("##Full stats, POE imprinting enrichment by probeset")
+                X = table(df$imprinted=="Y", anova.q.value<analpha)
+                toReport(X)
+                fish = fisher.test(X)
+                toReport(fish)
+            }
+
 
   
 
@@ -100,6 +114,11 @@ micro.report$reportAnalysis <- function(exp.mat,
             relevantThresh = threshholds[variable==avar]
             relevantThreshVal  = util$lookupByFloat(df=relevantThresh, floatkeyCol = "alpha", floatkey = analpha, valueCol = "threshhold.gev") 
 
+
+
+            
+            
+            
             
             toReport("##Permutation stats")
             toWrite.perm = toWrite.sub[anova.p.value<relevantThreshVal & anova.q.value<analpha]
@@ -215,6 +234,16 @@ micro.report$reportAnalysis <- function(exp.mat,
 
 
 ##    if(T){save(file = outm("all.RData"), list=ls())}
+}
+
+micro.enrichment <- function(inp)
+{
+    ps = inp$probesetInfo
+    num.imp.ps = nrow(ps[!is.na(minDistToImprinted)&minDistToImprinted<=100])
+num.ps  = nrow(ps[is.na(minDistToImprinted)|minDistToImprinted>100])
+num.imp.gene = length( unlist(strsplit(ps[!is.na(minDistToImprinted)&minDistToImprinted<=100]$gene_name, ",")))
+num.gene = length( unlist(strsplit(ps[is.na(minDistToImprinted)|minDistToImprinted>100]$gene_name, ",")))
+
 }
 
 
