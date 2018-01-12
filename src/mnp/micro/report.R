@@ -97,7 +97,11 @@ micro.report$reportAnalysis <- function(exp.mat,
             df = micro.report$.formatTable(toWrite.sub, results$per.variable, results$per.level, avar)
             dir.create(fp(reportDir, "effect.table"), recursive=T, showWarnings=F)
 
-            pfile = fp(reportDir, "effect.table", paste0("p_all_", avar,".csv"))
+            fpmap = list(Strain="File_S27_POE_expression.csv",
+                         Diet  ="File_S28_diet_expression.csv")
+            fpmap[["Diet:Strain"]] = "File_S29_POE_diet_expression.csv"
+                         
+            pfile = fp(reportDir, "effect.table", fpmap[[avar]])
             write.table(file=pfile, df, row.names=FALSE, sep="\t")
 
             browser()
@@ -309,11 +313,11 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
 ##        table(rowSums((subd[,otherdiet.colz, with = F]<=alphalevel)))
 
         alphalevel = .05
-        sigpq$significant.methyl.contrasts     = rowSums((sigpq[,methsuff.colz, with = F]<=alphalevel))
-        sigpq$significant.non.methyl.contrasts = rowSums((sigpq[,otherdiet.colz, with = F]<=alphalevel))
+        ## sigpq$significant.methyl.contrasts     = rowSums((sigpq[,methsuff.colz, with = F]<=alphalevel))
+        ## sigpq$significant.non.methyl.contrasts = rowSums((sigpq[,otherdiet.colz, with = F]<=alphalevel))
         
         sigpq = justvar[sigpq]
-        limitedCols = c(limitedCols, c("methyl.rank", "significant.methyl.contrasts", "significant.non.methyl.contrasts"))
+        limitedCols = c(limitedCols, c("methyl.rank"))#, "significant.methyl.contrasts", "significant.non.methyl.contrasts"))
     }
 
 
