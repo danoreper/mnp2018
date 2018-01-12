@@ -337,6 +337,7 @@ plotting$plotPermScan <- function(full,
                 
         if(vartype =="Strain")
         {
+           
             justvar = per.level[variable.level=="StrainNOD.B6", j=list(level1 = coef.Value, Probe.Set.ID)]
             setkey(justvar, "Probe.Set.ID")
         }
@@ -834,11 +835,6 @@ plotting$buildManyScans <- function(results, outdir, thresh, karyo)
     full = results$full
     fulls = list()
     fulls[[1]] = full
-    ## fulls[[2]] = full[chrom=="7" | chrom =="12"]
-    ## fulls[[3]] = full[chrom =="7"]
-    ## fulls[[4]] = full[chrom =="12"]
-##    fulls[[3]] = full[chrom=="7" & probesetStart>5.92*10^7 & probesetStart<6*10^7]
-##    fulls[[4]] = full[chrom=="12" & probesetStart>1.096*10^8 & probesetStart<1.098*10^8]
     nmz = c("", "_712", "7", "12")
     for(i in 1:length(fulls))
     {

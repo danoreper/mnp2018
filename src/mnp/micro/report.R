@@ -34,6 +34,7 @@ micro.report$reportAnalysis <- function(exp.mat,
 
     plotting$buildManyScans(results = results, outdir=prop$mnp$output, thresh = threshholds, karyo = karyo)
 
+    print("done plotting many scans")
     mainReport = fp(reportDir, "long_summary.txt")
 #    unlink(mainReport)
 #    mainReport = file(mainReport, "w")
@@ -70,7 +71,7 @@ micro.report$reportAnalysis <- function(exp.mat,
         return(genez)
     }
 
-    sink(mainReport)
+##    sink(mainReport)
     toReport("####")
     toReport(ps("Total num probesets: ", nrow(results$per.probe)))
     toReport(ps("Total num unique genes: ",              length(toUnique(results$per.probe$gene_name))))
@@ -86,6 +87,7 @@ micro.report$reportAnalysis <- function(exp.mat,
 
         for(avar in c("Diet", "Strain", "Diet:Strain"))#unique(threshholds$variable))
         {
+            print(paste0("working on ", avar))
             toReport("                                          ")
             toReport("                                          ")
             toReport("                                          ")
@@ -97,6 +99,8 @@ micro.report$reportAnalysis <- function(exp.mat,
 
             pfile = fp(reportDir, "effect.table", paste0("p_all_", avar,".csv"))
             write.table(file=pfile, df, row.names=FALSE, sep="\t")
+
+            browser()
             
             relevantThresh = threshholds[variable==avar]
             relevantThreshVal  = util$lookupByFloat(df=relevantThresh, floatkeyCol = "alpha", floatkey = analpha, valueCol = "threshhold.gev") 
@@ -257,6 +261,7 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
      ##                     c("Gene", "Chr", "Probeset Start", "F1 with Higher Expression", "Imprinted"))
      ##        }
 
+    print(paste0("formatting ", variable))
     
     limitedCols = c(
         ##"variable",
@@ -287,6 +292,7 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
     {
         print("evaluating diet")
 
+    
         v1 = per.level[variable.level=="DietME", j = list(level1 = coef.Value, Probe.Set.ID)]
         v2 = per.level[variable.level=="DietVDD",    j = list(level1 = coef.Value, Probe.Set.ID)]
         v3 = per.level[variable.level=="DietPD",     j = list(level1 = coef.Value, Probe.Set.ID)]
@@ -336,6 +342,8 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
              old = c("anova.p.value","anova.q.value"),#, "imprintedMGI"),
              new = c("-log10.pval", "-log10.qval"))#, "nearestImprinted"))
 
+
+    print(paste0("done formatting ", variable))
     
     return(limitedTable)
 }
