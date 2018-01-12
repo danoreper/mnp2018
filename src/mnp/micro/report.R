@@ -31,7 +31,7 @@ micro.report$reportAnalysis <- function(exp.mat,
         
     siglevel = .05
 ##    toWrite = toWrite[is.na(anova.p.value)| anova.p.value<=siglevel,]
-    
+
     plotting$buildManyScans(results = results, outdir=prop$mnp$output, thresh = threshholds, karyo = karyo)
 
     mainReport = fp(reportDir, "long_summary.txt")
@@ -75,12 +75,16 @@ micro.report$reportAnalysis <- function(exp.mat,
     toReport(ps("Total num probesets: ", nrow(results$per.probe)))
     toReport(ps("Total num unique genes: ",              length(toUnique(results$per.probe$gene_name))))
 
+<<<<<<< HEAD
     browser()
     toReport(ps("Num imprinted probesets: ",             nrow(results$per.probe[imprinted=="Y"])))
     toReport(ps("Num unique imprinted genes: ", length(toUnique(results$per.probe[imprinted=="Y"]$gene_name))))
+=======
+    toReport(ps("Num imprinted probesets: ",    nrow(results$per.probe[!is.na(minDistToImprinted)&minDistToImprinted<=100])))
+    toReport(ps("Num unique imprinted genes: ", length(toUnique(results$per.probe[!is.na(minDistToImprinted)&minDistToImprinted<=100]$gene_name))))
+>>>>>>> 8d0276cc28cecb21ba5b2c9e4abf95f10e97ad84
 
     df.summaries = list()
-
     
     for(analpha in c(.05))##unique(threshholds$permStatistics$alpha))
     {
@@ -98,13 +102,26 @@ micro.report$reportAnalysis <- function(exp.mat,
 
             pfile = fp(reportDir, "effect.table", paste0("p_all_", avar,".csv"))
             write.table(file=pfile, df, row.names=FALSE, sep="\t")
+            
+            relevantThresh = threshholds[variable==avar]
+            relevantThreshVal  = util$lookupByFloat(df=relevantThresh, floatkeyCol = "alpha", floatkey = analpha, valueCol = "threshhold.gev") 
 
             if(avar=="Strain")
             {
+##                browser()
                 toReport("##Full stats, POE imprinting enrichment by probeset")
-                X = table(df$imprinted=="Y", anova.q.value<analpha)
+                
+                df$logp = df[["-log10.pval"]]
+                df$passes.FWER = as.numeric(df$logp)>-log10(relevantThreshVal)
+                df1 = df[,list(poe = any(passes.FWER), imprinted = any(imprinted=="Y")),by="gene_name"]
+
+                df1 = df1[,list(gene_name=unlist(strsplit(as.character(gene_name), split=",")), poe = poe, imprinted = imprinted),by="gene_name"] 
+                                
+                X = table(df1$imprinted==T, df1$poe)
+                dimnames(X) = list(Imprinted=c(F,T), POE=c(F,T))
                 toReport(X)
                 fish = fisher.test(X)
+                toReport("Fisher test of enrichment:")
                 toReport(fish)
             }
 
@@ -112,13 +129,10 @@ micro.report$reportAnalysis <- function(exp.mat,
   
 
             
-            relevantThresh = threshholds[variable==avar]
-            relevantThreshVal  = util$lookupByFloat(df=relevantThresh, floatkeyCol = "alpha", floatkey = analpha, valueCol = "threshhold.gev") 
 
 
 
-            
-            
+                  
             
             
             toReport("##Permutation stats")
@@ -235,16 +249,6 @@ micro.report$reportAnalysis <- function(exp.mat,
 
 
 ##    if(T){save(file = outm("all.RData"), list=ls())}
-}
-
-micro.enrichment <- function(inp)
-{
-    ps = inp$probesetInfo
-    num.imp.ps = nrow(ps[!is.na(minDistToImprinted)&minDistToImprinted<=100])
-num.ps  = nrow(ps[is.na(minDistToImprinted)|minDistToImprinted>100])
-num.imp.gene = length( unlist(strsplit(ps[!is.na(minDistToImprinted)&minDistToImprinted<=100]$gene_name, ",")))
-num.gene = length( unlist(strsplit(ps[is.na(minDistToImprinted)|minDistToImprinted>100]$gene_name, ",")))
-
 }
 
 
