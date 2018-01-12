@@ -78,6 +78,7 @@ micro.report$reportAnalysis <- function(exp.mat,
     toReport(ps("Num imprinted probesets: ",    nrow(results$per.probe[!is.na(minDistToImprinted)&minDistToImprinted<=100])))
     toReport(ps("Num unique imprinted genes: ", length(toUnique(results$per.probe[!is.na(minDistToImprinted)&minDistToImprinted<=100]$gene_name))))
 
+
     df.summaries = list()
     
     for(analpha in c(.05))##unique(threshholds$permStatistics$alpha))
