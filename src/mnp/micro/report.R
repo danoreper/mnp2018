@@ -75,6 +75,7 @@ micro.report$reportAnalysis <- function(exp.mat,
     toReport(ps("Total num probesets: ", nrow(results$per.probe)))
     toReport(ps("Total num unique genes: ",              length(toUnique(results$per.probe$gene_name))))
 
+    browser()
     toReport(ps("Num imprinted probesets: ",             nrow(results$per.probe[imprinted=="Y"])))
     toReport(ps("Num unique imprinted genes: ", length(toUnique(results$per.probe[imprinted=="Y"]$gene_name))))
 
