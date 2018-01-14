@@ -19,7 +19,7 @@ mnp:
   medianAdjust.p.values: yes
 
   evalprobelimit: .na
-  recomputeProbeInfo: yes #no
+  recomputeProbeInfo: no #no
 
 
 ##  ssva.resid: 

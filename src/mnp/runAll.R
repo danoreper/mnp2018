@@ -31,9 +31,10 @@ inp  = loadAllData$createAllInputs()
 alphas = c(.05)
 
 #Run microarray expression analysis. If fromFile, load it up from file.
-fromFile = F
+fromFile = T
 if(!fromFile)
 {
+    browser()
     print("running no perm")
     out = micro.analysis$run.noperm(inp)
     print("done running no perm")
@@ -49,7 +50,15 @@ if(!fromFile)
     }
 } else {
     load(outm(fp("micro","perm.RData")))
+    ##split into two pieces.
+##    browser()
+##    inp$probesetInfo = fread("../data/mnp/matnut.newmask/probeData/probesetInfo.csv")
+##  setkey(inp$probesetInfo, "meta_probesetID")
     sources()
+    inp  = loadAllData$createAllInputs()
+    save(file = outm(fp("micro","permz.RData")), list = ls())
+##    inp$probesetInfo = fread("../data/mnp/matnut.newmask")
+ 
 }
 
 #Generate plots for microarray analysis
