@@ -71,7 +71,7 @@ micro.report$reportAnalysis <- function(exp.mat,
         return(genez)
     }
 
-##    sink(mainReport)
+    sink(mainReport)
     toReport("####")
     toReport(ps("Total num probesets: ", nrow(results$per.probe)))
     toReport(ps("Total num unique genes: ",              length(toUnique(results$per.probe$gene_name))))
@@ -87,6 +87,7 @@ micro.report$reportAnalysis <- function(exp.mat,
 
         for(avar in c("Diet", "Strain", "Diet:Strain"))#unique(threshholds$variable))
         {
+            relevantThreshVal = NULL
             print(paste0("working on ", avar))
             toReport("                                          ")
             toReport("                                          ")
@@ -105,38 +106,30 @@ micro.report$reportAnalysis <- function(exp.mat,
             write.table(file=pfile, df, row.names=FALSE, sep="\t")
 
             browser()
-            
-            relevantThresh = threshholds[variable==avar]
-            relevantThreshVal  = util$lookupByFloat(df=relevantThresh, floatkeyCol = "alpha", floatkey = analpha, valueCol = "threshhold.gev") 
 
-            if(avar=="Strain")
+            if(!is.null(threshholds))
             {
-##                browser()
-                toReport("##Full stats, POE imprinting enrichment by probeset")
+                relevantThresh = threshholds[variable==avar]
+                relevantThreshVal  = util$lookupByFloat(df=relevantThresh, floatkeyCol = "alpha", floatkey = analpha, valueCol = "threshhold.gev") 
                 
-                df$logp = df[["-log10.pval"]]
-                df$passes.FWER = as.numeric(df$logp)>-log10(relevantThreshVal)
-                df1 = df[,list(poe = any(passes.FWER), imprinted = any(imprinted=="Y")),by="gene_name"]
-
-                df1 = df1[,list(gene_name=unlist(strsplit(as.character(gene_name), split=",")), poe = poe, imprinted = imprinted),by="gene_name"] 
-                                
-                X = table(df1$imprinted==T, df1$poe)
-                dimnames(X) = list(Imprinted=c(F,T), POE=c(F,T))
-                toReport(X)
-                fish = fisher.test(X)
-                toReport("Fisher test of enrichment:")
-                toReport(fish)
-            }
-
-
-  
-
-            
-
-
-
-                  
-            
+                if(avar=="Strain")
+                {
+                    ##                browser()
+                    toReport("##Full stats, POE imprinting enrichment by probeset")
+                    
+                    df$logp = df[["-log10.pval"]]
+                    df$passes.FWER = as.numeric(df$logp)>-log10(relevantThreshVal)
+                    df1 = df[,list(poe = any(passes.FWER), imprinted = any(imprinted=="Y")),by="gene_name"]
+                    
+                    df1 = df1[,list(gene_name=unlist(strsplit(as.character(gene_name), split=",")), poe = poe, imprinted = imprinted),by="gene_name"] 
+                    
+                    X = table(df1$imprinted==T, df1$poe)
+                    dimnames(X) = list(Imprinted=c(F,T), POE=c(F,T))
+                    toReport(X)
+                    fish = fisher.test(X)
+                    toReport("Fisher test of enrichment:")
+                    toReport(fish)
+                }
             
             toReport("##Permutation stats")
             toWrite.perm = toWrite.sub[anova.p.value<relevantThreshVal & anova.q.value<analpha]
@@ -166,8 +159,8 @@ micro.report$reportAnalysis <- function(exp.mat,
                 ##                    toReport(table(ps(df$significant.methyl.contrasts,
                 ##                                    "/",
                 ##                                      df$significant.non.methyl.contrasts)))
-                toReport(ps("Sig Methyl contrasts:", sum(df$significant.methyl.contrasts)))
-                toReport(ps("Non-Methyl contrasts:", sum(df$significant.non.methyl.contrasts)))
+                ##toReport(ps("Sig Methyl contrasts:", sum(df$significant.methyl.contrasts)))
+                ##toReport(ps("Non-Methyl contrasts:", sum(df$significant.non.methyl.contrasts)))
             }
             if(avar=="Strain")
             {
@@ -200,7 +193,7 @@ micro.report$reportAnalysis <- function(exp.mat,
             ## ##                df$Probe.Set.ID = NULL
             ## writeDoc(doc, file = paste(pfile,".docx"))
             write.table(file=pfile, df, row.names=FALSE, sep="\t")
-            
+            }
             
             toReport("##FDR stats")
             toWrite.fdr   = toWrite.sub[anova.q.value <analpha]
@@ -223,10 +216,12 @@ micro.report$reportAnalysis <- function(exp.mat,
 ##            df1$Probe.Set.ID = NULL
             cz  = c(setdiff(colnames(df1), c("-log10.pval", "-log10.qval")), c("-log10.pval", "-log10.qval"))
             df1 = df1[,cz, with=F]
-            tmp = df1$passes.FWER
-            df1$passes.FWER = NULL
-            df1$passes.FWER = tmp
-
+            if(!is.null(threshholds))
+            {
+                tmp = df1$passes.FWER
+                df1$passes.FWER = NULL
+                df1$passes.FWER = tmp
+            }
             write.table(file=pfile, df1, row.names=FALSE, sep="\t")
             toReport("p-value table")
             toReport(df1)

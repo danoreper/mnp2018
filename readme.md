@@ -6,8 +6,8 @@ Code to generate results for 'F1 reciprocal crosses of common inbred lines ..., 
 * jags
 * R>=3.3.1
 * Python>=2.7.12
-* R CRAN packages: Cairo, car, caterplot, coda, corrplot, data.table, evir, ggplot2, ggrepel, grid, gdata, igraph, reshape, reshape2, lattice, lme4, lmerTest, MASS,  mcmcplots,  mvtnorm, multcomp, nlme,  parallel, pracma, rjags, stringr,tools, utils, yaml.
-* R Bioconductor packages: affxparser, BiocGenerics, biomaRt, Biostrings, GenomicRanges, IRanges, oligo, Rsamtools, rtracklayer.
+* R CRAN packages: Cairo, car, coda, corrplot, data.table, evir, ggplot2, ggrepel, grid, gdata, igraph, reshape, reshape2, lattice, lme4, lmerTest, MASS,  mcmcplots,  mvtnorm, multcomp, nlme,  parallel, pracma, rjags, stringr,tools, utils, yaml.
+* R Bioconductor packages: affxparser, BiocGenerics, biomaRt, Biostrings, GenomicRanges, IRanges, limma, oligo, org.Mm.eg.db, Rsamtools, rtracklayer.
 * Python packages: PyYAML
 
 

@@ -23,7 +23,6 @@ buildImprintedGenes$collateImprintInfo <- function(
     ensembl = useDataset("mmusculus_gene_ensembl",mart=ensembl)
     filters = listFilters(ensembl)
     attributes = listAttributes(ensembl)
-    
 
     ##the crowley supplementary table imprinted measured genes
     imprinted =  data.table(read.table(imprintFile,header=T,sep=",", skip=1),  key="Ensembl.name")
@@ -45,6 +44,7 @@ buildImprintedGenes$collateImprintInfo <- function(
                               brainImprinted = F,
                               strainEffect = F,
                               Expressed.allele = NA)
+        sns[[i]]$oldmgi = paste0("Snord", sn)
         i = i + 1
     }
     
@@ -57,17 +57,22 @@ buildImprintedGenes$collateImprintInfo <- function(
         strainEffect    = c(rep(F,nLit), as.character(imprinted$Strain.effect.))=="Yes",
         Expressed.allele = c(as.character(litOnly$Expressed.allele), as.character(imprinted$Expressed.allele)))
 
-
     impGenes = data.table(impGenes)
+    impGenes = impGenes[!duplicated(impGenes$mgi_symbol)]
     ## remove the bogus 115/116, lacking actual gene name, rows
     impGenes = impGenes[!mgi_symbol %in% c("Snord115","Snord116")]
+
+    impGenes$oldmgi = impGenes$mgi_symbol
+##    impGenes$oldmgi = limma::alias2Symbol(impGenes$oldmgi, species = "Mm")
     impGenes$mgi_symbol = NULL
 
+    
+    
     ##put the real snord records in
     for(sn in sns) {impGenes = rbind(impGenes, sn)}
     impGenes = data.table(impGenes,key="ensembl_gene_id")
 
-    ## browser()
+    setkey(impGenes, "oldmgi")
 
     
     ##enMart  = getGene(ensembl.gene.ID,type="ensembl_gene_id", mart=ensembl) 
@@ -81,14 +86,66 @@ buildImprintedGenes$collateImprintInfo <- function(
                    filters="ensembl_gene_id", values=impGenes$ensembl_gene_id,mart=ensembl)
 
     enMart = data.table(enMart, key="ensembl_gene_id")
+    ##some number of ensembl ids wont exist in ensembl mart, lets examine them
+    missingEnsembl = setdiff(impGenes$ensembl_gene_id, enMart$ensembl_gene_id)
+    ##try and recover by using mgi instead for these missing genes.
+    mgi.recover = impGenes[ensembl_gene_id %in% missingEnsembl]$oldmgi
+
+    enMart.recover = data.table(getBM(attributes=c("ensembl_gene_id",
+                                "mgi_symbol",
+                                "description",
+                                "chromosome_name",
+                                "strand",           
+                                "start_position",
+                                "end_position"),
+                                filters="mgi_symbol",
+                                values = mgi.recover, mart=ensembl))
+
+
+    impGenes[enMart.recover$mgi_symbol]$ensembl_gene_id = as.character(enMart.recover$ensembl_gene_id)
+    enMart = rbind(enMart, enMart.recover)
+    
+
+    missingEnsembl = setdiff(impGenes$ensembl_gene_id, enMart$ensembl_gene_id)
+    mgi.recover    = impGenes[ensembl_gene_id %in% missingEnsembl]$oldmgi
+    
+    recovers = list()
+    for(i  in 1:length(mgi.recover))
+    {
+        nm = limma::alias2Symbol(mgi.recover[i], species = "Mm")
+        if(length(nm)>0)
+        {
+            enMart.recover = data.table(getBM(attributes=c("ensembl_gene_id",
+                                                "mgi_symbol",
+                                                "description",
+                                                "chromosome_name",
+                                                "strand",           
+                                                "start_position",
+                                                "end_position"),
+                                              filters="mgi_symbol",
+                                              values = nm,
+                                              mart =ensembl))
+            if(nrow(enMart.recover)>0)
+            {
+                recovers = util$appendToList(recovers, data.table(oldmgi = mgi.recover[i], enMart.recover))
+            }
+        }
+    }
+    recovers = rbindlist(recovers)
+
+    
+    impGenes[as.character(recovers$oldmgi)]$ensembl_gene_id = as.character(recovers$ensembl_gene_id)
+    enMart = rbind(enMart, recovers)
+    
     fullInfo                 = impGenes[enMart]
     ##use the ensembl mart version of IDs after joining the two tables, as it is more current
     
-    ##some number of ensembl ids wont exist in ensembl mart, lets examine them
-    allEnsembl   = unique(c(as.character(imprinted$Ensembl.name), as.character(literature$Ensembl.Gene.ID)))
-    missingEnsembl = setdiff(allEnsembl, fullInfo$ensembl_gene_id)
+    
+
+                             
     print("following ensembl ids were not found in biomart... they are deprecated as of my last manual check against ensembl page")
     print(missingEnsembl)
+
 
     ## fullInfo = rbind(fullInfo, snords, fill = T)
     #redundant gene names, but with bizzare ensembl ids, and shifted slightly in position. assuming these are bad.

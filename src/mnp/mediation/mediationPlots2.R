@@ -10,8 +10,13 @@ source("./mnp/micro/preprocess/extractFromProbes.R")
 ## discardMissing = T
 ## mergeQPCR      = F
 
-getFile = function( mediator, outcome, discardMissing, mergeQPCR)
+getFile = function( mediator, outcome, discardMissing, mergeQPCR, inp=NULL)
 {
+    if(is.null(inp))
+    {
+        inp  = loadAllData$createAllInputs()
+    }
+
     froot = fp(prop$mnp$output, "mediation")
     if(outcome == "behavior")
     {
@@ -24,7 +29,9 @@ getFile = function( mediator, outcome, discardMissing, mergeQPCR)
     df$coef.a = NULL
     df$coef.b = NULL
     df$moderators = NULL
-    df$imprinted[is.na(df$imprinted)] = F
+    df$mediator.id = as.character(df$mediator.id)
+    df = inp$probesetInfo[df, on = c(Probe.Set.ID="mediator.id")]
+    df[,imprinted:= !is.na(minDistToImprinted)& minDistToImprinted <=100]
     df$p.value.a = NULL
     df$p.value.b = NULL
     df$lb.ab     = NULL
@@ -58,7 +65,9 @@ getFile = function( mediator, outcome, discardMissing, mergeQPCR)
     ##TODO merge id and name, get rid of both subscripts.
 ##    df$p.strain.on.mediator = NULL
     df$suppressor = (df$coef.cprime*df$coef.ab<0)
-    setcolorder(df, c("p.value.ab", "coef.ab", "coef.cprime", "p.value.cprime", "p.strain.on.mediator", "imprinted",  "suppressor",  "mediator","outcome"))
+    colz = c("p.value.ab", "coef.ab", "coef.cprime", "p.value.cprime", "imprinted",  "suppressor",  "mediator","outcome")
+    df = df[,colz, with = F]
+    setcolorder(df, colz)
     return(df)
 }
 
@@ -175,11 +184,11 @@ getBehLevels <- function()
 }
 
 
-beh = fread(datm("2016-05-02_behavior_pvals.csv"))
-
-##limitedPhen = beh[strain.pval.qval.fdr =="o" | grepl(pattern = "\\*", strain.pval.qval.fdr)]$phen
-limitedPhen = beh[strain.pval =="o" | grepl(pattern = "\\*", strain.pval)]
-limitedPhen = paste0(limitedPhen$experiment, "_", limitedPhen$phenotype)
+##strain.results = fread(outm("limited_Strain_p_0.05.csv"))    ##fread(datm("2017-05_strainResults.csv"))
+## beh = fread(datm("2016-05-02_behavior_pvals.csv"))
+## ##limitedPhen = beh[strain.pval.qval.fdr =="o" | grepl(pattern = "\\*", strain.pval.qval.fdr)]$phen
+## limitedPhen = beh[strain.pval =="o" | grepl(pattern = "\\*", strain.pval)]
+## limitedPhen = paste0(limitedPhen$experiment, "_", limitedPhen$phenotype)
 ##limitedPhen = setdiff(limitedPhen, c("PC1", "PC2"))
 
 outdir = fp(outm("mediation", "plots"))
@@ -188,7 +197,8 @@ lrrc16a  = getProbesetId(raw.data$probesetInfo, "Lrrc16a")
 airn     = "10441787"
 taq.data = getRawTaqData(merge.qpcr.plate = T)
 micro.data.orig  = mnp.med$get.sv.corrected.genes(raw.data, T)$exp.mat
-strain.results = fread(outm("limited_Strain_p_0.05.csv"))    ##fread(datm("2017-05_strainResults.csv"))
+
+
 ##micro.data = data.frame(raw.data$exp.mat, check.names = F)
 
 micro.data = micro.data.orig[ ,c(lrrc16a, airn),drop = F]
@@ -281,7 +291,7 @@ for(outcome in c( "behavior", "micro"))
     aplot = aplot + scale_y_sqrt()
 
     
-    xlab.str = bquote("-log"[10] *"(BTP"[mediation(ab)]*")")
+    xlab.str = bquote("-log"[10] *"(CTP"[mediation(ab)]*")")
 
     aplot = aplot + xlab(xlab.str)
     aplot = aplot + geom_vline(xintercept = -log10(.05), linetype = "dashed")

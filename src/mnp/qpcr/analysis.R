@@ -23,7 +23,7 @@ qpcr.analysis$run <- function(inp)
     modes = c(2)
     exp.mat                 = inp$exp.mat
     probesetInfo            = inp$probesetInfo
-    goi = c("Lrrc16a", "Meg3", "Rfng")
+    goi = c("Lrrc16a", "Meg3", "Rfng", "Mir341")
     ##get microarray expression info for just genes of interest
     ##the expression info is currently unused in this analysis, but it could be useful
     expression.mic = getMicroarrayData(probesetInfo, goi, exp.mat)
@@ -34,6 +34,16 @@ qpcr.analysis$run <- function(inp)
     ## the microarray and covariate data which doesnt change regardless of the taqman assay we are inspecting.
     tabulated = expression.mic[cov.data]
     setkey(tabulated, "ID")
+
+    assay="Mir341"
+    mode = 2
+    toplot = tabulated
+    toplot$y = tabulated[[paste0(assay, ".mic")]]
+    atitle = bquote(italic(.(assay))*": microarray")
+    alabel = bquote("log"[2] * "(expression)")
+    aplot = plot.poe.data(alldata=toplot, ylabel = alabel, atitle = atitle, mode = mode)
+    show.and.write(aplot, atitle, mode, fname = fp("micro", paste0(assay,".","micro")))
+    
 
     setnames(tabulated, old="Lrrc16a.mic", new = "Carmil1.mic")
     resultsAll = list()

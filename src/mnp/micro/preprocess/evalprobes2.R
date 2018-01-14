@@ -18,15 +18,17 @@ source("./mnp/micro/preprocess/affylibReader.R")
 ##either loads or recomputes probe info
 getProbeInfo <- function(computedProbeDataDir, variantFile, cel.dir, recomputeApt = T, removeBadProbes = T)
 {
-    
+    print("getting probe info!!")
     probeData = computeAllProbeInformation(computedProbeDataDir, variantFile, cel.dir, recomputeApt = recomputeApt, removeBadProbes = removeBadProbes)
     probeDataBundle = "probeData"
 
     dir.create(fp(computedProbeDataDir, probeDataBundle))
-    ##fast freadable version of the data to reduce startup time; loading these from binary can take a while. 
+    ##fast freadable version of the data to reduce startup time; loading these from binary can take a while.
+    print(paste("about to write probe info to ", fp(computedProbeDataDir, probeDataBundle)))
     fwrite(file = fp(computedProbeDataDir, probeDataBundle, "variants.csv"), probeData$variants)
     fwrite(file = fp(computedProbeDataDir, probeDataBundle, "probedGenes.csv"), probeData$probedGenes)
     fwrite(file = fp(computedProbeDataDir, probeDataBundle, "probesetInfo.csv"), probeData$probesetInfo)
+    print("wrote probe info")
     save(list="probeData", file = fp(computedProbeDataDir, probeDataBundle, "probeData.RData"))
     mic = probeData$mic
     save(list="mic", file = fp(computedProbeDataDir, probeDataBundle, "mic.RData"))
@@ -163,6 +165,7 @@ appendImprintingInfo <- function(probedGenes)
 
     imprinted = getImprinted()
     imprintedRanges = makeGRangesFromDataFrame(imprinted)
+
 
     probedGenes$chrom = NULL
 
