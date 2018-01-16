@@ -323,7 +323,7 @@ mnp:
   ## getEnsemblProbeAligns.sh --- was run once, and could be run again, but it takes a long time.
   probeAlignmentFile:  MoGene-1_0-st-v1_probeinfo_b.txt
 
-  ## A file pulled from the ISVdb specifying the NOD and B6 variants for probe masking; at the time this was slow (getHHet.R)
+  ## A file pulled from the ISVdb specifying the NOD and B6 variants for probe masking; at the time this was slow (getHet.R)
   NOD.B6.variantsFile: nod.b6.variants.csv
 
 ##Are these used?
@@ -333,7 +333,7 @@ mnp:
   cel.dir:     cel_files
 
   ##file describing which samples existed as of 5.26.2016
-  currentSabmplesFile: Microarray_Animals_maybe_05-26-16.csv
+  currentSamplesFile: Microarray_Animals_maybe_05-26-16.csv
 
   ##A file download from chipbase database specifying which transcription factor may bind to Lrrc16a regulatory sites
   tf.file: 2017-03-22_chipbase_tf.txt
