@@ -1,6 +1,6 @@
 micro.report = new.env(hash=T)
 
-## library(ReporteRs)
+library(ReporteRs)
 library(data.table)
 source("./mnp/plotting.R")
 source("./mnp/micro/analysis.R")
@@ -16,7 +16,6 @@ micro.report$reportAnalysis <- function(exp.mat,
     reportDir = outm("micro")
     dir.create(reportDir, showWarnings = F)
 
-
     results = micro.report$postProcessResults(originalResults,
                                               annot.data,
                                               cov.data,
@@ -27,7 +26,6 @@ micro.report$reportAnalysis <- function(exp.mat,
 
     
     fwrite(file=outm(fp("micro", paste0("all_results.csv"))), toWrite, sep="\t")
-
         
     siglevel = .05
 ##    toWrite = toWrite[is.na(anova.p.value)| anova.p.value<=siglevel,]
@@ -78,13 +76,13 @@ micro.report$reportAnalysis <- function(exp.mat,
 
     toReport(ps("Num imprinted probesets: ",    nrow(results$per.probe[!is.na(minDistToImprinted)&minDistToImprinted<=100])))
     toReport(ps("Num unique imprinted genes: ", length(toUnique(results$per.probe[!is.na(minDistToImprinted)&minDistToImprinted<=100]$gene_name))))
-
+    
 
     df.summaries = list()
     
     for(analpha in c(.05))##unique(threshholds$permStatistics$alpha))
     {
-
+        
         for(avar in c("Diet", "Strain", "Diet:Strain"))#unique(threshholds$variable))
         {
             relevantThreshVal = NULL
@@ -93,19 +91,23 @@ micro.report$reportAnalysis <- function(exp.mat,
             toReport("                                          ")
             toReport("                                          ")
             toReport(ps("#### variable type: ", avar))
-
+            
             toWrite.sub=toWrite[variable==avar]
             df = micro.report$.formatTable(toWrite.sub, results$per.variable, results$per.level, avar)
             dir.create(fp(reportDir, "effect.table"), recursive=T, showWarnings=F)
 
-            fpmap = list(Strain="File_S27_POE_expression.csv",
-                         Diet  ="File_S28_diet_expression.csv")
+            fpmap = list()
+            fpmap[["Strain"]]      = "File_S27_POE_expression.csv"
+            fpmap[["Diet"]]        = "File_S28_diet_expression.csv"
             fpmap[["Diet:Strain"]] = "File_S29_POE_diet_expression.csv"
-                         
+            
+            
+            pfile = fp(reportDir, "effect.table", paste0("p_all_", avar, ".csv"))
+            write.table(file=pfile, df, row.names=FALSE, sep="\t")
+            
             pfile = fp(reportDir, "effect.table", fpmap[[avar]])
             write.table(file=pfile, df, row.names=FALSE, sep="\t")
 
-            browser()
 
             if(!is.null(threshholds))
             {
@@ -114,7 +116,6 @@ micro.report$reportAnalysis <- function(exp.mat,
                 
                 if(avar=="Strain")
                 {
-                    ##                browser()
                     toReport("##Full stats, POE imprinting enrichment by probeset")
                     
                     df$logp = df[["-log10.pval"]]
@@ -130,69 +131,124 @@ micro.report$reportAnalysis <- function(exp.mat,
                     toReport("Fisher test of enrichment:")
                     toReport(fish)
                 }
-            
-            toReport("##Permutation stats")
-            toWrite.perm = toWrite.sub[anova.p.value<relevantThreshVal & anova.q.value<analpha]
-            
-            df = micro.report$.formatTable(toWrite.perm, results$per.variable, results$per.level, avar)
-
-            
-            
-            df.summary                = reportTable(df)
-            
-            df.prepend = data.frame(effect.type = avar,
-                                    threshold.type  = "FWER", ##"Permutation",
-                                    neg.log10.threshold.value = sprintf("%.2f", -log10(relevantThreshVal)))
-            df.summary               = cbind(df.prepend, df.summary)
-
-
-
-            
-            df.summaries = util$appendToList(df.summaries, df.summary)
-            
-            if(avar=="Diet")
-            {
-                toReport("methyl rank:")
-                toReport(table(df$methyl.rank))
                 
-                toReport("signifant hit types")
-                ##                    toReport(table(ps(df$significant.methyl.contrasts,
-                ##                                    "/",
-                ##                                      df$significant.non.methyl.contrasts)))
-                ##toReport(ps("Sig Methyl contrasts:", sum(df$significant.methyl.contrasts)))
-                ##toReport(ps("Non-Methyl contrasts:", sum(df$significant.non.methyl.contrasts)))
-            }
-            if(avar=="Strain")
-            {
-                toReport("Larger expression cross")
+                toReport("##Permutation stats")
+                toWrite.perm = toWrite.sub[anova.p.value<relevantThreshVal & anova.q.value<analpha]
                 
-                ##toReport(df[j=list(num=length(toUnique(gene_name))), by="larger.expression"])
-                larger1 = length(unique(unlist(strsplit(df[larger.expression == "NODxB6"]$gene_name, split= ","))))
-                larger2 = length(unique(unlist(strsplit(df[larger.expression == "B6xNOD"]$gene_name, split= ","))))
-                total   = length(unique(unlist(strsplit(df$gene_name, split= ","))))
-                largeness = data.frame(c("NODxB6", "B6xNOD"), c(larger1, larger2))
-                toReport(largeness)
-            }
+                df = micro.report$.formatTable(toWrite.perm, results$per.variable, results$per.level, avar)
+                                
+                df.summary                = reportTable(df)
                 
-            cz  = c(setdiff(colnames(df), c("-log10.pval", "-log10.qval")), c("-log10.pval", "-log10.qval"))
-            df = df[,cz, with=F]
+                df.prepend = data.frame(effect.type = avar,
+                                        threshold.type  = "FWER", ##"Permutation",
+                                        neg.log10.threshold.value = sprintf("%.2f", -log10(relevantThreshVal)))
+                df.summary               = cbind(df.prepend, df.summary)
 
-            toReport("#p-value table")
-            toReport(df)
+                
+                df.summaries = util$appendToList(df.summaries, df.summary)
+                
+                if(avar=="Diet")
+                {
+                    toReport("methyl rank:")
+                    toReport(table(df$methyl.rank))
+                    
+                    toReport("signifant hit types")
+                    ##                    toReport(table(ps(df$significant.methyl.contrasts,
+                    ##                                    "/",
+                    ##                                      df$significant.non.methyl.contrasts)))
+                    ##toReport(ps("Sig Methyl contrasts:", sum(df$significant.methyl.contrasts)))
+                    ##toReport(ps("Non-Methyl contrasts:", sum(df$significant.non.methyl.contrasts)))
+                }
+                if(avar=="Strain")
+                {
+                    toReport("Larger expression cross")
+                    
+                    ##toReport(df[j=list(num=length(toUnique(gene_name))), by="larger.expression"])
+                    larger1 = length(unique(unlist(strsplit(df[larger.expression == "NODxB6"]$gene_name, split= ","))))
+                    larger2 = length(unique(unlist(strsplit(df[larger.expression == "B6xNOD"]$gene_name, split= ","))))
+                    total   = length(unique(unlist(strsplit(df$gene_name, split= ","))))
+                    largeness = data.frame(c("NODxB6", "B6xNOD"), c(larger1, larger2))
+                    toReport(largeness)
+                }
+                
+                cz  = c(setdiff(colnames(df), c("-log10.pval", "-log10.qval")), c("-log10.pval", "-log10.qval"))
+                df = df[,cz, with=F]
+
+                toReport("#p-value table")
+                toReport(df)
 
 
-            pfile = fp(reportDir, "effect.table", paste0("p_", analpha, "_", avar, "_fwer", ".csv"))
-            ## df$newname = NULL
-            
+                pfile = fp(reportDir, "effect.table", paste0("p_", analpha, "_", avar, "_fwer", ".csv"))
+                write.table(file=pfile, df, row.names=FALSE, sep="\t")
 
-            ## doc = docx()
-            ## doc = addFlexTable(doc, FlexTable(df,
-            ##                                   header.text.props = textBold( color = "black" )))
+                
+                setnames(df, old = c("-log10.qval", "-log10.pval"), new = c("log10.qval", "log10.pval"))
+                theorder = c("gene_name", "chrom", "probesetStart", "Probe.Set.ID", "imprinted", "log10.pval", "log10.qval")
 
-            
-            ## ##                df$Probe.Set.ID = NULL
-            ## writeDoc(doc, file = paste(pfile,".docx"))
-            write.table(file=pfile, df, row.names=FALSE, sep="\t")
+                if(avar == "Diet")
+                {
+                    theorder = util$insertAtIndex(theorder, index = 5, elem = "methyl.rank")
+                    df$methyl.rank = as.character(df$methyl.rank)
+                }
+                
+                if(avar == "Strain")
+                {
+                    theorder = util$insertAtIndex(theorder, index = 5, elem = "larger.expression")
+                }
+                setcolorder(df, theorder)
+                    
+                mytab = regulartable( data = df)
+                mytab = bold(mytab, part = "header")
+                mytab = align( mytab, align = "center", part = "all")
+                rep = list()
+                rep[["x"]]             = mytab
+                rep[["gene_name"]]     = "Gene"
+                rep[["chrom"]]         = "Chr"
+                rep[["Probe.Set.ID"]]  = "Probeset ID"
+                rep[["probesetStart"]] = "Probeset Location"
+                rep[["imprinted"]]     = "Imprinted"
+                rep[["log10.qval"]]    = "q value"
+                rep[["log10.pval"]]    = "p value"
+                if(avar == "Diet")
+                {
+                    rep[["methyl.rank"]] = "ME Group Rank"                
+                }
+                if(avar == "Strain")
+                {
+                    rep[["larger.expression"]]="F1 with Higher Expression"
+                }
+                mytab = do.call(set_header_labels, rep)
+
+                
+                rep[["x"]]             = mytab
+                rep[["log10.qval"]]    = "-log10"
+                rep[["log10.pval"]]    = "-log10"
+                mytab = do.call(add_header, rep)
+
+                mytab = merge_h(mytab, part="header")
+                mytab = merge_v(mytab, part="header")
+                mytab <- italic(mytab, j = ~ gene_name, italic = TRUE)
+                mytab = autofit(mytab, 0, 0)
+
+                if(avar=="Strain")
+                {
+                    newlen = dim(mytab)$widths["larger.expression"]
+                    mytab = flextable::width(mytab, j = ~ larger.expression, width = newlen/2)
+                }
+                if(avar=="Diet")
+                {
+                    newlen = dim(mytab)$widths["methyl.rank"]
+                    mytab = flextable::width(mytab, j = ~ methyl.rank, width = newlen/2)
+                }
+                
+                newlen = dim(mytab)$widths["probesetStart"]
+                mytab = flextable::width(mytab, j = ~ probesetStart, width = newlen*.6)
+
+                
+                doc = read_docx(fp("./mnp/template.docx"))
+                doc = body_add_flextable(doc, mytab)
+                pfile = gsub(pfile, pattern = "csv", replacement = "docx")
+                print(doc, target = pfile)
             }
             
             toReport("##FDR stats")

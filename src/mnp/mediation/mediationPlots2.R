@@ -1,5 +1,8 @@
-library(data.table)
+ library(data.table)
 library(Cairo)
+library(flextable)
+library(officer)
+##library(ReporteRs)
 source("./enrichmentTesting.R")
 source("./mnp/loadAllData.R")
 source("./mnp/mediation/mediationBayes3.R")
@@ -25,12 +28,15 @@ getFile = function( mediator, outcome, discardMissing, mergeQPCR, inp=NULL)
         fle = fp(froot, paste0(discardMissing, "_", mergeQPCR, "_", mediator,"_",outcome),"mediationAll.csv")
     }
 
+    
     df = fread(fle)
+    df[mediator_name=="Lrrc16a", mediator_name:="Carmil1"]
     df$coef.a = NULL
     df$coef.b = NULL
     df$moderators = NULL
     df$mediator.id = as.character(df$mediator.id)
     df = inp$probesetInfo[df, on = c(Probe.Set.ID="mediator.id")]
+    setnames(df, old="Probe.Set.ID", new="mediator.id")
     df[,imprinted:= !is.na(minDistToImprinted)& minDistToImprinted <=100]
     df$p.value.a = NULL
     df$p.value.b = NULL
@@ -45,6 +51,7 @@ getFile = function( mediator, outcome, discardMissing, mergeQPCR, inp=NULL)
     setnames(df, c("coef.c", "p.value.c"), c("coef.cprime", "p.value.cprime"))
     ##Remove lrrc16 as a mediator for itself
     df = df[df$outcome!=mediator_name]
+
 
     
     ##merge the mediator name and id, in such a manner that the id is appended if the name isnt unique.
@@ -156,25 +163,84 @@ get.dec.points <- function(acol)
     return(decpoints)
 }
 
-round.to.dec.point <- function(acol)
+round.to.dec.point <- function(acol,pts=NULL)
 {
-    rounded = sprintf(acol, fmt = paste0("%.",get.dec.points(acol),"f"))
+    if(is.null(pts))
+    {
+        pts = get.dec.points(acol)
+    }
+    rounded = sprintf(acol, fmt = paste0("%.",pts,"f"))
     return(rounded)
 }
 
 
-
-writeSig <- function(df.m, outcome)
+writeSig <- function(df.m, outcome.type)
 {
-    z = (df.m[p.value.ab<.05,c("p.value.ab", "coef.ab", "coef.cprime", "p.value.cprime", "imprinted", "suppressor", "mediator", "outcome")])
+    cnames = c("mediator", "imprinted", "coef.ab", "p.value.ab",  "coef.cprime", "p.value.cprime", "suppressor")
+    if(outcome.type =="behavior")
+    {
+        cnames = c("outcome", cnames)
+        df.m$outcome = as.character(df.m$outcome)
+        df.m$outcome[df.m$outcome == "Δ"] = "Δ Cort"
+    }
+    if(outcome.type == "micro")
+    {
+        df.m = df.m[! mediator %in% "Carmil1"]
+    }
+    z = (df.m[p.value.ab<.05,cnames, with = F])
+    
+    z$coef.ab = as.character(z$coef.ab)
+    z$coef.cprime = as.character(z$coef.cprime)
     
     z[["p.value.ab"]] = round.to.dec.point(z[["p.value.ab"]])
     z[["p.value.cprime"]] = round.to.dec.point(z[["p.value.cprime"]])
-
-    setorder(z, outcome, p.value.ab)
-
+    
+    if(outcome.type!="behavior")
+    {
+        setorder(z, p.value.ab)
+    }
     print(z)
     fwrite(z, file = fp(outdir, paste0(outcome,"_sig.pvalues.csv")), sep = "\t")
+
+
+    mytab = regulartable(data = z)
+    mytab = bold(mytab, part = "header")
+    mytab = align( mytab, align = "center", part = "all")
+    rep = list()
+    
+    rep[["x"]] = mytab
+    rep[["mediator"]]="Mediator Gene"
+    rep[["imprinted"]]="Imprinted"
+    rep[["coef.ab"]]="ab"
+    rep[["p.value.ab"]]="CTP"
+    rep[["coef.cprime"]]="c\'"
+    rep[["p.value.cprime"]]="CTP"
+    rep[["suppressor"]]="Suppressor"
+    if(outcome.type=="behavior"){rep[["outcome"]] = "Behavior"}
+
+    mytab = do.call(set_header_labels, rep)
+    mytab = autofit(mytab, 0, 0)
+    
+
+    rep[["x"]] = mytab
+    rep[["coef.ab"]]        = "Mediation Effect"
+    rep[["p.value.ab"]]     = "Mediation Effect"
+    rep[["coef.cprime"]]    = "Direct Effect"
+    rep[["p.value.cprime"]] = "Direct Effect"
+    
+    mytab = do.call(add_header, rep)
+    mytab = merge_h(mytab, part="header")
+    mytab = merge_v(mytab, part="header")
+    mytab <- italic(mytab, j = ~ mediator, italic = TRUE)
+    mytab = autofit(mytab, 0, 0)
+
+    newlen = dim(mytab)$widths["p.value.ab"]
+    mytab = flextable::width(mytab, j = ~ coef.ab,     width = newlen*1.1)
+    mytab = flextable::width(mytab, j = ~ coef.cprime, width = newlen*1.1)
+        
+    doc = read_docx(fp("./mnp/template.docx"))
+    doc = body_add_flextable(doc, mytab)
+    print(doc, target = fp(outdir, paste0(outcome,"_sig.pvalues.docx")))
 }
 
 getBehLevels <- function()
@@ -223,8 +289,6 @@ plot.lrrc.airn()
 
 for(outcome in c( "behavior", "micro"))
 {
-
-    
     df.m = getFile("micro", outcome, discardMissing=T, mergeQPCR = F)
     df.m$outcome2 = df.m$outcome
     df.m$xoffset = 0
@@ -245,8 +309,8 @@ for(outcome in c( "behavior", "micro"))
     {
 
         df.m$yoffset[df.m$outcome=="Pct Time Stranger" & df.m$mediator=="s113_10398354"] = 2700
-        df.m$yoffset[df.m$outcome=="Pct Time Stranger" & df.m$mediator=="s116_10564209"] = 800
-        df.m$yoffset[df.m$outcome=="Pct Time Stranger" & df.m$mediator=="s116_10564209"] = 800
+##        df.m$yoffset[df.m$outcome=="Pct Time Stranger" & df.m$mediator=="s116_10564209"] = 800
+        df.m$yoffset[df.m$outcome=="Pct Time Stranger" & df.m$mediator=="s116_10564209"] = 1200
         
         df.m$yoffset[df.m$outcome=="Basal Cort"        & df.m$mediator=="s115_10563915"] = 2700
         df.m$yoffset[df.m$outcome=="Basal Cort"       & df.m$mediator=="s113_10398354"] = 800
@@ -258,29 +322,62 @@ for(outcome in c( "behavior", "micro"))
     } else {
 ##        df.m$yoffset[df.m$mediator == "Irak1bp1"] = 150
     }
-    
-    writeSig(df.m, outcome = outcome)
+
+    writeSig(df.m, outcome.type = outcome)
     
     ##y = df.m[therank<10]
     df.m[,therank:=frank(p.value.ab), by = "outcome"]
    
     ##df.m$sigstrain = df.m$outcome %in% limitedPhen
-
+    
     countpoint = 3
-    top.med = df.m[,.(top3.count=sum(therank<=countpoint),
-                      suppressor.count = sum(suppressor),
-                      p.fisher = enrichmentTesting$fisherCombined(p.value.ab)$chisq.analytic.p),
+    top.med = df.m[,.(Imprinted = imprinted[1],
+                      top3.count=sum(therank<=countpoint),
+                      Suppressed = sum(suppressor),
+                      
+                      CTP = enrichmentTesting$fisherCombined(p.value.ab)$chisq.analytic.p),
                    by = "mediator"]
     ##setkey(top.med, "count")
     setorder(top.med, -top3.count)
 
     if(outcome=="behavior")
     {
-
-        topwrite = top.med[p.fisher<.05]
-        topwrite[["p.fisher"]] = round.to.dec.point(topwrite[["p.fisher"]])
+        topwrite = top.med[CTP<.05]
+        topwrite[["CTP"]] = round.to.dec.point(topwrite[["CTP"]])
         print(topwrite)
         fwrite(topwrite, file = fp(outdir, paste0(outcome,"_top3.pvalues.csv")), sep = "\t")
+
+        print("top3")
+        mytab = regulartable(topwrite)
+        mytab = bold(mytab, part = "header")
+        mytab = align( mytab, align = "center", part = "all")
+
+        
+        rep = list()
+        rep[["x"]] = mytab
+        rep[["mediator"]]="Mediator Gene"
+        rep[["Imprinted"]]="Imprinted"
+        rep[["top3.count"]]="strongly (top-3) mediated"
+        rep[["Suppressed"]]="suppressed"
+        mytab = do.call(set_header_labels, rep)
+
+        rep = list()
+        rep[["x"]]         = mytab
+        rep[["top"]]       = T
+        rep[["mediator"]]  ="Mediator Gene"
+        rep[["Imprinted"]] ="Imprinted"
+        rep[["top3.count"]]="# Behavior POEs"
+        rep[["Suppressed"]]="# Behavior POEs"
+        rep[["CTP"]]       ="CTP"
+        mytab = do.call(add_header, rep)
+
+        mytab = merge_h(mytab, part="header")
+        mytab = merge_v(mytab, part="header")
+        mytab <- italic(mytab, j = ~ mediator, italic = TRUE)
+        mytab = autofit(mytab, 0, 0)
+        doc = read_docx(fp("./mnp/template.docx"))
+        doc = body_add_flextable(doc, mytab)
+        print(doc, target = fp(outdir, paste0(outcome,"_top3.pvalues.docx")))
     }
     
     ##df.m[,therank:=frank(p.value.ab, ties.method ="min"), by = "imprinted"]
