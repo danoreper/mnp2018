@@ -285,7 +285,7 @@ mnp:
 
   ##Should probe and probeset info be recomputed based on probeset alignments and snp locations,
   ##or just loaded up from file (its slow)
-  recomputeProbeInfo: no
+  recomputeProbeInfo: yes
 
   ## The file delineating all sample covariates.
   breedinglog: 2017-02-13_breederLog.csv
