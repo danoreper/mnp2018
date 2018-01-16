@@ -1,6 +1,7 @@
 micro.report = new.env(hash=T)
 
-library(ReporteRs)
+library(officer)
+library(flextable)
 library(data.table)
 source("./mnp/plotting.R")
 source("./mnp/micro/analysis.R")
