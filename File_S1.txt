@@ -1,0 +1,479 @@
+All files/figures/tables except for the github code repository are in Zenodo, at XXX
+
+
+
+File_S1.txt (this file): Data documentation.
+
+
+Genomic reference files:
+
+File_S2_mm10.chrom.sizes.txt:   the mm10 sizes of every chromosome, derived from http://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&chromInfoPage=,   on  April 14, 2015
+-column1: Chromosome/contig name
+-column2: Chromosome/contig size in bp.
+
+
+
+File_S3_Mus_musculus.GRCm38.75.gtf.zip: Exon data (and other genomic features) for BL38.75 in gtf format.
+Crucially, this file is used in the code to determine gene locations.
+Originally downloaded from ftp://ftp.ensembl.org/pub/release-75/gtf/mus_musculus/Mus_musculus.GRCm38.75.gtf.gz
+
+
+
+File_S4_Snord.zip: The set of all GRCm38.75 Snord regions, with a separate csv file per snord family.
+This is essentially used in the code as a list of ensembl ids per snord whose other fields are looked up elsewhere.
+Note that location is not included (and is drawn from the ensembl db directly in code)
+Fields include:
+-id_with_url: the ensembl id of a given snord region
+-name: the snord mgi symbol
+-species: mouse (repetitive, could have been removed from the download)
+-feature type: gene (repetitive, could have been removed from the download
+-description: general description of the gene. (Unused)
+
+
+
+File_S5_crowley_2015_brain_imprinted_genes.csv: The genes identified as imprinted in Crowley, 2015. As with the snords, the primary field used from this file is the ensembl id. Location and name info  is referenced from elsewhere.
+Fields include:
+-Ensembl name: The ensembl id of a gene found to be imprinted in crowley 2015.
+-Chr: (unused, we query ensembl GrcM38.75 db directly)
+-start (mm10): start of gene (unused, we query ensembl GrcM38.75 db directly)
+-end (mm10):  end of gene (unused, we query ensembl GrcM38.75 db directly)
+-Gene: mgi name (unused, we query ensembl GrcM38.75 db directly)
+-Description: misc info about gene
+-Expressed allele: whether the maternal or paternal allele is more expressed (unused).
+-Strain effect?: whether or not a strain-by-POE was observed on this gene.
+-Novel?: whether the gene was, previous to Crowley, 2015, identified as imprinted (unused).
+-FG/GF/FH/HF/GH/HG: Allele specific expression ratios for F1s of each type, where F is short for CAST/EiJ, G is PWK/PhJ, and H is WSB/EiJ. For example, the FG column provides the fraction of CAST expression relative to total expression of the given gene, in the context of a cross of maternal CAST with paternal PWK. (unused) 
+
+
+
+File_S6_Literature_Imprinted_Genes.csv: Mousebook imprinted genes. As with the snords, the primary field used from this file is the ensembl id. Location and name info  is referenced from elsewhere.
+Fields include:
+-Ensembl Gene ID: The ensembl id of a gene described as imprinted in Mousebook. The only field that is used
+-Chr: (unused)
+-Gene Start (bp): (unused, we query ensembl GrcM38.75 db directly)
+-Gene end (bp): (unused, we query ensembl GrcM38.75 db directly)
+-Aliases: Alternate names for the gene (unused)
+-Expressed allele: the expressed allele, maternal or paternal, for each imprinted gene.
+-Gene: Mgi gene name (unused, we query ensembl GrcM38.75 db directly)
+-Biotype: The type of gene (e.g. protein coding) (unused)
+-Notes: Misc notes about the gene.
+
+
+
+File_S7_feb2014.archive.ensembl.org_allImprintedGenes.csv: The collated set of all imprinted genes, (mousebook and crowley) complete with their locations as pulled from the ensembl 38.75 database (Feb2014). This is the KEY file describing which genes are imprinted.
+Fields include:
+-ensembl_gene_ID: The ensembl gene id
+-mgi_symbol: The MGI symbol of the Gene
+-brainImprinted: whether or not the gene was identified in the crowley data set.
+-strainEffect: whether or not a strain-by-POE was identified in the crowley data set on this gene.
+-Expressed.allele: Whether maternal or paternal allele was more expressed in the crowley data set.
+-description: the description of the gene, if it existed in the crowley dataset
+-chromosome_name: the chromosome of the gene.
+-strand: the strand coding the gene.
+-start_position: Start position of the gene in basepairs
+-end_position: End position of the gene in basepairs
+-snordType: If the gene is part of a snorm family, the name of the specific snord family. NA if not snord.
+
+
+
+File_S8_d_b6.variants.zip: the snp/indel variant positions (and the variant sequences) that vary between NOD and B6. Extracted from ISVdb2.0. Used for masking variants.
+Fields include:
+-strain1: This is always NOD
+-strain2: This is always B6
+-variant_id: a positive integer ID specifying the variant. Unique to every variant; chromosomes don't share variant_id.
+However, this ID is shared across strains.
+-chr: the chromosome of the variant
+-pos: positive integer specifying variant position in bp along chromosome.
+-transcript_name: the ensembl transcript id (if available) of a transcript affected by the variant.
+-gene_name: the name of a gene enclosing the variant.
+-allele1: the NOD allele at this position
+-allele2: the B6 allele at this position.
+-consequence_1: the functional consequence of the NOD allele on transcript_name, with respect to the B6 reference allele. 
+-consequence_2: the functional consequence of B6-- "reference".
+-prob: the probability that the unphased diplotype of the variant at this position is (allele_1, allele_2) 
+
+Although not relevant to this paper's use of the data, in this file, note that there may multiple records per variant if the diplotype of the variant is uncertain; in such a case there is one row per non-zero diplotype probability, and the probabilities add approximately to 1. There also may be multiple rows per variant if a variant is enclosed by more than one gene.
+-transcript_name: the name of a transcript enclosing the variant.
+
+
+Covariates shared by all sources of data:
+
+File_S9_2017-02-13_breederLog.csv: The correct (as opposed to certain fields in the behavior files) covariates for mice bred in this experiment (e.g., diet, strain, etc). The covariates from this breeding file are considered correct, and take precedence over any identical (in name or meaning) covariates in any of the phenotype files.
+Fields include:
+-Batch: The breeding batch of this mouse. Can be 1,2, or 3.
+-ID: Integer ID of the mouse. 178 unique integer IDs rangeing
+-DOB: Mouse date of birth
+-Weaned: Mouse date of weaning
+-Dam ID: Integer id of this mouse's dam. Note that the id is unique ONLY within a strain. To get a truly unique id, concatenate Dam and Dam ID.
+-Dam: Strain of the dam, either NOD or B6
+-Dam DOB: Dam date of birth
+-Date on Diet: The date the dam went on the experimental diet.
+-Dam Age at Diet: Dam's age at time of diet
+-Sire ID: The integer id of the sire
+-Diet: A string indicating which of the 4 diets the mouse's dam was exposed to. 
+-Pipeline: Either 1 or 2, depending on which set of behavioral experiments was performed.
+-DOT: Date testing began.
+-Age Date: Age of mouse (in days) on the date of testing.
+
+
+Microarray data
+
+File_S10_MoGene-1_1_libs.zip: The affymetrix library files for the MoGene1.1 exon ST arrays. na34 version.
+Used to generate expression matrix across all samples with proper normalization using affymetrix power tools,
+as well as to identify probes to mask.
+Files include:
+
+*.clf (CEL Layout File): which indicates the location of 
+  each probe within the CERevision Date 20090608:L matrix
+
+*.pgf (Probe Group File): which indicates the groupings of 
+  probes into probesets. 
+
+*.bgp (BackGround Probe file): The bgp files lists the 
+  probe IDs for the background probes for use with the
+  PM-GCBG intensity method. 
+
+*.ps (ProbeSet list file): This file lists a particular
+  set of probesets. This file may be used to process
+  only a specific subset of the chip or it may be used to
+  call out a special set of probesets on the chip.
+  
+*.mps (Meta ProbeSet file): This file is used for gene
+  level analysis on WT-based Gene and Exon arrays. It lists
+  probesets in the PGF file to be merged together to create
+  a gene level probeset.
+
+*.qcc (QC Control file): This file lists various controls
+  on the chip. It is used by EC to determine which controls
+  are listed in the CHP file headers (and by what name they
+  are listed) and it also classifies controls into various
+  groups for reporting purposes.
+
+(Above is taken from the Affymetrix MoGene-1_1-st-v1.r4.README.txt in the zip file)
+
+-MoGene-1_1-st-v1.r4.README.txt (the README describing the above special format library files)
+
+As well as annotations for probeset and trancscript clusters:
+-MoGene-1_1-st-v1.na34.mm10.probeset.csv
+-MoGene-1_1-st-v1.na34.mm10.transcript.csv 
+But we note that we don't use the locations specified in these files; we instead use probe locations downloaded from ensembl
+(see File_S12)
+
+The format of the annotation files is specified in
+-GeneArray_NetAffx-CSV-File.README.txt
+
+
+
+File_S11_MoGene-1_0_libs.zip: The same sorts of library files as described in File_S10, but for the MoGene1.0 exon ST arrays.
+na33.2 version. These library files are all here for completeness, but really they are only used to map 1.0 gene names to 1.1 gene names.
+
+
+
+File_S12_MoGene-1_0_st-v1_probeinfo_b.txt
+-mnp/MoGene-1_0-st-v1_probeinfo_b.txt: The MoGene1.0 exon st probe binding locations,
+as pulled from ensembl GRCm38.75 database (see getEnsemblProbeAligns.sh)
+Fields include:
+-probename: a unique name for the probe
+-seqname: contig/chromosome the probe binds to
+-seq_region_start: start of the region probe binds to in bp
+-seq_region_end: end of region probe binds to in bp
+-seq_region_strand: strand the probe binds to
+-analysis_id:
+-mismatches: The number of probe alignment mismatches
+-cigar_line: The cigar string representing the alignment.
+
+
+
+
+File_S13_cel_files.zip: The CEL files (an affymetrix format) from the Affy 1.1ST exon array, specifiying gene expression scores for every microarray probeset, as measured in every mouse. Each file is named according to the mouse being probed.
+
+
+
+File_S14_log2RMA-GENE-DEFAULT-Group1.txt: Affymetrix power tools (APT) output from the cel files,
+but with default APT params and especially NO masking; used solely for its probeset annotations.
+Each row describes the expression across all samples of a single probeset.
+Fields include:
+-Probe Set ID: the probe set id.
+-1.rma-gene-default-signal/2.rma-gene-default-signal/.../196.rma-gene-default-signal:
+The RMA default expression scores for sample1, sample2, ... all the way to 196
+-Gene.Acession: 
+-Gene.Symbol: mgi symbol
+-Gene.Description: 
+-Cytoband: chromsomal location
+-mRNA.Accession:                 
+-mRNA Source: name of database containing mRNA                
+-mRna Description: description of mrna function if applicatble             
+-mRNA xhyb: 1 if this assignment is a cross hybridization                   
+-UniGene ID:                     
+-UniGene Expression.Information: 
+-GO.Biological.Process.ID: 
+-GO.Biological.Process.Term:                                 
+-GO.Cellular.Component.ID:       
+-GO.Cellular.Component.Term:     
+-GO.Molecular.Function.ID:       
+-GO.Molecular.Function.Term:     
+-Pathway.Source:
+-Pathway.Name:
+
+
+
+qPCR related data
+
+File_S15_MatNut_validation_samplelist_072516.csv: list of all samples and their status (pulverized or not, etc) as of 07/25/16.
+Primarily used for planning qPCR. Most fields are redundant with the breeder log.
+Fields include
+-ID: Mouse ID
+-Microarray: whether this sample has already been measured by microarray.
+-Extracted RNA: whether RNA had yet been extracted 
+-pulverized brain: whether the brain had been pulverized yet.
+-Left Hemisphere: whether the sample was from the left or right hemisphere
+
+
+
+File_S16_qpcrData.csv: qPCR data from Carmil1 (a.k.a. Lrrc16a), Meg3, and the reference, which is always rfng.
+Fields include: 
+-Plate: An integer, 4,5, or 6 for Carmil1 data, and 7,8, or 9 for Meg3 data
+-ID: The mouse interger ID.
+-Trow: the row of the well for the sample in the plate, a letter from A-H.
+-Tcolumn: the column of the well for the sample in the plate, an integer 1-12.
+-Sample.name: always Sample1
+-Well.Position: the concatenated Trow and Tcolumn.
+-FAM.Ct: the raw cycle threshold for the gene being assayed (i.e., not normalizaed)
+-VIC.Ct: the raw cycle threshold for the reference gene, rfng.
+-Delta.Ct: delta of the cycle threshhold, FAM.Ct - VIC.Ct. This is the value that is modelled in our qpcr analysis.
+-Strain: either NOD.B6 or B6.NOD
+-Assay: either Meg3, or Lrrc16a (a.k.a. Carmil1), depending on which gene was being measured.
+
+
+Behavior data:
+
+File_S17_behaviorModels.csv:
+The models (in lmer formula format) employed for mediation analysis per behavior.
+This is specified for the most straightforward behaviors; a handful of other behaviors,
+in particular the PPI related ones, are entirely specified programmatically rather than in any data file.
+
+
+Behavioral phenotype data.
+Note that many of the the covariates specified in the breederLog file are specified in the behavioral phenotype data as well,
+but these latter files may have mistakes. Thus, many of the covariates in these files are unused, and are pulled from the breederLog file instead.
+
+File_S18_bodyweight.csv: Bodyweight data for a subset of mice.
+Fields include:
+-Pipeline: Unused, pulled from breeder log
+-Batch: Unused, pulled from breeder log
+-Mouse #: The integer mouse id.
+-Cage #: The cage id
+-Body Weight (g): The body weight in grams
+-Test Weighed: The test during which the mouse was weighed. This is always the startle/PPI test.
+
+
+
+File_S19_cocaine.csv: The cocaine response data. Fields include:
+Batch,ID,DOB,Weaned, Unused, Dam ID, Date on Diet, Sire ID, Strain, dietnum, Diet, dietname, Pipeline, DOT, Age Date: These are all unused and should be pulled from breeder log instead.
+-Run: the run index of testing
+-dist_d3: the distance on day 3 of the test in cm.
+-dist_d2: the distance on day 2 of the test in cm.
+-dist_d1: the distance on day 1 of the test in cm.
+-D3-D2: the delta of distances between day 3 and day 2 in cm.
+
+
+
+File_S20_forced_swim.csv: The forced swim data. Fields include:
+-Diet,Strain,Batch: These are all unused and should be pulled from the breeder log instead.
+-Trial: XXX
+-Arena: the arena-- an integer 1-4
+-id: the mouse id
+-totdist: distance swam (cm)
+-immobdur: time spent immobile (seconds)
+-immobfreq: XXX
+-immoblatfirst: XXX
+-immoblatlast: XXX
+-immobmean: XXX
+-immobstdev: XXX
+-immobster: XXX
+-immobvar: XXX 
+-mobdur: time spent mobile (seconds)
+-mobfreq: XXX
+-moblatstart: XXX
+-moblatend: XXX
+-mobmean: XXX
+-mobstdev: XXX
+-mobsterr: XXX
+-mobvar: XXX
+-velocity: XXX
+-Total Time: XXX
+-pctimmob: percent of time during test spent immobile
+
+
+
+File_S21_light_dark.csv: the light dark test data.
+Fields include:
+-DOB, Weaned, Dam, Date on Diet, Strain, Sire ID, Diet, Dietname, Pipeline, DOT, Age Date:
+these were unused and should all be pulled from the breeder log.
+-ID: mouse ID
+-Run: 
+-Total Distance Dark: Distance run in the dark part of the chamber (cm)
+-Total Distance Light: Distance run in the light part of the chamber (cm)
+-Total Distance Residual: XXX
+-Total Distance: Total distance run anywhere (cm)
+-% Time Dark: The percentage of time spent in the dark part of the chamber
+-% Time Light: The percentage of time spent in the light part of the chamber
+-% Time Residual: XXX
+-Dark Entries: The number of times the dark part of the chamber was entered
+-Light Entries: The number of times the light part of the chamber was entered
+-Residual Entries: XXX
+-Total Transitions: XXX
+-LDTransitions: XXX
+
+
+
+File_S22_openfield.csv
+Batch,  Strain, Diet: These fields are unused and should be pulled from the breeder log
+-ID: mouse ID
+-Boli #: Number of fecal boli generated 
+-pctctr: Percentage of time spent in the center of the chamber
+-totdist: Total distance moved (cm)
+-ambtime: Time spent moving (HHH:MM:SS.SS)
+-ambcts: XXX
+-stertime: XXX 
+-stercts: XXX
+-resttime: Time spent resting (HHH:MM:SS.SS)
+-vertcts: XXX
+-verttime: XXX
+-zoneentry: XXX 
+-jmpcts: XXX
+-jmptime: XXX
+-avgvel: XXX
+-ambepis: XXX
+-totdist_30: XXX
+-ambtime_30: XXX
+-ambcts_30: XXX
+-stertime_30: XXX
+-stercts_30: XXX
+-resttime_30: XXX
+-vertcts_30: XXX
+-verttime_30: XXX
+-zonentry_30: XXX 
+-jumpcts_30: XXX
+-jumptime_30: XXX
+-avgvel_30: XXX
+-ambepis_30: XXX 
+-time_30: XXX 
+
+
+
+File_S23_cort.csv: the restraint stress test data.
+Fields include:
+-Strain, Diet: Unused, these should be pulled from breeder log
+-ID: mouse integer id
+-10min: plasma cort level after 10 mins in Broome style restraint (XXX units)
+-baseline: plasma cort level before Broome style restraint (XXX units)
+-10min-baseline: Difference in plasma levels after restraint vs. before (XXX units)
+
+
+
+File_S24_SIH.csv: the stress induced hyperthermia test data.
+-Pipeline, Batch, Diet, Test Date, Cage #: Unused, pulled from breeder log  
+-Mouse #: Mouse ID
+-Order: The order within a cage in which temperature was measured, relative to the other mice in the cage.    
+-Temp 1: Temperature measured when first inserting rectal thermometer (Celsius)
+-Temp 2: Temperature measured when again inserting rectal thermometer 10mins later (Celsius)    
+-Difference: The temperature difference between the second and first temperature measurement.
+
+
+
+File_S25_sociability.csv: the social interaction test data.
+Fields include:
+-Batch, Strain, DOB, Weaned, Dam ID, Date on Diet, Sire ID, Diet, Pipeline, DOT, Age Date:
+Unused, typically pulled from breeder log
+-ID: Mouse ID
+-Box Stranger: the index of the box holding the stranger mouse.     
+-HAB Chamber 1(min): XXX
+-HAB Chamber 2(min): XXX
+-HAB Chamber 3(min): XXX
+-HABTrans 1:2: XXX     
+-HABTrans 2:1: XXX     
+-HABTrans 2:3: XXX     
+-HABTrans 3:2: XXX     
+-TRANSTOTAL: XXX        
+-SOC Chamber 1(min): XXX 
+-SOC Chamber 2(min): XXX
+-SOC Chamber 3(min): XXX 
+-SOCTrans 1:2: XXX     
+-SOCTrans 2:1: XXX     
+-SOCTrans 2:3: XXX     
+-SOCTrans 3:2: XXX     
+-Notes: XXX             
+-PctStranger: XXX        
+
+
+
+File_S26_startle_PPI: The startle/prepulse inhibition data.
+Fields include:
+-Test Date: testing Date DD/MM/YYYY 
+-Test time: testing time HH:MM:SS
+-Test: this is always PPI      
+-Subject ID: mouse ID
+-Column 5: Unnamed column, ignore
+-Column 6: Unnamed column, ignore
+-Trial: each experiment on a given mouse is rerun multiple times; XXX     
+-Group: AS50, No_Stim, PP74, PP78, PP82, PP86, or PP90, corresponding to the 40ms/120db startle stimulus, to no stimulus,
+or to prepulse intensity of 74, 78, 82, 86 or 90 decibels.
+-Column 9: Unnamed column, ignore        
+-Chamber: the chamber in which the experiment was performed, index 1-8   
+-Start: XXX     
+-Max: The maximum response to startle stimulus       
+-Latency: The time in XXX before startle response occurred  
+-Average: The average startle response over XXX
+
+
+
+File_S27_tail.csv: Tail suspension test data
+Fields include:
+-Batch, Strain, DOB, Weaned, Date on Diet, Sire ID, Diet, Pipeline, DOT, Age Date:
+Unused in this file, should be pulled from breeder log.      
+-ID: Mouse id.                 
+-%Freeze 120-240sec: percent time the mouse was not moving XXX 
+-Notes: misc notes about this mouse             
+
+
+File_S28_POE_expression.csv: The effects of POE on expression at every interrogated probeset. Includes non-significant results.
+Fields include:
+gene_name: the name of the gene(s) interrogated by this probe. May be a set of comma separated  set of genes if there is an overlapping set of genes at the probed location.
+Probe.Set.ID: the Affymetrix probeset identifier in the MoGene 1.1 ST microarray context.
+chrom: chromosome 
+probesetStart: starting position of the probed region in bp on chromosome.
+larger.expression: whether NODxB6 or B6xNOD mice had higher average expression
+imprinted: Whether or not we consider the interrogated gene(s) imprinted (See paper for details)
+-log10.pval: The -log10 of the pvalue of the significance of the effect of parent-of-origin on expression at this probeset.
+-log10.qval: The -log10 of the qvalue (fdr corrected p-value) of the significance of the effect of parent-of-origin on expression at this probeset.
+passes.FWER: Whether or not this probeset's expression is significantly affected by parent-of-origin based on the FWER threshhold for POE
+
+
+File_S29_diet_expression.csv: The effects of diet on expression at every interrogated probeset. Includes non-significant results. 
+Fields include:
+gene_name: the name of the gene(s) interrogated by this probe. May be a set of comma separated  set of genes if there is an overlapping set of genes at the probed location.
+Probe.Set.ID: the Affymetrix probeset identifier in the MoGene 1.1 ST microarray context.
+chrom: chromosome 
+probesetStart: starting position of the probed region in bp on chromosome.
+methyl.rank = This gene's expression mice exposed to methyl enriched (ME) diet, relative to mice on the other 4 diets--- \eg, 1 means ME mice expressed this gene the most, whereas 4 means ME mice expressed this 
+imprinted: Whether or not we consider the interrogated gene(s) imprinted (See paper for details)
+-log10.pval: The -log10 of the pvalue of the significance of the effect of parent-of-origin on expression at this probeset.
+-log10.qval: The -log10 of the qvalue (fdr corrected p-value) of the significance of the effect of parent-of-origin on expression at this probeset.
+passes.FWER: Whether or not this probeset's expression is significantly affected by diet based on the FWER threshhold for diet.
+
+
+File_S30_diet_POE_expression.csv: The effects of diet-by-POE on expression at every interrogated probeset. Includes non-significant results.
+gene_name: the name of the gene(s) interrogated by this probe. May be a set of comma separated  set of genes if there is an overlapping set of genes at the probed location.
+Probe.Set.ID: the Affymetrix probeset identifier in the MoGene 1.1 ST microarray context.
+chrom: chromosome 
+probesetStart: starting position of the probed region in bp on chromosome.
+imprinted: Whether or not we consider the interrogated gene(s) imprinted (See paper for details)
+-log10.pval: The -log10 of the pvalue of the significance of the effect of parent-of-origin on expression at this probeset.
+-log10.qval: The -log10 of the qvalue (fdr corrected p-value) of the significance of the effect of parent-of-origin on expression at this probeset.
+passes.FWER: Whether or not this probeset's expression is significantly affected by parent-of-origin-by-diet based on the FWER threshhold for POE-by-diet
+
+
+
+Github code repository: https://github.com/danoreper/mnp2018.git
+
