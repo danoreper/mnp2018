@@ -6,6 +6,7 @@ loadBehavior = new.env(hash = T)
 datp <- function(...)
 {
     dat("mnp/phenotypes", ...)
+    ##fp(newdat, ...)
 }
 
 loadBehavior$getPhenotypeRepository <- function()
@@ -151,23 +152,6 @@ loadBehavior$readOpenFieldData <- function()
     openfield.frame = loadBehavior$fixColumns(openfield.frame)
     openfield.frame$ID = (as.character(openfield.frame$ID ))
     
-    openfield.frame$ambtime_30 = loadBehavior$toSeconds(openfield.frame$ambtime_30)
-    openfield.frame$ambtime    = loadBehavior$toSeconds(openfield.frame$ambtime)
-    
-    openfield.frame$stertime_30 = loadBehavior$toSeconds(openfield.frame$stertime_30)
-    openfield.frame$stertime    = loadBehavior$toSeconds(openfield.frame$stertime)
-    
-    openfield.frame$resttime_30 = loadBehavior$toSeconds(openfield.frame$resttime_30)
-    openfield.frame$resttime    = loadBehavior$toSeconds(openfield.frame$resttime)
-    
-    openfield.frame$verttime_30 = loadBehavior$toSeconds(openfield.frame$verttime_30)
-    openfield.frame$verttime    = loadBehavior$toSeconds(openfield.frame$verttime)
-    
-    openfield.frame$jumptime_30 = loadBehavior$toSeconds(openfield.frame$jumptime_30)
-    openfield.frame$jmptime     = loadBehavior$toSeconds(openfield.frame$jmptime)
-    
-    openfield.frame$time_30     = loadBehavior$toSeconds(openfield.frame$time_30)
-    openfield.frame$emo = as.vector(base::scale(openfield.frame$totdist) - base::scale(openfield.frame$boli))
     return(openfield.frame)
 }
 
@@ -246,17 +230,10 @@ loadBehavior$read.SIH.data <- function()
 
 loadBehavior$readSociabilityData <- function()
 {
-
     afile  <- datp("Sociability/SocialHabSoc.csv")
     sociability.frame <- read.csv(afile, stringsAsFactors=FALSE, strip.white=TRUE, blank.lines.skip=TRUE, check.names=F)
     sociability.frame$ID = (as.character(sociability.frame$ID ))
     sociability.frame = loadBehavior$fixColumns(sociability.frame, list(c(":",  ".to.")))
-    sociability.frame$HAB.Chamber.1.min. = loadBehavior$minutesToSeconds(as.character(sociability.frame$HAB.Chamber.1.min.))
-    sociability.frame$HAB.Chamber.2.min. = loadBehavior$minutesToSeconds(as.character(sociability.frame$HAB.Chamber.2.min.))
-    sociability.frame$HAB.Chamber.3.min. = loadBehavior$minutesToSeconds(as.character(sociability.frame$HAB.Chamber.3.min.))
-    sociability.frame$SOC.Chamber.1.min. = loadBehavior$minutesToSeconds(as.character(sociability.frame$SOC.Chamber.1.min.))
-    sociability.frame$SOC.Chamber.2.min. = loadBehavior$minutesToSeconds(as.character(sociability.frame$SOC.Chamber.2.min.))
-    sociability.frame$SOC.Chamber.3.min. = loadBehavior$minutesToSeconds(as.character(sociability.frame$SOC.Chamber.3.min.))
     sociability.frame$PctStranger        = as.numeric(sociability.frame$PctStranger)
     sociability.frame$Box.Stranger       = as.factor(sociability.frame$Box.Stranger)
     sociability.frame = sociability.frame[!is.na(sociability.frame$PctStranger),]
@@ -274,9 +251,7 @@ loadBehavior$readStartleData <- function(weight.frame)
     colnames(startle.frame)[colnames(startle.frame)=="Subject ID"] = "ID"
     startle.frame$ID        = as.character(startle.frame$ID )
     startle.frame           = loadBehavior$fixColumns(startle.frame)
-    
-    startle.frame$Test.Time = loadBehavior$toSeconds(startle.frame$Test.Time)
-    startle.frame$Test.Time = as.ordered(as.numeric(as.ordered(startle.frame$Test.Time))) #TODO consider representing as integer
+
     startle.frame$Group     = factor(startle.frame$Group)
     startle.frame$Chamber   = as.factor(startle.frame$Chamber) #TODO was this valid
 

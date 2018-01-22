@@ -1,6 +1,6 @@
 run <- function()
 {
-    source("./mnp/mediation/mediationPlots2.R")
+    ##source("./mnp/mediation/mediationPlots2.R")
 
     ## if(!exists("prop"))
     ## {
@@ -23,6 +23,11 @@ run <- function()
     ##                             out$threshholds,
     ##                             inp$karyo)
 
+    source("./mnp/behavior/cleanData.R");
+    source("mnp/behavior/loadData.R");
+    source("mnp/behavior/analysis.R");
+    phenz = loadBehavior$getPhenotypeRepository();
+    beh.analysis$runAll(phenz)
 }
 
 
