@@ -45,7 +45,7 @@ getFile = function( mediator, outcome, discardMissing, mergeQPCR, inp=NULL)
     df$outcome = as.character(df$outcome.id)
     if(outcome =="micro")
     {
-        df$outcome ="Lrrc16a"
+        df$outcome ="Carmil1"
     }
     df$outcome.id = NULL
     setnames(df, c("coef.c", "p.value.c"), c("coef.cprime", "p.value.cprime"))
@@ -303,6 +303,7 @@ for(outcome in c( "behavior", "micro"))
     if(outcome=="micro")
     {
         df.m$yoffset[df.m$mediator=="Pcdhb2"] = 1000
+        df.m$yoffset[df.m$mediator=="Mir485,Mirg"] = 1000
     }
     
     if(outcome == "behavior")
@@ -329,7 +330,7 @@ for(outcome in c( "behavior", "micro"))
     df.m[,therank:=frank(p.value.ab), by = "outcome"]
    
     ##df.m$sigstrain = df.m$outcome %in% limitedPhen
-    
+
     countpoint = 3
     top.med = df.m[,.(Imprinted = imprinted[1],
                       top3.count=sum(therank<=countpoint),
@@ -423,7 +424,7 @@ for(outcome in c( "behavior", "micro"))
 
     }
     
-    df.high = df.m[p.value.ab<.05 | (mediator %in% c("Airn_10441787", "Lrrc16a") & therank<=countpoint)]
+    df.high = df.m[p.value.ab<.05 | (mediator %in% c("Airn_10441787", "Carmil1") & therank<=countpoint)]
     
     df.high$mediator = gsub(df.high$mediator, pattern = "_.*", replacement = "")
 
