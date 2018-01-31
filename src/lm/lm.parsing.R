@@ -641,15 +641,18 @@ lm.parsing$.getLevz <- function(fit.with.interaction, var1)
 ##TODO, make this work for lme
 lm.parsing$form.interaction.contrast.mat <- function( fit.with.interaction, var1, var2)
 {
+
     var1.levelz = lm.parsing$.getLevz(fit.with.interaction, var1)
     var2.levelz = lm.parsing$.getLevz(fit.with.interaction, var2)
-    
+##    var2.levelz = var2.levelz[-length(var2.levelz)]
+
+                              
     alleffectnames = names(fixef(fit.with.interaction))
     pairz = expand.grid(var1.levelz, var2.levelz)
     pairz$sep = ":"
     pairz = do.call(paste, pairz)
 
-    refpair = setdiff(pairz, alleffectnames)
+    refpair = paste0(var1.levelz[1],":", var2.levelz[2])##setdiff(pairz, alleffectnames)
     pairz = intersect(pairz, alleffectnames)
     pairz.inds = match(pairz, alleffectnames)
     ## allDeltas = t(combn(contrast.inds,2))
@@ -665,6 +668,7 @@ lm.parsing$form.interaction.contrast.mat <- function( fit.with.interaction, var1
     for(c1 in pairz.inds)
     {
         contrast.mat[counter,c1]=1
+        contrast.mat[counter,which(alleffectnames == var2.levelz[2])]=-1
         rownames(contrast.mat)[counter] = paste(pairz[counter], "-", refpair[1])
         counter = counter+1
     }
@@ -677,6 +681,7 @@ lm.parsing$form.interaction.contrast.mat <- function( fit.with.interaction, var1
 
         counter = counter+1
     }
+
     return(contrast.mat)
 }
 
