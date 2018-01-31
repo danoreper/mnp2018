@@ -24,19 +24,27 @@ source("./mnp/mediation/BDmodel2.R")
 mnp.med$run <- function(inputBuilder,  mediator.ids,  original.strain.results)
 {
     print("calling run!")
-    mediation = mnp.med$runAllCandidateMediators(mediator.ids    = mediator.ids,
-                                                 inputBuilder    = inputBuilder)
+    mediation.batch = mnp.med$runAllCandidateMediators(mediator.ids    = mediator.ids,
+                                                       inputBuilder    = inputBuilder)
 
+
+    mediation = mediation.batch$mediation
+    interacts = mediation.batch$interaction
 
     matchind = match(mediation$mediator.id, original.strain.results$Probe.Set.ID)
-    
     mediation$mediator_name            = original.strain.results$gene_name[matchind]
     mediation$p.strain.on.mediator     = original.strain.results$anova.p.value[matchind]
-    mediation$imprinted                = original.strain.results$minDistToImprinted[matchind]<5000
+    mediation$imprinted                = original.strain.results$imprinted[matchind]
     setkey(mediation, "p.value.ab")
 
+    matchind = match(interacts$mediator.id, original.strain.results$Probe.Set.ID)
+    interacts$gene_name                = original.strain.results$gene_name[matchind]
+    interacts$imprinted                = original.strain.results$imprinted[matchind]
+    
+    
+
     ##TODO: call saveoutputs in here?
-    return(mediation)
+    return(list(mediation=mediation, interaction = interacts))
 }
 
 
@@ -77,8 +85,17 @@ mnp.med$runAllCandidateMediators <- function(inputBuilder,
         
     outs = accum$runAll()
     outs = accum$getAllOutputs(outs, removeFailing = T)
-    mediation = rbindlist(outs)
-    return(mediation)
+    
+    df = rbindlist(lapply(outs, "[[", "df") )
+
+    F = data.frame(
+        mediator.id = mediator.ids,
+        outcome.id  = df$outcome.id[1],
+        F1  = unlist(lapply(outs, "[[", "F1")),
+        F2  = unlist(lapply(outs, "[[", "F2")))
+    
+##    mediation = rbindlist(outs)
+    return(list(mediation = df, interaction = F))
 }        
 
 mnp.med$saveOutputs <- function(froot, outputs)
@@ -120,8 +137,11 @@ mnp.med$get.gibbs.samples <- function(inputBuilder,
 
 
     mediation             = input$mediationFunc(vals, input$dataForJags)
-    mediation$mediator.id = mediator.id
-    mediation$outcome.id  = input$outcome.id
+
+
+    
+    mediation$df$mediator.id = mediator.id
+    mediation$df$outcome.id  = input$outcome.id
     
 ##    print(mediation)
     return(mediation)

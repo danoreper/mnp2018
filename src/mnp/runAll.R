@@ -69,6 +69,22 @@ qpcr.analysis$run(inp)
 
 ##Run behavior analysis
 beh.analysis$runAll(inp$phens)
+
+
+df=inp$phens$getExperiment("openfield")
+df$y=df$pctctr
+aplot = plot.poe.data(df, ylabel = "% Center Time", "", mode = 2)
+show.and.write(aplot, "x", width = 4, height = 3, fname = "pctctr", mode = 2)
+
+df=inp$phens$getExperiment("SIH")
+df$y=df$temp.2
+aplot = plot.poe.data(df, ylabel = "Stress-induced Temp", "", mode = 2)
+show.and.write(aplot, "x", width = 4, height = 3, fname = "SIH", mode = 2)
+
+
+probes.mir341 = inp$probedGenes[which(inp$probedGenes$gene_name=="Mir341")]
+
+
 print("done with behavior")
 
 ##Run mediation analysis.

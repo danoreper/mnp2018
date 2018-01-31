@@ -23,7 +23,7 @@ run <- function()
     ##                             out$threshholds,
     ##                             inp$karyo)
 
-    source("./mnp/behavior/cleanData.R");
+##    source("./mnp/behavior/cleanData.R");
     source("mnp/behavior/loadData.R");
     source("mnp/behavior/analysis.R");
     phenz = loadBehavior$getPhenotypeRepository();

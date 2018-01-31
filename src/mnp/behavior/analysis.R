@@ -88,10 +88,12 @@ beh.analysis$run = function(phen, geneExp = NULL)
 
     
     allPhenNames = c("Ten.min", "baseline", "Ten.min.less.baseline")
-    covariates   = " ~ 1 +  as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
+    covariates   = " ~ 1 +  as.factor(Batch) + Order + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
     anexpType    = "cort"
     dataSet      = phen$getExperiment(anexpType)
-    df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
+
+    mdl = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
+    df = rbind(df, mdl)
 
     
     allPhenNames = c("PctFreeze.120.less.240sec")
@@ -124,11 +126,11 @@ beh.analysis$run = function(phen, geneExp = NULL)
     df = rbind(df, out)
 
     
-    allPhenNames = startlechoice
-    covariates   = " ~ 1 + as.factor(Batch) + Group  + Diet + Sire.is.b6  + Group:Sire.is.b6+ Diet:Sire.is.b6 + (1|Chamber) + (1 | Dam.ID) +(1|ID) "
-    anexpType    = "startle"
-    dataSet      = phen$getExperiment(anexpType)
-    df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
+    ## allPhenNames = startlechoice
+    ## covariates   = " ~ 1 + as.factor(Batch) + Group  + Diet + Sire.is.b6  + Group:Sire.is.b6+ Diet:Sire.is.b6 + (1|Chamber) + (1 | Dam.ID) +(1|ID) "
+    ## anexpType    = "startle"
+    ## dataSet      = phen$getExperiment(anexpType)
+    ## df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
 
     
     allPhenNames = c( "as50.Average_normalized",
@@ -155,6 +157,14 @@ beh.analysis$run = function(phen, geneExp = NULL)
     
         df = rbind(df, out)
     }
+
+
+    allPhenNames = "Body.Weight..g."
+    covariates   = " ~ 1 +  as.factor(Batch) + Diet  + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
+    anexpType    = "weight"
+    dataSet      =phen$getExperiment(anexpType)
+    df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
+
 
 
     pipel1Exp = c("lightdark", "startle", "startleByGroup", "SIH", "swim", "cocaine","weight")
@@ -361,7 +371,200 @@ beh.analysis$fitFreqModel <- function(amodel, dataSet)
 
 beh.analysis$.dispSignificantPhen <- function(df,outfile) 
 {
-    mlt = 1000
+    library(flextable)
+    library(officer)
+
+    mlt = 10000
+    
+    toflex = copy(df)
+    toflex = data.table(toflex)
+    setorder(toflex, "phenotype")
+    
+    pvalcol = c("strain.pval", "diet.pval", "strainByDiet.pval",
+                "strain.pval.qval.fdr", "diet.pval.qval.fdr", "strainByDiet.pval.qval.fdr")
+    toflex = toflex[,c("pipeline", "experiment", "phenotype", "model", pvalcol), with=F]
+
+    toflex$experiment = factor(toflex$experiment,
+                               levels= c("lightdark", "startle", "SIH", "swim", "cocaine","weight",
+                                         "openfield", "sociability", "tail", "cort"))
+
+    setorder(toflex, "experiment")
+    levels(toflex$experiment) = c("Light/Dark", "Startle/Prepulse Inhibition", "Stress-Induced Hyperthermia",
+                                  "Forced Swim", "Cocaine Response", "Body Weight",
+                                  "Open Field", "Social Interaction", "Tail Suspension", "Restraint Stress")
+
+    toflex$phenotype = as.character(toflex$phenotype)
+    toflex[phenotype == "Total.Distance",      phenotype:="Total Distance"]
+    toflex[phenotype == "Total.Distance.Dark", phenotype:="Distance Dark"]
+    toflex[phenotype == "Total.Distance.Light",phenotype:="Distance Light"]
+    toflex[phenotype == "Pct.Time.Dark",       phenotype:="% Time Dark"]
+    toflex[phenotype == "Pct.Time.Light",      phenotype:="% Time Light"]
+    toflex[phenotype == "Total.Transitions",  phenotype:="Total Transitions"]
+    toflex[phenotype == "as50.Average_normalized",  phenotype:="AS50 Average"]
+    toflex[phenotype == "as50.Latency_normalized",  phenotype:="AS50 Latency"]
+    toflex[phenotype == "Averageppi74",  phenotype:="Average PPI 74"]
+    toflex[phenotype == "Averageppi78",  phenotype:="Average PPI 78"]
+    toflex[phenotype == "Averageppi82",  phenotype:="Average PPI 82"]
+    toflex[phenotype == "Averageppi86",  phenotype:="Average PPI 86"]
+    toflex[phenotype == "Averageppi90",  phenotype:="Average PPI 90"]
+    toflex[phenotype == "temp.1",        phenotype:="SIH-T1"]
+    toflex[phenotype == "temp.2",        phenotype:="SIH-T2"]
+    toflex[phenotype == "Difference",    phenotype:="SIH-Delta"]
+    toflex[phenotype == "pctimmob",      phenotype:="% Immobility"]
+    toflex[phenotype == "D3.less.D2",    phenotype:="Day3-Day2 Distance"]
+    toflex[phenotype == "dist_d1",       phenotype:="Day1 Distance"]
+    toflex[phenotype == "dist_d2",       phenotype:="Day2 Distance"]
+    toflex[phenotype == "dist_d3",       phenotype:="Day3 Distance"]
+    toflex[phenotype == "totdist",       phenotype:="Distance Moved"]
+    toflex[phenotype == "pctctr",        phenotype:="% Center Time"]
+    toflex[phenotype == "vertcts",       phenotype:="Vertical Counts"]
+    toflex[phenotype == "avgvel",        phenotype:="Average Velocity"]
+    toflex[phenotype == "jmpcts",        phenotype:="Jump Counts"]
+    toflex[phenotype == "boli",          phenotype:="Boli Count"]
+    toflex[phenotype == "PctStranger",   phenotype:="% Time Stranger"]
+    toflex[phenotype == "TRANSTOTAL",    phenotype:="Transitions"]
+    toflex[phenotype == "PctFreeze.120.less.240sec",  phenotype:="% Immobility"]
+    toflex[phenotype == "Ten.min",   phenotype:="10 min CORT"]
+    toflex[phenotype == "baseline",  phenotype:="Basal CORT"]
+    toflex[phenotype == "Ten.min.less.baseline",  phenotype:="Δ CORT"]
+
+    toflex[phenotype == "Body.Weight..g.", phenotype:= "Body Weight"]
+
+
+    swp = function(i1,i2,df)
+    {
+        r1 = copy(df[i1,])
+        r2 = copy(df[i2,])
+        df[i1,]=r2
+        df[i2,]=r1
+        return(df)
+    }
+
+
+    i1 = which(toflex$phenotype =="10 min CORT")
+    i2 = which(toflex$phenotype =="Basal CORT")
+    toflex = swp(i1, i2, toflex)
+
+    i1 = which(toflex$phenotype =="Day3-Day2 Distance")
+    i2 = which(toflex$phenotype =="Day1 Distance")
+    toflex = swp(i1, i2, toflex)
+
+    i1 = which(toflex$phenotype =="Day3-Day2 Distance")
+    i2 = which(toflex$phenotype =="Day2 Distance")
+    toflex = swp(i1, i2, toflex)
+
+    i1 = which(toflex$phenotype =="Day3-Day2 Distance")
+    i2 = which(toflex$phenotype =="Day3 Distance")
+    toflex = swp(i1, i2, toflex)
+
+    
+    toflex$pipeline = as.character(toflex$pipeline)
+
+
+    f = function(elem)
+    {
+        terms = c()
+        for(i in 1:length(elem$fixef))
+        {
+            terms = c(terms, paste(elem$fixef[[i]], collapse = ":"))
+        }
+
+        for(i in 1:length(elem$ranef))
+        {
+            terms = c(terms, elem$ranef[[i]]$group)
+        }
+        terms = setdiff(terms, c("1", "Diet", "Sire.is.b6", "Diet:Sire.is.b6"))
+        terms[terms=="Box.Stranger"] = "Stranger Box"
+        terms[terms=="as.factor(Batch)"] = "Batch"
+        terms[terms=="as.factor(Arena)"] = "Arena"
+        terms[terms=="Order"] = "Test Order"
+        terms[terms=="Dam.ID"] = "Dam"
+        terms[terms=="ID"] = "Pup"
+        terms = paste(terms, collapse = ", ")
+        return(terms)
+    }
+    
+    parsed = lapply(FUN = formulaWrapper$parseCovariateString, toflex$model)
+    parsed = lapply(FUN = f, parsed)
+    toflex$model = unlist(parsed)
+    
+    for(cname in pvalcol)
+    {
+        print(cname)
+        stars = gtools::stars.pval(toflex[[cname]])
+        stars[stars ==" "] = ""
+        toflex[[cname]] =  ceiling(mlt*toflex[[cname]])/mlt
+        toflex[[cname]] = paste0(sprintf("%1.4f", toflex[[cname]]), stars)
+    }
+
+    formulaWrapper$parseCovariateString(toflex$model)
+    
+    mytab = regulartable(data=toflex)
+    mytab = bold(mytab, part = "header")
+    mytab = bold(mytab,    j = ~ pipeline)  
+    mytab = align( mytab, align = "center", part = "all")
+    
+        
+    rep = list()
+    rep[["x"]] = mytab
+    rep[["pipeline"]]="Pipeline"
+    rep[["experiment"]]="Test"
+    rep[["phenotype"]] = "Phenotype"
+    rep[["model"]]="Covariates"
+    rep[["strain.pval"]] = "POE"
+    rep[["diet.pval"]] = "Diet"
+    rep[["strainByDiet.pval"]] = "DietxPOE"
+    rep[["strain.pval.qval.fdr"]] = "POE"
+    rep[["diet.pval.qval.fdr"]] = "Diet"
+    rep[["strainByDiet.pval.qval.fdr"]] = "DietxPOE"
+    mytab = do.call(set_header_labels, rep)
+    mytab = autofit(mytab, 0, 0)
+
+    rep[["x"]] = mytab
+    rep[["strain.pval"]] = "p value"
+    rep[["diet.pval"]] = "p value"
+    rep[["strainByDiet.pval"]] = "p value"
+    rep[["strain.pval.qval.fdr"]] = "q value"
+    rep[["diet.pval.qval.fdr"]] = "q value"
+    rep[["strainByDiet.pval.qval.fdr"]] = "q value"
+    mytab = do.call(add_header, rep)
+
+    mytab = merge_h(mytab, part="header")
+    mytab = merge_v(mytab, part="header")
+    mytab = merge_v(mytab, j = c("pipeline", "experiment"))
+
+    rl = c(0, rle(paste(toflex$experiment, toflex$model))$lengths)
+    rl = cumsum(rl)
+    for(i in 1:(length(rl)-1))
+    {
+        mytab = merge_at(mytab, j = c("model"), (rl[i]+1):rl[i+1])
+    }
+
+                    
+
+
+    mytab = border(mytab, border.bottom = officer::fp_border(width = 3), j =1:ncol(toflex), i = 22)
+    mytab = border(mytab, border.bottom = officer::fp_border(width = 3), part = "header", i = 2)
+
+    mytab = bold(mytab, i = ~grepl(strain.pval, pattern ="\\*"), j = ~strain.pval)
+    mytab = bold(mytab, i = ~grepl(diet.pval, pattern ="\\*"), j = ~diet.pval)
+    mytab = bold(mytab, i = ~grepl(strainByDiet.pval, pattern ="\\*"), j = ~strainByDiet.pval)
+    mytab = bold(mytab, i = ~grepl(strain.pval.qval.fdr, pattern ="\\*"), j = ~strain.pval.qval.fdr)
+    mytab = bold(mytab, i = ~grepl(diet.pval.qval.fdr, pattern ="\\*"), j = ~diet.pval.qval.fdr)
+    mytab = bold(mytab, i = ~grepl(strainByDiet.pval.qval.fdr, pattern ="\\*"), j = ~strainByDiet.pval.qval.fdr) 
+    ##mytab = height(mytab, .5)
+
+    mytab = autofit(mytab, 0, 0)
+
+    
+    doc = read_docx(fp("./mnp/template2.docx"))
+    doc = body_add_flextable(doc, mytab)
+    print(doc, target = gsub(outfile, pattern = "csv", replacement = "docx"))
+
+
+
+    
+    
     experiment = df$experiment
     phenotype  = df$phenotype
     model      = df$model
