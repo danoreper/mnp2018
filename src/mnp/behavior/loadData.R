@@ -6,7 +6,7 @@ loadBehavior = new.env(hash = T)
 datp <- function(...)
 {
     dat("mnp/phenotypes", ...)
-    ##fp(newdat, ...)
+##    fp(newdat, ...)
 }
 
 loadBehavior$getPhenotypeRepository <- function()
@@ -223,10 +223,11 @@ loadBehavior$read.SIH.data <- function()
     SIH.frame = loadBehavior$fixColumns(SIH.frame)
     colnames(SIH.frame)[colnames(SIH.frame)=="Temp.1"] = "temp.1"
     colnames(SIH.frame)[colnames(SIH.frame)=="Temp.2"] = "temp.2"
+    ##correcting any potential mistakes in subtraction
+    SIH.frame$Difference = (SIH.frame$temp.2 - SIH.frame$temp.1)
+
     
     SIH.frame$ID = (as.character(SIH.frame$ID ))
-    ##correcting mistakes in subtraction
-    SIH.frame$Difference = (SIH.frame$temp.2 - SIH.frame$temp.1)
     return(SIH.frame)
 }
 
