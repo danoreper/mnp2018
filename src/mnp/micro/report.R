@@ -389,10 +389,16 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
         limitedTable$passes.FWER = "N"
         limitedTable$passes.FWER[limitedTable$anova.p.value<thresh] = "Y"
     }
-
     
+    setorder(limitedTable, "chrom","probesetStart")
     limitedTable$anova.q.value = sprintf( "%.1f",-log10(limitedTable$anova.q.value))
     limitedTable$anova.p.value = sprintf("%.1f",-log10(limitedTable$anova.p.value))
+    
+    ## limitedTable$anova.q.value = -log10(limitedTable$anova.q.value)
+    ## limitedTable$anova.q.value = as.character(signif(limitedTable$anova.q.value, digits = 3))
+
+    ## limitedTable$anova.p.value = -log10(limitedTable$anova.p.value)
+    ## limitedTable$anova.p.value = as.character(signif(limitedTable$anova.p.value, digits = 3))
     
     setnames(limitedTable,
              old = c("anova.p.value","anova.q.value"),#, "imprintedMGI"),
@@ -400,7 +406,8 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
 
 
     print(paste0("done formatting ", variable))
-    
+
+   
     return(limitedTable)
 }
 
