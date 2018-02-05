@@ -8,7 +8,7 @@ reveal parent-of-origin and perinatal diet effects on behavior and expression' (
 * jags
 * R>=3.3.1
 * Python>=2.7.12
-* R CRAN packages: Cairo, car, coda, corrplot, data.table, evir, ggplot2, ggrepel, grid, gdata,  flextable, igraph, lattice, lme4, lmerTest, MASS,  mcmcplots,  mvtnorm, multcomp, nlme, officer, parallel, pracma, reshape, reshape2, rjags, stringr,tools, utils, yaml.
+* R CRAN packages: Cairo, car, coda, corrplot, data.table, evir, ggplot2, ggrepel, grid, gdata,  gtools, flextable, igraph, lattice, lme4, lmerTest, MASS,  mcmcplots,  mvtnorm, multcomp, nlme, officer, parallel, pracma, reshape, reshape2, rjags, stringr,tools, utils, yaml.
 * R Bioconductor packages: affxparser, BiocGenerics, biomaRt, Biostrings, GenomicRanges, IRanges, limma, oligo, org.Mm.eg.db, Rsamtools, rtracklayer.
 * Python packages: PyYAML
 

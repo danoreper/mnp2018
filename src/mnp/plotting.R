@@ -988,7 +988,7 @@ show.and.write <- function(aplot, atitle, mode, width = 4, height = 3, fname)
 ##    x11(width = width, height = height)
 ##    print(aplot)
     afle = outm(paste0(fname, "_", mode,".pdf"))
-
+    print(afle)
     pdf(afle, width = width, heigh=height)
     print(aplot)
     dev.off()

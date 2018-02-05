@@ -288,7 +288,8 @@ mnp:
   recomputeProbeInfo: no
 
   ## The file delineating all sample covariates.
-  breedinglog: 2017-02-13_breederLog.csv
+  ##breedinglog: 2017-02-13_breederLog.csv
+  breedinglog: 2017-02-13_breederLog.csv	
 
   ## An expression file generated from vanilla Affy tools options applied to our cel files.
   ## The usefullness is that it included annotation information; we discard the microarray values

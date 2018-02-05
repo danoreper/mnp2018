@@ -29,7 +29,7 @@ mnp.med$get.BD.inputBuilder <- function(M.measures, Y.measures, discardMissingGe
     cov.data    = raw.data$phens$breedLog
     qpcr.data   = getRawTaqData(merge.qpcr.plate)
 
-    micro.data  = mnp.med$get.sv.corrected.genes(raw.data, F)$exp.mat
+    micro.data  = mnp.med$get.sv.corrected.genes(raw.data, T)$exp.mat
     phen.data   = NULL
     if(modelBehavior)
     {
@@ -407,17 +407,57 @@ mnp.med$BD.mediationFunc <- function(mcobj, dataForJags)
         bs[[k]] = b
         cs[[k]] = c.prime
     }
+
+    for(k in 1:4)
+    {
+        margsum = as[[k]]*bs[[k]]
+        if(k==1)
+        {
+            tots = margsum
+        } else {
+            tots = tots + margsum
+        }
+    }
+    tots = tots/4
+
+
+    for(k in 1:4)
+    {
+        margsum = (tots - as[[k]]*bs[[k]])^2
+        if(k==1)
+        {
+            newtot = margsum
+        } else {
+            newtot = newtot + margsum
+        }
+    }
+    newtot = newtot/4
+
+##    browser()
+    F1 = median(newtot)/sd(newtot)
+    
+    Y = c(as[[1]]*bs[[1]],
+          as[[2]]*bs[[2]],
+          as[[3]]*bs[[3]],
+          as[[4]]*bs[[4]])
+
+    N = length(as[[1]])
+    X = factor(c(rep(1, N), rep(2,N), rep(3,N), rep(4,N)))
+    an = (anova(lm(Y~X)))
+    F2  = an["X", "F value"] 
+    
     
     df = mnp.med$samplesToMediation(mcmc(do.call(c, as)),
                                     mcmc(do.call(c, bs)),
                                     mcmc(do.call(c, cs)))
 
+    
     df$moderators = paste0("Diet=Ave")
 
     dfs = util$appendToList(dfs, df)
     dfs = rbindlist(dfs)
 
-    return(dfs)
+    return(list(df = dfs, F1 = F1, F2 = F2))
 }
 
 

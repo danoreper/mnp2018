@@ -16,8 +16,10 @@ source("./lm/fitBoxCoxModels.R")
 source("./multipleTesting.R")
 source("./bayes/processSamples.R")
 source("./mnp/mediation/mediationBayes3.R")
+source("./genomerep/buildGenomeData2.R")
 
 
+##exons = data.table(data.frame(buildGenomeData$getExons()))
 
 strain.results = fread(outm(fp("micro", "effect.table", "p_all_Strain.csv")))
 strain.results$Probe.Set.ID = as.character(strain.results$Probe.Set.ID)
@@ -27,17 +29,111 @@ cands.imp  = as.character(strain.results[imprinted=="Y"]$Probe.Set.ID)
 
 cands.lrrc = as.character(strain.results[gene_name=="Lrrc16a"]$Probe.Set.ID)
 cands.airn = "10441787"
+cands.mir341 = as.character(strain.results[gene_name=="Mir341"]$Probe.Set.ID)
 
 tops = strain.results[["-log10.qval"]]> -log10(.05) & strain.results[["imprinted"]]=="Y"
 cands.top =  as.character(strain.results[tops]$Probe.Set.ID)
+
+
+    
+mirtargs = fread(datm("TargetScan7.1__miR-341-3p.predicted_targets.txt"))
+mirtargs$probeset = NA
+for(i in 1:nrow(mirtargs))
+{
+    
+    gn =mirtargs[i][["Target gene"]]
+    print(gn)
+    ps = strain.results[gene_name==gn|
+                        grepl(gene_name, pattern = paste0(gn,","))]$Probe.Set.ID
+
+    
+    ## if(length(ps)>1)
+    ## {
+    ##     browser()
+    ## }
+    mirtargs$probeset[i]= ps[1]
+}
+
+
+outcomeProbesets = mirtargs$probeset
+outcomeProbesets = setdiff(mirtargs$probeset, NA)
 
 raw.data.BD = loadAllData$createAllInputs()
 phenrepo    = raw.data.BD$phens 
 
 print("Expression Mediation")
 
+
+print("running BD mir341 analysis")
+
+sharedVariables = list()
+sharedVariables$Y.measures = "micro"
+sharedVariables$M.measures = "micro"
+sharedVariables$discard = T
+sharedVariables$qpcrmerge = T
+sharedVariables$raw.data.BD = raw.data.BD
+sharedVariables$cands.mir341 = cands.mir341
+sharedVariables$strain.results = strain.results
+
+outputs = list()
+f = function(outcomeProbeset, Y.measures, M.measures, discard, qpcrmerge, raw.data.BD, cands.mir341, strain.results)
+{
+    BD.inputbuilder  = mnp.med$get.BD.inputBuilder(M.measures = M.measures, Y.measures = Y.measures, discardMissingGeneExpression = discard, phenotypeSpec = list(phen = outcomeProbeset), merge.qpcr.plate = qpcrmerge, raw.data = raw.data.BD)
+    
+    output = mnp.med$run(inputBuilder = BD.inputbuilder, mediator.ids = cands.mir341, original.strain.results = strain.results)$interaction
+    output$outcome = strain.results[Probe.Set.ID == outcomeProbeset]$gene_name
+    return(output)
+}
+
+
+if(length(cands.all)/50<3)
+{
+    batchSize = min(3, length(cands.all))
+} else {
+    batchSize = 50
+}
+
+accum = parallel$get.mc.accum(func = f, mc.cores= prop$mnp$mc.cores, sharedVariables = sharedVariables)
+if(prop$onCluster & length(cands.all)>1)
+{
+    accum = parallel$get.cluster.accum(system.type = prop$system.type,
+                                       func = f,
+                                       sharedVariables = sharedVariables,
+                                       
+                                       filesToSource = "./mnp/mediation/mediationBayes3.R",
+                                       batchSize = batchSize,
+                                       timeLimit.hours = ceiling(3 +(20*batchSize)/60),
+                                       cpuMemLimit.GB = 2,
+                                       outdir         = prop$tmpdir,
+                                       saveProp       = T)
+}
+
+for(i in 1:2)##length(cands.all)) ##length(outcomeProbesets))
+##for(i in 1100:1120) ##length(outcomeProbesets))
+{
+    print(i)
+    outcomeProbeset = cands.all[i]
+    accum$addCall(funcArgs = list(outcomeProbeset=outcomeProbeset))
+              ##outcomeProbesets[i]
+    ##outcomeProbeset = outcomeProbesets[i]
+    ##outputs = util$appendToList(outputs, output)
+##    output = output[moderators == "Diet=Ave"]
+##    froot = outm("mediation")
+##    postfix
+##    postfix = paste0(discard, "_", qpcrmerge, "_",  paste(M.measures, collapse=","), "_", paste(Y.measures, collapse = ","))
+  ##  tokeep = mnp.med$saveOutputs(output, froot = fp(froot,  postfix))
+   ## print("all done")
+}
+out=accum$runAll()
+out=accum$getAllOutputs(out)
+browser()
+out = rbindlist(out)
+
+fwrite(out, outm("mir341_med.txt"))
+
+stop()
 ############################################
-print("running BD expression analysis")
+print("running BD Lrrc expression analysis")
 
 
 M.measures = "micro"
@@ -61,7 +157,7 @@ for (i in 1:length(Y.measures.all))
     {
         BD.inputbuilder  = mnp.med$get.BD.inputBuilder(M.measures = M.measures, Y.measures = Y.measures, discardMissingGeneExpression = discard, phenotypeSpec = list(phen = cands.lrrc), merge.qpcr.plate = qpcrmerge, raw.data = raw.data.BD)
         
-        output = mnp.med$run(inputBuilder = BD.inputbuilder, mediator.ids = cands.all, original.strain.results = strain.results)
+        output = mnp.med$run(inputBuilder = BD.inputbuilder, mediator.ids = cands.all, original.strain.results = strain.results)$mediation
         output = output[moderators == "Diet=Ave"]
 
         froot = outm("mediation")
@@ -87,7 +183,7 @@ afunc = function(amodel, M.measures, Y.measures, mediator.ids, discardMissingGen
                                                    discardMissingGeneExpression = discardMissingGeneExpression,
                                                    phenotypeSpec = amodel,
                                                    merge.qpcr.plate = merge.qpcr.plate)
-    output = mnp.med$run(inputBuilder = BD.inputbuilder, mediator.ids = mediator.ids, original.strain.results = strain.results)
+    output = mnp.med$run(inputBuilder = BD.inputbuilder, mediator.ids = mediator.ids, original.strain.results = strain.results)$mediation
     output = output[moderators == "Diet=Ave"]
     return(output)
 }
