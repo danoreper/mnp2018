@@ -30,7 +30,8 @@ beh.analysis$runAll <- function(phens)
     df1 = beh.analysis$.adjust.pvals(df, phens)
     fname = outb("phenNew.csv")
     df2= beh.analysis$.dispSignificantPhen(df1, fname)
-    
+
+    beh.analysis$.dispSignificantPhen(df1, fname, mode = 2)
     ## merged = beh$.mergeIntoPipelines(phen=phen)
     ## ##PCA analysis of the two pipelines
     ## beh.analysis$.evalPCAphen(merged$pipel1, phen$breedLog, "pipeline_behavior_1")
@@ -196,6 +197,11 @@ beh.analysis$run = function(phen, geneExp = NULL)
 ##
 beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSet, geneExp = NULL) 
 {
+    ##    if(anexpType=="SIH"|anexpType=="startle")
+    ## if(anexpType=="startle")
+    ## {
+    ##     browser()
+    ## }
     failingphen = c()
                                             #BOX COX search through these lambdas
     lambdas = c(-3, -2,-1,-.5,0,.5,1,2,3)
@@ -218,6 +224,10 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
     dfs = list()
     for(pheno in allPhenNames)
     {
+        ##if(pheno=="temp.2")
+        ##{
+        ##    browser()
+        ##}
         print("****************************")
         print(anexpType)
         print(pheno)
@@ -243,23 +253,29 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
         anov = fit.lambda$anovaWrapper
         print(anov)
 
+        acont = lm.parsing$form.contrast.mat(fit.with.interaction, "Diet")
+        ## z = glht(fit.with.interaction, linfct = acont)
+        ## browser()
         if(is.null(geneExp))
         {
             dietComps = glht(fit.with.interaction, linfct = mcp(Diet="Tukey"))
             tukeyDiets =  summary(dietComps)$test$pvalues
             names(tukeyDiets) = names((summary(dietComps))$test$tstat)
-            tukeyDiets = data.frame(as.list(tukeyDiets))
+##            names(tukeyDiets) = gsub(names(tukeyDiets), pattern = " ", replacement = "")
+            tukeyDiets = data.frame(as.list(tukeyDiets), check.names=T)
             
             var1 = "Diet"
             var2 = "Sire.is.b6"
             contrast.mat = lm.parsing$form.interaction.contrast.mat(fit.with.interaction, var1, var2)
             glht.out = glht(fit.with.interaction, linfct = contrast.mat)
-            tukeyDietByStrains =  summary(glht.out)$test$pvalues
+            tukeyDietByStrains =  (summary(glht.out)$test$pvalues)
             names(tukeyDietByStrains) = names(((summary(glht.out))$test)$coefficients)
-            tukeyDietByStrains = data.frame(as.list(tukeyDietByStrains))
-
-            varExp = lm.parsing$varexp(fit.with.interaction)
-            varExp = var(varExp$components)/var(as.vector(varExp$response))
+            names(tukeyDietByStrains) = gsub(names(tukeyDietByStrains), pattern = "Sire\\.is\\.b6TRUE", replacement = "NODxB6")
+            names(tukeyDietByStrains) = gsub(names(tukeyDietByStrains), pattern = "Diet", replacement = "")
+##            names(tukeyDietByStrains) = gsub(names(tukeyDietByStrains), pattern = " ", replacement = "")
+            tukeyDietByStrains = data.frame(as.list(tukeyDietByStrains), check.names = T)
+            ## varExp = lm.parsing$varexp(fit.with.interaction)
+            ## varExp = var(varExp$components)/var(as.vector(varExp$response))
         }
         
 
@@ -287,18 +303,18 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
                         strain.pval       = anov$an["Sire.is.b6",     anov$pvalueCol],
                         diet.pval         = anov$an["Diet",           anov$pvalueCol],
                         strainByDiet.pval = anov$an["Diet:Sire.is.b6",anov$pvalueCol])
-        
+##        df = data.table(df)
         if(is.null(geneExp))
         {
           
             df$group.pval        = group.pval
             df$groupByStrain.pval= groupByStrain.pval
-            df$strain.varexp       = varExp["Sire.is.b6", "Sire.is.b6"]
-            df$diet.varexp         = varExp["Diet","Diet"]
-            df$strainByDiet.varexp = varExp["Diet:Sire.is.b6", "Diet:Sire.is.b6"]
-            df$batch.varexp        = varExp["as.factor(Batch)","as.factor(Batch)"]
-            df$dam.varexp          = varExp["Dam.ID.(Intercept)", "Dam.ID.(Intercept)"]
-            df$resid.varexp        = varExp["resid","resid"]
+            ## df$strain.varexp       = varExp["Sire.is.b6", "Sire.is.b6"]
+            ## df$diet.varexp         = varExp["Diet","Diet"]
+            ## df$strainByDiet.varexp = varExp["Diet:Sire.is.b6", "Diet:Sire.is.b6"]
+            ## df$batch.varexp        = varExp["as.factor(Batch)","as.factor(Batch)"]
+            ## df$dam.varexp          = varExp["Dam.ID.(Intercept)", "Dam.ID.(Intercept)"]
+            ## df$resid.varexp        = varExp["resid","resid"]
         }
         
         if(!is.null(geneExp))
@@ -307,6 +323,7 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
         }
         if(is.null(geneExp))
         {
+            
             df = cbind(df,tukeyDiets)
             df = cbind(df, tukeyDietByStrains)
         }
@@ -320,6 +337,7 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
         print("FAILING PHEN:::")
         print(failingphen)
     }
+    
     return(dfs)
 }
 
@@ -369,19 +387,33 @@ beh.analysis$fitFreqModel <- function(amodel, dataSet)
 }
 
 
-beh.analysis$.dispSignificantPhen <- function(df,outfile) 
+beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1) 
 {
+    
     library(flextable)
     library(officer)
 
-    mlt = 10000
+    ##mlt = 10000
+    sigfig = 3
     
     toflex = copy(df)
     toflex = data.table(toflex)
     setorder(toflex, "phenotype")
+    if(mode==1)
+    {
+        pvalcol = c("strain.pval", "diet.pval", "strainByDiet.pval",
+                    "strain.pval.qval.fdr", "diet.pval.qval.fdr", "strainByDiet.pval.qval.fdr")
+    } else {
+    pvalcol = c('ME - Std','PD - Std','VDD - Std','PD - ME','VDD - ME','VDD - PD',
+                'ME:NODxB6 - Std:NODxB6','PD:NODxB6 - Std:NODxB6','VDD:NODxB6 - Std:NODxB6','PD:NODxB6 - ME:NODxB6','VDD:NODxB6 - ME:NODxB6','VDD:NODxB6 - PD:NODxB6')
+
+    pvalcol = gsub(pvalcol, pattern = " - ", replacement = "...")
+    pvalcol = gsub(pvalcol, pattern = ":", replacement = ".")
+  ##  colnames(toflex) = gsub(colnames(toflex), pattern = " ", replacement = "") 
     
-    pvalcol = c("strain.pval", "diet.pval", "strainByDiet.pval",
-                "strain.pval.qval.fdr", "diet.pval.qval.fdr", "strainByDiet.pval.qval.fdr")
+    }
+                ## 'ME:NODxB6 - Std:NODxB6.qval.fdr','PD:NODxB6 - Std:NODxB6.qval.fdr','VDD:NODxB6 - Std:NODxB6.qval.fdr','PD:NODxB6 - ME:NODxB6.qval.fdr','VDD:NODxB6 - ME:NODxB6.qval.fdr','VDD:NODxB6 - PD:NODxB6.qval.fdr','pipeline.qval.fdr')
+    
     toflex = toflex[,c("pipeline", "experiment", "phenotype", "model", pvalcol), with=F]
 
     toflex$experiment = factor(toflex$experiment,
@@ -490,11 +522,12 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile)
     
     for(cname in pvalcol)
     {
-        print(cname)
+##        print(cname)
         stars = gtools::stars.pval(toflex[[cname]])
         stars[stars ==" "] = ""
-        toflex[[cname]] =  ceiling(mlt*toflex[[cname]])/mlt
-        toflex[[cname]] = paste0(sprintf("%1.4f", toflex[[cname]]), stars)
+        toflex[[cname]] =  signif(toflex[[cname]], digits = sigfig)
+        toflex[[cname]] = paste0(toflex[[cname]], stars)
+        toflex[[cname]][toflex[[cname]]=="1"] = "<1"
     }
 
     formulaWrapper$parseCovariateString(toflex$model)
@@ -511,22 +544,43 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile)
     rep[["experiment"]]="Test"
     rep[["phenotype"]] = "Phenotype"
     rep[["model"]]="Covariates"
-    rep[["strain.pval"]] = "POE"
-    rep[["diet.pval"]] = "Diet"
-    rep[["strainByDiet.pval"]] = "DietxPOE"
-    rep[["strain.pval.qval.fdr"]] = "POE"
-    rep[["diet.pval.qval.fdr"]] = "Diet"
-    rep[["strainByDiet.pval.qval.fdr"]] = "DietxPOE"
+    if(mode==1)
+    {
+        rep[["strain.pval"]] = "POE"
+        rep[["diet.pval"]] = "Diet"
+        rep[["strainByDiet.pval"]] = "DietxPOE"
+        rep[["strain.pval.qval.fdr"]] = "POE"
+        rep[["diet.pval.qval.fdr"]] = "Diet"
+        rep[["strainByDiet.pval.qval.fdr"]] = "DietxPOE"
+    } else {
+        for(acol in pvalcol)
+        {
+            rep[[acol]] = gsub(acol, pattern = "\\.\\.\\.", replacement = " - ")
+            rep[[acol]] = gsub(rep[[acol]], pattern = "\\.", replacement = ":")
+        }
+
+    }
+        
     mytab = do.call(set_header_labels, rep)
     mytab = autofit(mytab, 0, 0)
 
     rep[["x"]] = mytab
-    rep[["strain.pval"]] = "p value"
-    rep[["diet.pval"]] = "p value"
-    rep[["strainByDiet.pval"]] = "p value"
-    rep[["strain.pval.qval.fdr"]] = "q value"
-    rep[["diet.pval.qval.fdr"]] = "q value"
-    rep[["strainByDiet.pval.qval.fdr"]] = "q value"
+    if(mode==1)
+    {
+        rep[["strain.pval"]] = "p value"
+        rep[["diet.pval"]] = "p value"
+        rep[["strainByDiet.pval"]] = "p value"
+        rep[["strain.pval.qval.fdr"]] = "q value"
+        rep[["diet.pval.qval.fdr"]] = "q value"
+        rep[["strainByDiet.pval.qval.fdr"]] = "q value"
+    } else
+    {
+        for(cname in pvalcol)
+        {
+            rep[[cname]] = "p value"
+        }
+    }
+            
     mytab = do.call(add_header, rep)
 
     mytab = merge_h(mytab, part="header")
@@ -543,24 +597,70 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile)
                     
 
 
-    mytab = border(mytab, border.bottom = officer::fp_border(width = 3), j =1:ncol(toflex), i = 22)
-    mytab = border(mytab, border.bottom = officer::fp_border(width = 3), part = "header", i = 2)
 
-    mytab = bold(mytab, i = ~grepl(strain.pval, pattern ="\\*"), j = ~strain.pval)
-    mytab = bold(mytab, i = ~grepl(diet.pval, pattern ="\\*"), j = ~diet.pval)
-    mytab = bold(mytab, i = ~grepl(strainByDiet.pval, pattern ="\\*"), j = ~strainByDiet.pval)
-    mytab = bold(mytab, i = ~grepl(strain.pval.qval.fdr, pattern ="\\*"), j = ~strain.pval.qval.fdr)
-    mytab = bold(mytab, i = ~grepl(diet.pval.qval.fdr, pattern ="\\*"), j = ~diet.pval.qval.fdr)
-    mytab = bold(mytab, i = ~grepl(strainByDiet.pval.qval.fdr, pattern ="\\*"), j = ~strainByDiet.pval.qval.fdr) 
-    ##mytab = height(mytab, .5)
+##    browser()
+    for(acol in pvalcol)
+    {
+        astr = paste0("~grepl(",acol,", pattern = '\\\\*')")
+        frm.i = as.formula(astr)
 
+        astr = paste0("~", acol)
+        frm.j = as.formula(astr)
+        mytab = bold(mytab, i = frm.i, j = frm.j)
+    }
+
+  ##  mytab = fontsize(mytab, size = 11)
     mytab = autofit(mytab, 0, 0)
 
     
-    doc = read_docx(fp("./mnp/template2.docx"))
-    doc = body_add_flextable(doc, mytab)
-    print(doc, target = gsub(outfile, pattern = "csv", replacement = "docx"))
+    defwid = 7
 
+    
+    if(mode==2)
+    {
+        defwid = max(strwidth(toflex[[pvalcol[1]]], font = 10, units = 'in'))
+        newlen = .88*dim(mytab)$widths[pvalcol[[1]]]
+        for(acol in pvalcol)
+        {
+            ##maxdig = nchar(toflex[[acol]])
+            colwid = max(strwidth(toflex[[acol]], font = 10, units = 'in'))
+            mult = newlen*colwid/defwid + .01
+
+            print(paste0(acol, ",", mult))
+            if(grepl(acol, pattern ="NOD"))
+            {
+                mult = .53*dim(mytab)$widths[acol]
+            }
+
+            astr = paste0("~",acol)
+            frm = as.formula(astr)
+##            browser()
+            mytab = flextable::width(mytab, j = frm,  width = mult)
+        }
+    }
+    mytab = flextable::width(mytab, j = ~ model,  width = dim(mytab)$widths["model"]*.6)
+    mytab = flextable::width(mytab, j = ~ experiment,  width = dim(mytab)$widths["experiment"]*.6)
+    ##mytab = flextable::width(mytab, j = ~ phenotype,  width = dim(mytab)$widths["phenotype"]*.6)
+    
+    mytab = border(mytab, border.bottom = officer::fp_border(width = 3), j =1:ncol(toflex), i = 22)
+    mytab = border(mytab, border.bottom = officer::fp_border(width = 3), part = "header", i = 2)
+
+    
+
+    
+    ##    browser()
+    tmplate = ifelse(mode==1, fp("./mnp/template2.docx"), fp("./mnp/template3.docx"))
+    doc = read_docx(tmplate)
+    ##browser()
+    doc = body_add_flextable(doc, mytab)
+    if(mode==1)
+    {
+        target = gsub(outfile, pattern = "csv", replacement = "docx")
+    } else {
+        target = gsub(outfile, pattern = "csv", replacement = ".2.docx")
+    }
+    
+    print(doc, target)
 
 
     
@@ -570,15 +670,20 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile)
     model      = df$model
     selectedLambda = df$selectedLambda
     pvalcols = colnames(df)[!colnames(df) %in% c("experiment", "phenotype","sire.b6.effect","sire.b6.se", "pipeline","model","selectedLambda", colnames(df)[grepl("varexp",colnames(df))])]
+
     
     for(colname in pvalcols)
     {
-        print(colname)
-        print(df[,colname])
-        df[, colname] = round(df[,colname]*mlt)/mlt
-        df[,colname]  = paste0(df[,colname], cut(df[,colname],c(-.0001,.001, .01,.05,.1,1),labels = c("***","**","*",".","")))
-    }
+        thecol = df[[colname]]
+        thecol[is.na(thecol)]=1
+        stars = gtools::stars.pval(thecol)
+        stars[stars ==" "] = ""
+        
+        df[, colname] = signif(df[,colname], digits = sigfig)
+        df[[colname]] = paste0(df[[colname]], stars)
 
+    }
+    
     varcols = colnames(df)[grepl("varexp",colnames(df))]
     for (cname in varcols)
     {
