@@ -196,8 +196,15 @@ micro.report$reportAnalysis <- function(exp.mat,
                 {
                     theorder = util$insertAtIndex(theorder, index = 5, elem = "larger.expression")
                 }
+
                 setcolorder(df, theorder)
-                    
+                
+                ## browser()
+                df$chrom = factor(df$chrom, levels = c(as.character(1:19), "X", "Y"))
+                setorder(df, "chrom", "probesetStart")
+                df$chrom = as.character(df$chrom)
+
+                
                 mytab = regulartable( data = df)
                 mytab = bold(mytab, part = "header")
                 mytab = align( mytab, align = "center", part = "all")
