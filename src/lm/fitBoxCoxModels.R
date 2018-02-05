@@ -368,6 +368,10 @@ fit.model.bc$transform.by.lambda <- function(y,
 
     y = y[1:length(y)]
     output$y = y
+    if(lambda<0)
+    {
+        output$y = -output$y
+    }
     output$lambda1 = lambda
     return(output)
 }
