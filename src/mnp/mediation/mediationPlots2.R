@@ -1,4 +1,4 @@
- library(data.table)
+library(data.table)
 library(Cairo)
 library(flextable)
 library(officer)
@@ -383,7 +383,14 @@ for(outcome in c( "behavior", "micro"))
     
     ##df.m[,therank:=frank(p.value.ab, ties.method ="min"), by = "imprinted"]
     
-   
+
+
+    levs = as.character(levels(df.m$outcome))
+    df.m$outcome = as.character(df.m$outcome)
+    df.m$outcome[df.m$outcome == "Δ"] = "Δ Cort"
+    levs[levs == "Δ"] = "Δ Cort"
+    df.m$outcome = factor(df.m$outcome, levels = levs)
+    
     aplot = ggplot(df.m, aes(x=-log10(p.value.ab), fill = imprinted))
     aplot = aplot + geom_histogram(alpha =.2, position = "identity", bins = 100)
     aplot = aplot + scale_y_sqrt()
