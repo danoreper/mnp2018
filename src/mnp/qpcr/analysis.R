@@ -105,11 +105,16 @@ qpcr.analysis$run <- function(inp)
 
         results = data.frame(do.call(rbind, results))
 
+        results$pvalue = as.character(signif(results$pvalue, 2))        
         print(results)
 
 ##        results$logp = -log10(results$pvalue)
         
         write.table(file = outm(fp("qPCR", paste0(assay,"_qpcr.regressOnStrain.csv"))), results, row.names = F)
+
+        
+        
+        
         ##TODO: move plotting out of here?
         toplot = alldata
         toplot$y = -toplot$Delta.Ct
@@ -144,6 +149,29 @@ qpcr.analysis$run <- function(inp)
     }
     resultsAll = rbindlist(resultsAll)
 
+    toflex = resultsAll[phen == "Delta.Ct"]
+    toflex$Effect = ""
+    toflex[assay =="Carmil1"]$Effect = "POE on Carmil1"
+    toflex[assay =="Meg3"]$Effect    = "DietxPOE on Meg3"
+    toflex = toflex[,c("Effect", "dataset", "n.pups", "pvalue")]
+    
+    browser()
+    mytab = regulartable(data = toflex)
+    mytab = bold(mytab, part = "header")
+    mytab = align( mytab, align = "center", part = "all")
+
+    rep = list()
+    rep[["x"]] = mytab
+    rep[["dataset"]]="Dataset"
+    rep[["n.pups"]] = "# Pups"
+    rep[["pvalue"]] = "p value"
+    mytab = do.call(set_header_labels, rep)
+    mytab = autofit(mytab)
+
+    doc = read_docx(fp("./mnp/template.docx"))
+    doc = body_add_flextable(doc, mytab)
+    print(doc, target = fp(outdir, paste0("qPCR/qpcr.docx")))
+    
     return(resultsAll)
 }
 
