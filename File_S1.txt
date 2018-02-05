@@ -72,7 +72,41 @@ Fields include:
 -strand: the strand coding the gene.
 -start_position: Start position of the gene in basepairs
 -end_position: End position of the gene in basepairs
--snordType: If the gene is part of a snorm family, the name of the specific snord family. NA if not snord.
+-snordType: If the gene is part of a snord family, the name of the specific snord family. NA if not snord.
+0.0493*	0.481	0.99	0.181	0.814	0.99
+0.0187*	0.646	0.985	0.103	0.836	0.99
+0.273	0.247	0.905	0.43	0.68	0.99
+0.373	0.175	0.392	0.547	0.561	0.92
+0.226	0.129	0.341	0.414	0.561	0.92
+0.0772.	0.904	0.61	0.243	0.904	0.92
+0.399	0.617	0.0904.	0.548	0.836	0.731
+0.935	0.149	0.432	0.98	0.561	0.92
+0.217	0.481	0.565	0.414	0.814	0.92
+0.22	0.0714.	0.636	0.414	0.524	0.92
+0.0307*	0.00274**	0.445	0.135	0.0595.	0.92
+0.123	0.179	0.669	0.301	0.561	0.92
+0.988	0.62	0.0997.	0.988	0.836	0.731
+0.273	0.828	0.61	0.43	0.904	0.92
+0.000887***	0.628	0.0624.	0.00975**	0.836	0.731
+0.648	0.879	0.473	0.839	0.904	0.92
+0.111	0.317	0.531	0.301	0.776	0.92
+0.000671***	0.43	0.332	0.00975**	0.814	0.92
+0.00221**	0.47	0.325	0.0162*	0.814	0.92
+0.782	0.692	0.876	0.906	0.846	0.99
+0.73	0.771	0.897	0.892	0.893	0.99
+0.908	0.00541**	0.913	0.98	0.0595.	0.99
+0.013*	0.647	0.555	0.156	0.647	0.832
+0.319	0.234	0.0144*	0.638	0.592	0.172
+0.428	0.128	0.145	0.638	0.511	0.435
+0.788	0.312	0.223	0.788	0.592	0.447
+0.0763.	0.103	0.932	0.318	0.511	0.932
+0.466	0.113	0.301	0.638	0.511	0.517
+0.425	0.493	0.182	0.638	0.592	0.438
+0.705	0.633	0.72	0.769	0.647	0.864
+0.536	0.305	0.652	0.643	0.592	0.864
+0.478	0.475	0.923	0.638	0.592	0.932
+0.0796.	0.372	0.0735.	0.318	0.592	0.388
+0.113	0.412	0.097.	0.338	0.592	0.388
 
 
 
@@ -98,10 +132,10 @@ Although not relevant to this paper's use of the data, in this file, note that t
 
 Covariates shared by all sources of data:
 
-File_S9_2017-02-13_breederLog.csv: The correct (as opposed to certain fields in the behavior files) covariates for mice bred in this experiment (e.g., diet, strain, etc). The covariates from this breeding file are considered correct, and take precedence over any identical (in name or meaning) covariates in any of the phenotype files.
+File_S9_2017-02-13_breederLog.csv: Covariates describing breeding parameters for mice in this experiment. This information is used in all expression and behavior models
 Fields include:
 -Batch: The breeding batch of this mouse. Can be 1,2, or 3.
--ID: Integer ID of the mouse. 178 unique integer IDs rangeing
+-ID: Integer ID of the mouse. 178 unique integer IDs ranging
 -DOB: Mouse date of birth
 -Weaned: Mouse date of weaning
 -Dam ID: Integer id of this mouse's dam. Note that the id is unique ONLY within a strain. To get a truly unique id, concatenate Dam and Dam ID.
@@ -153,7 +187,7 @@ Files include:
 
 -MoGene-1_1-st-v1.r4.README.txt (the README describing the above special format library files)
 
-As well as annotations for probeset and trancscript clusters:
+As well as annotations for probeset and transcript clusters:
 -MoGene-1_1-st-v1.na34.mm10.probeset.csv
 -MoGene-1_1-st-v1.na34.mm10.transcript.csv 
 But we note that we don't use the locations specified in these files; we instead use probe locations downloaded from ensembl
@@ -185,7 +219,7 @@ Fields include:
 
 
 
-File_S13_cel_files.zip: The CEL files (an affymetrix format) from the Affy 1.1ST exon array, specifiying gene expression scores for every microarray probeset, as measured in every mouse. Each file is named according to the mouse being probed.
+File_S13_cel_files.zip: The CEL files (an affymetrix format) from the Affy 1.1ST exon array, specifying gene expression scores for every microarray probeset, as measured in every mouse. Each file is named according to the mouse being probed.
 
 
 
@@ -199,10 +233,10 @@ The RMA default expression scores for sample1, sample2, ... all the way to 196
 -Gene.Acession: 
 -Gene.Symbol: mgi symbol
 -Gene.Description: 
--Cytoband: chromsomal location
+-Cytoband: chromosomal location
 -mRNA.Accession:                 
 -mRNA Source: name of database containing mRNA                
--mRna Description: description of mrna function if applicatble             
+-mRna Description: description of mrna function if applicable             
 -mRNA xhyb: 1 if this assignment is a cross hybridization                   
 -UniGene ID:                     
 -UniGene Expression.Information: 
@@ -222,7 +256,41 @@ qPCR related data
 File_S15_MatNut_validation_samplelist_072516.csv: list of all samples and their status (pulverized or not, etc) as of 07/25/16.
 Primarily used for planning qPCR. Most fields are redundant with the breeder log.
 Fields include
--ID: Mouse ID
+-ID: Mouse ID0.0493*	0.481	0.99	0.181	0.814	0.99
+0.0187*	0.646	0.985	0.103	0.836	0.99
+0.273	0.247	0.905	0.43	0.68	0.99
+0.373	0.175	0.392	0.547	0.561	0.92
+0.226	0.129	0.341	0.414	0.561	0.92
+0.0772.	0.904	0.61	0.243	0.904	0.92
+0.399	0.617	0.0904.	0.548	0.836	0.731
+0.935	0.149	0.432	0.98	0.561	0.92
+0.217	0.481	0.565	0.414	0.814	0.92
+0.22	0.0714.	0.636	0.414	0.524	0.92
+0.0307*	0.00274**	0.445	0.135	0.0595.	0.92
+0.123	0.179	0.669	0.301	0.561	0.92
+0.988	0.62	0.0997.	0.988	0.836	0.731
+0.273	0.828	0.61	0.43	0.904	0.92
+0.000887***	0.628	0.0624.	0.00975**	0.836	0.731
+0.648	0.879	0.473	0.839	0.904	0.92
+0.111	0.317	0.531	0.301	0.776	0.92
+0.000671***	0.43	0.332	0.00975**	0.814	0.92
+0.00221**	0.47	0.325	0.0162*	0.814	0.92
+0.782	0.692	0.876	0.906	0.846	0.99
+0.73	0.771	0.897	0.892	0.893	0.99
+0.908	0.00541**	0.913	0.98	0.0595.	0.99
+0.013*	0.647	0.555	0.156	0.647	0.832
+0.319	0.234	0.0144*	0.638	0.592	0.172
+0.428	0.128	0.145	0.638	0.511	0.435
+0.788	0.312	0.223	0.788	0.592	0.447
+0.0763.	0.103	0.932	0.318	0.511	0.932
+0.466	0.113	0.301	0.638	0.511	0.517
+0.425	0.493	0.182	0.638	0.592	0.438
+0.705	0.633	0.72	0.769	0.647	0.864
+0.536	0.305	0.652	0.643	0.592	0.864
+0.478	0.475	0.923	0.638	0.592	0.932
+0.0796.	0.372	0.0735.	0.318	0.592	0.388
+0.113	0.412	0.097.	0.338	0.592	0.388
+
 -Microarray: whether this sample has already been measured by microarray.
 -Extracted RNA: whether RNA had yet been extracted 
 -pulverized brain: whether the brain had been pulverized yet.
@@ -233,14 +301,14 @@ Fields include
 File_S16_qpcrData.csv: qPCR data from Carmil1 (a.k.a. Lrrc16a), Meg3, and the reference, which is always rfng.
 Fields include: 
 -Plate: An integer, 4,5, or 6 for Carmil1 data, and 7,8, or 9 for Meg3 data
--ID: The mouse interger ID.
+-ID: The mouse integer ID.
 -Trow: the row of the well for the sample in the plate, a letter from A-H.
 -Tcolumn: the column of the well for the sample in the plate, an integer 1-12.
 -Sample.name: always Sample1
 -Well.Position: the concatenated Trow and Tcolumn.
--FAM.Ct: the raw cycle threshold for the gene being assayed (i.e., not normalizaed)
+-FAM.Ct: the raw cycle threshold for the gene being assayed (i.e., not normalized)
 -VIC.Ct: the raw cycle threshold for the reference gene, rfng.
--Delta.Ct: delta of the cycle threshhold, FAM.Ct - VIC.Ct. This is the value that is modelled in our qpcr analysis.
+-Delta.Ct: delta of the cycle threshold, FAM.Ct - VIC.Ct. This is the value that is modeled in our qpcr analysis.
 -Strain: either NOD.B6 or B6.NOD
 -Assay: either Meg3, or Lrrc16a (a.k.a. Carmil1), depending on which gene was being measured.
 
@@ -259,71 +327,70 @@ Note that the covariates specified in the breederLog file are implicitly shared 
 File_S18_bodyweight.csv: Bodyweight data for a subset of mice.
 Fields include:
 -Mouse #: The integer mouse id.
--Cage #: The cage id
 -Body Weight (g): The body weight in grams
 
 
 File_S19_cocaine.csv: The cocaine response data. Fields include:
--dist_d3: the distance on day 3 of the test in cm.
--dist_d2: the distance on day 2 of the test in cm.
--dist_d1: the distance on day 1 of the test in cm.
--D3-D2: the delta of distances between day 3 and day 2 in cm.
+-dist_d3: the distance moved on day 3 (cocaine) of the test in cm.
+-dist_d2: the distance moved on day 2 (saline) of the test in cm. Serves as baseline locomotion day.
+-dist_d1: the distance moved on day 1 (saline) of the test in cm. Serves as a novelty and habituation day.
+-D3-D2: the delta of distance moved between day 3 and day 2 in cm. Used to indicate the initial locomotor response to cocaine.
 
 
 
 File_S20_forced_swim.csv: The forced swim data. Fields include:
--Arena: the arena-- an integer 1-4
+-Arena: the forced swim test arena a mouse was tested in— an integer 1-4
 -id: the mouse id
--pctimmob: percent of time during test spent immobile
+-pctimmob: percent of time during the last 4 mins of the 6 min test that the animal was immobile
 
 
 
 File_S21_light_dark.csv: the light dark test data.
 Fields include:
 -ID: mouse ID
--Total Distance Dark: Distance run in the dark part of the chamber (cm)
--Total Distance Light: Distance run in the light part of the chamber (cm)
--Total Distance: Total distance run anywhere (cm)
--% Time Dark: The percentage of time spent in the dark part of the chamber
--% Time Light: The percentage of time spent in the light part of the chamber
--Total Transitions: XXX
+-Total Distance Dark: distance moved in the dark side of the chamber (cm)
+-Total Distance Light: distance moved in the light side of the chamber (cm)
+-Total Distance: Total distance moved in the entire light/dark chamber (cm)
+-% Time Dark: the percentage of time spent in the dark side of the chamber
+-% Time Light: the percentage of time spent in the light side of the chamber
+-Total Transitions: the number of transitions made between the light and dark side of the chamber
 
 
 
 File_S22_openfield.csv
 -ID: mouse ID
 -boli: Number of fecal boli generated 
--pctctr: Percentage of time spent in the center of the chamber
--totdist: Total distance moved (cm)
--vertcts: XXX
--jmpcts: XXX
--avgvel: XXX
+-pctctr: percentage of time spent in the center of the chamber
+-totdist: total distance moved (cm)
+-vertcts: number of vertical movements or rearing movements (standing on two hind legs) made in the chamber
+-jmpcts: number of jumps that the animal makes in the chamber
+-avgvel: the average speed (cm/s) of all ambulatory episodes during the session
 
 
 
 File_S23_cort.csv: the restraint stress test data.
 Fields include:
 -ID: mouse integer id
--10min: plasma cort level after 10 mins in Broome style restraint (XXX units)
--baseline: plasma cort level before Broome style restraint (XXX units)
--10min-baseline: Difference in plasma levels after restraint vs. before (XXX units)
+-10min: serum CORT level after 10 min restraint (ng/mL)
+-baseline: serum CORT level before restraint or basal levels of CORT (ng/mL)
+-10min-baseline: difference in serum CORT levels after restraint vs. before (ng/mL units)
 
 
 
 File_S24_SIH.csv: the stress induced hyperthermia test data.
 -Mouse #: Mouse ID
--Order: The order within a cage in which temperature was measured, relative to the other mice in the cage.    
--Temp 1: Temperature measured when first inserting rectal thermometer (Celsius)
--Temp 2: Temperature measured when again inserting rectal thermometer 10mins later (Celsius)    
+-Order: order within a cage in which temperature was measured, relative to the other mice in the cage.    
+-Temp 1: first temperature measured or basal temperature via rectal thermometer (Celsius)
+-Temp 2: second temperature measured 10 mins after Temp 1 via rectal thermometer (Celsius) 
+-deltaT: difference in temperature from Temp 2 - Temp 1; indicates stress-induced change in temperature   
 
 
 File_S25_sociability.csv: the social interaction test data.
 Fields include:
 -ID: Mouse ID
--Stranger: XXX
--PctStranger: XXX
+-PctStranger: percent of time that the animal spent in the side that contained the stranger mouse during the second 10 mins (test phase)
 -Box Stranger: the index of the box holding the stranger mouse.     
--TRANSTOTAL: XXX        
+-TRANSTOTAL: number of transitions made between the three chambers during the first 10 mins (habituation phase)       
 
 
 
@@ -334,15 +401,15 @@ Fields include:
 or to prepulse intensity of 74, 78, 82, 86 or 90 decibels.
 -Chamber: the chamber in which the experiment was performed, index 1-8   
 -Max: The maximum response to startle stimulus       
--Latency: The time in XXX before startle response occurred  
--Average: The average startle response over XXX
+-Latency: The time (s) before startle response occurred  
+-Average: The average startle response over the 100 ms recording period
 
 
 
 File_S27_tail.csv: Tail suspension test data
 Fields include:
 -ID: Mouse id.                 
--%Freeze 120-240sec: percent of XXX time the mouse was not moving XXX 
+-%Freeze 120-240sec: percent of time during the last 2 mins of the 4 min test that the mouse was immobile
 
 
 
@@ -356,8 +423,7 @@ larger.expression: whether NODxB6 or B6xNOD mice had higher average expression
 imprinted: Whether or not we consider the interrogated gene(s) imprinted (See paper for details)
 -log10.pval: The -log10 of the pvalue of the significance of the effect of parent-of-origin on expression at this probeset.
 -log10.qval: The -log10 of the qvalue (fdr corrected p-value) of the significance of the effect of parent-of-origin on expression at this probeset.
-passes.FWER: Whether or not this probeset's expression is significantly affected by parent-of-origin based on the FWER threshhold for POE
-
+passes.FWER: Whether or not this probeset's expression is significantly affected by parent-of-origin based on the FWER threshold for POE
 
 File_S29_diet_expression.csv: The effects of diet on expression at every interrogated probeset. Includes non-significant results. 
 Fields include:
@@ -365,11 +431,11 @@ gene_name: the name of the gene(s) interrogated by this probe. May be a set of c
 Probe.Set.ID: the Affymetrix probeset identifier in the MoGene 1.1 ST microarray context.
 chrom: chromosome 
 probesetStart: starting position of the probed region in bp on chromosome.
-methyl.rank = This gene's expression mice exposed to methyl enriched (ME) diet, relative to mice on the other 4 diets--- \eg, 1 means ME mice expressed this gene the most, whereas 4 means ME mice expressed this 
+methyl.rank = the rank of this gene's expression in those mice exposed to the methyl enriched (ME) diet, relative to mice exposed to the other 3 diets--- eg, 1 means ME mice expressed this gene the most, whereas 4 means ME mice expressed this 
 imprinted: Whether or not we consider the interrogated gene(s) imprinted (See paper for details)
 -log10.pval: The -log10 of the pvalue of the significance of the effect of parent-of-origin on expression at this probeset.
 -log10.qval: The -log10 of the qvalue (fdr corrected p-value) of the significance of the effect of parent-of-origin on expression at this probeset.
-passes.FWER: Whether or not this probeset's expression is significantly affected by diet based on the FWER threshhold for diet.
+passes.FWER: Whether or not this probeset's expression is significantly affected by diet based on the FWER threshold for diet.
 
 
 File_S30_diet_POE_expression.csv: The effects of diet-by-POE on expression at every interrogated probeset. Includes non-significant results.
@@ -380,7 +446,7 @@ probesetStart: starting position of the probed region in bp on chromosome.
 imprinted: Whether or not we consider the interrogated gene(s) imprinted (See paper for details)
 -log10.pval: The -log10 of the pvalue of the significance of the effect of parent-of-origin on expression at this probeset.
 -log10.qval: The -log10 of the qvalue (fdr corrected p-value) of the significance of the effect of parent-of-origin on expression at this probeset.
-passes.FWER: Whether or not this probeset's expression is significantly affected by parent-of-origin-by-diet based on the FWER threshhold for POE-by-diet
+passes.FWER: Whether or not this probeset's expression is significantly affected by parent-of-origin-by-diet based on the FWER threshold for POE-by-diet
 
 
 
