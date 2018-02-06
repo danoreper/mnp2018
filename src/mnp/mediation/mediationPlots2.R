@@ -188,12 +188,15 @@ writeSig <- function(df.m, outcome.type)
         df.m = df.m[! mediator %in% "Carmil1"]
     }
     z = (df.m[p.value.ab<.05,cnames, with = F])
+    cpind = z[["p.value.cprime"]]==0
     
-    z$coef.ab = as.character(z$coef.ab)
-    z$coef.cprime = as.character(z$coef.cprime)
+
+    z[["p.value.ab"]]     = formatC(z[["p.value.ab"]], digits=3)
+    z[["p.value.cprime"]] = formatC(z[["p.value.cprime"]], digits =3)
+    z[["coef.ab"]]     = formatC(z[["coef.ab"]], digits=3)
+    z[["coef.cprime"]] = formatC(z[["coef.cprime"]], digits =3)
+    z[["p.value.cprime"]][cpind] = paste0("<",formatC(1/(16000*.8), digits=3)) 
     
-    z[["p.value.ab"]] = round.to.dec.point(z[["p.value.ab"]])
-    z[["p.value.cprime"]] = round.to.dec.point(z[["p.value.cprime"]])
     
     if(outcome.type!="behavior")
     {
@@ -220,6 +223,7 @@ writeSig <- function(df.m, outcome.type)
 
     mytab = do.call(set_header_labels, rep)
     mytab = autofit(mytab, 0, 0)
+
     
 
     rep[["x"]] = mytab
@@ -234,6 +238,7 @@ writeSig <- function(df.m, outcome.type)
     mytab <- italic(mytab, j = ~ mediator, italic = TRUE)
     mytab = autofit(mytab, 0, 0)
 
+   
     newlen = dim(mytab)$widths["p.value.ab"]
     mytab = flextable::width(mytab, j = ~ coef.ab,     width = newlen*1.1)
     mytab = flextable::width(mytab, j = ~ coef.cprime, width = newlen*1.1)
@@ -344,8 +349,7 @@ for(outcome in c( "behavior", "micro"))
     if(outcome=="behavior")
     {
         topwrite = top.med[CTP<.05]
-        topwrite[["CTP"]] = round.to.dec.point(topwrite[["CTP"]])
-        print(topwrite)
+        topwrite[["CTP"]] = as.character(formatC(topwrite[["CTP"]], digits =3))
         fwrite(topwrite, file = fp(outdir, paste0(outcome,"_top3.pvalues.csv")), sep = "\t")
 
         print("top3")
