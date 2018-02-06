@@ -71,19 +71,6 @@ qpcr.analysis$run(inp)
 beh.analysis$runAll(inp$phens)
 
 
-df=inp$phens$getExperiment("openfield")
-df$y=df$pctctr
-aplot = plot.poe.data(df, ylabel = "% Center Time", "", mode = 2)
-show.and.write(aplot, "x", width = 4, height = 3, fname = "pctctr", mode = 2)
-
-df=inp$phens$getExperiment("SIH")
-df$y=df$temp.2
-aplot = plot.poe.data(df, ylabel = "Stress-induced Temp", "", mode = 2)
-show.and.write(aplot, "x", width = 4, height = 3, fname = "SIH", mode = 2)
-
-
-probes.mir341 = inp$probedGenes[which(inp$probedGenes$gene_name=="Mir341")]
-
 
 print("done with behavior")
 
@@ -92,6 +79,27 @@ source("./mnp/mediation/runMedBayes3.R")
 
 ##Generate plots of mediation analysis results.
 source("./mnp/mediation/mediationPlots2.R")
+
+
+## make a few more behavior plots
+df=inp$phens$getExperiment("openfield")
+df$y=df$pctctr
+aplot = plot.poe.data(df, ylabel = "% Center Time", "", mode = 2)
+show.and.write(aplot, "x", width = 4, height = 3, fname = "pctctr", mode = 2)
+
+df=inp$phens$getExperiment("SIH")
+df$y=df$temp.2
+aplot = plot.poe.data(df, ylabel = "Stress-induced Temp", "", mode = 2)
+show.and.write(aplot, "SIH_T2", width = 4, height = 3, fname = "SIH", mode = 2)
+
+df=inp$phens$getExperiment("ppi")
+df$y=df$ppi.82
+aplot = plot.poe.data(df, ylabel = "startle amplitude", "", mode = 2)
+show.and.write(aplot, "ppi_82", width = 4, height = 3, fname = "startle", mode = 2)
+
+
+probes.mir341 = inp$probedGenes[which(inp$probedGenes$gene_name=="Mir341")]
+
 
 
 check.tf <- function()
