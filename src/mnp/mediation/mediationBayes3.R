@@ -115,7 +115,9 @@ mnp.med$saveOutputs <- function(froot, outputs)
 mnp.med$get.gibbs.samples <- function(inputBuilder,
                                       mediator.id)
 {
+
     input = inputBuilder(mediator.id)
+    print(input$outcome.id)
     nchains = 1 #4
     thin = 1 ##prop$mnp.med$thin
     burninFrac = .2
@@ -126,12 +128,14 @@ mnp.med$get.gibbs.samples <- function(inputBuilder,
 ##    print("about to call jags.model")
 
     mytic()
-   
-    jags <- suppressWarnings(jags.model(file = textConnection(input$jagsmodel), data=input$dataForJags, n.chains = nchains, n.adapt = iterAdapt,quiet=!showTiming))
+##    browser()
+    jags <- (jags.model(file = textConnection(input$jagsmodel), data=input$dataForJags, n.chains = nchains, n.adapt = iterAdapt)) 
+    ## jags <- suppressWarnings(jags.model(file = textConnection(input$jagsmodel), data=input$dataForJags, n.chains = nchains, n.adapt = iterAdapt,quiet=!showTiming))
     mytoc("total time for jags burnin")
 
     
     mytic()
+    
     vals = coda.samples(model=jags, variable.names=input$observeInfo, n.iter = iterSample, thin=thin, quiet=!showTiming,progress.bar="none")[[1]]
     mytoc("Total time for jags recorded sampling")
 
@@ -168,13 +172,11 @@ mnp.med$samplesToMediation <- function(a, b, c.prime)
 
         lb.ab       = hpd.ab[1,1],
         ub.ab       = hpd.ab[1,2],
-        coef.ab     = round(median(ab)*100)/100,
-        coef.c      = round(median(c)*100)/100,
-        coef.a      = round(median(a)*100)/100,
-        coef.b      = round(median(b)*100)/100)
-
+        coef.ab     = median(ab),
+        coef.c      = median(c),
+        coef.a      = median(a),
+        coef.b      = median(b))
 ##        zero.mediation.lik = density(ab, from =0, to=0, n=1)$y)
-   
     return(out)
 }
 
@@ -237,6 +239,8 @@ mnp.med$get.sv.corrected.genes <- function(inp, fromFile = T)
     if(fromFile)
     {
         load(file = outm("sv.c.corrected.RData"))
+        source("./mnp/mediation/mediationBayes3.R")
+        source("./mnp/mediation/BDmodel2.R")
     }
 
     return(svinfo)

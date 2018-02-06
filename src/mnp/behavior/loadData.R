@@ -167,9 +167,14 @@ loadBehavior$readCocaineData <- function()
 
 loadBehavior$readCortData <-  function()
 {
-    ##    afile  <- datp("RestraintStress/cortdata_1-14-16.csv")
+
+
     afile  <- datp("RestraintStress/cortdata_1-25-16.csv")
 
+
+
+
+  
     cort.frame <- read.csv(afile, stringsAsFactors=FALSE, strip.white=TRUE, blank.lines.skip=TRUE, check.names=F)
     colnames(cort.frame)[colnames(cort.frame)=="10min"] = "Ten.min"
     colnames(cort.frame)[colnames(cort.frame)=="10min-baseline"] = "Ten.min.less.baseline"
