@@ -268,6 +268,7 @@ lrrc16a  = getProbesetId(raw.data$probesetInfo, "Lrrc16a")
 airn     = "10441787"
 taq.data = getRawTaqData(merge.qpcr.plate = T)
 micro.data.orig  = mnp.med$get.sv.corrected.genes(raw.data, T)$exp.mat
+##micro.data.orig  = mnp.med$get.sv.corrected.genes(raw.data, F)$exp.mat
 
 
 ##micro.data = data.frame(raw.data$exp.mat, check.names = F)
@@ -308,12 +309,13 @@ for(outcome in c( "behavior", "micro"))
     if(outcome=="micro")
     {
         df.m$yoffset[df.m$mediator=="Pcdhb2"] = 1000
-        df.m$yoffset[df.m$mediator=="Mir485,Mirg"] = 1000
+##        df.m$yoffset[df.m$mediator=="Mir485,Mirg"] = 1000
     }
     
     if(outcome == "behavior")
     {
-
+        df.m$yoffset[df.m$outcome=="PPI78" & df.m$mediator=="Carmil1"] = 1500
+        
         df.m$yoffset[df.m$outcome=="Pct Time Stranger" & df.m$mediator=="s113_10398354"] = 2700
 ##        df.m$yoffset[df.m$outcome=="Pct Time Stranger" & df.m$mediator=="s116_10564209"] = 800
         df.m$yoffset[df.m$outcome=="Pct Time Stranger" & df.m$mediator=="s116_10564209"] = 1200
