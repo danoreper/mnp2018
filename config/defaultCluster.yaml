@@ -21,12 +21,9 @@ mnp:
   evalprobelimit: .na
   recomputeProbeInfo: no #no
 
-
 ##  ssva.resid: 
   freed: no
   synch: no
-
-
 
 crowley:
   ## The type of surrogate variable computation. Options include SSVA, SVA, and SSVA_perm
