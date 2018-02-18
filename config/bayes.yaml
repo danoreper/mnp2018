@@ -1,4 +1,0 @@
-mnp:
-  mc.cores: 44 #8 #5
-  limit: .na
-  SSVA.numperm: 100 #400 #20	
