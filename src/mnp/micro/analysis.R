@@ -153,8 +153,9 @@ micro.analysis$getBestParArgs <- function(batchSize=1, mem.gb = 22, timeLimit.ho
 micro.analysis$getLocalParArgs <- function()
 {
     parallelArgs = list(mc.cores = prop$mnp$mc.cores,
-                        mclBatch = prop$mnp$mc.cores*100)
+                        mclMult = 10)
     
+    return(parallelArgs)
 }
 
 micro.analysis$run.noperm <- function(inp)

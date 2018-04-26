@@ -28,6 +28,7 @@ getFile = function( mediator, outcome, discardMissing, mergeQPCR, inp=NULL)
         fle = fp(froot, paste0(discardMissing, "_", mergeQPCR, "_", mediator,"_",outcome),"mediationAll.csv")
     }
 
+    ##browser()
     
     df = fread(fle)
     df[mediator_name=="Lrrc16a", mediator_name:="Carmil1"]
@@ -331,6 +332,7 @@ for(outcome in c( "behavior", "micro"))
 ##        df.m$yoffset[df.m$mediator == "Irak1bp1"] = 150
     }
 
+    
     writeSig(df.m, outcome.type = outcome)
     
     ##y = df.m[therank<10]
@@ -402,8 +404,9 @@ for(outcome in c( "behavior", "micro"))
     aplot = aplot + scale_y_sqrt()
 
     
-    xlab.str = bquote("-log"[10] *"(CTP"[mediation(ab)]*")")
+    xlab.str = bquote("-log"[10] *"(CTP"[ab]*"): mediation strength")
 
+    
     aplot = aplot + xlab(xlab.str)
     aplot = aplot + geom_vline(xintercept = -log10(.05), linetype = "dashed")
     if(outcome=="behavior")

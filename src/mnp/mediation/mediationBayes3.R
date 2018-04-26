@@ -189,9 +189,7 @@ mnp.med$pval <- function(samplez)
 
 mnp.med$getLocalParArgs <- function()
 {
-    parallelArgs = list(mc.cores = prop$mnp$mc.cores,
-                        mclBatch = prop$mnp$mc.cores*100)
-    
+    parallelArgs = list(mc.cores = prop$mnp$mc.cores, mclMult = 10)
 }
 
 

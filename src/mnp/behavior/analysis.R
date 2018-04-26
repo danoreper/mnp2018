@@ -253,7 +253,7 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
         anov = fit.lambda$anovaWrapper
         print(anov)
 
-        acont = lm.parsing$form.contrast.mat(fit.with.interaction, "Diet")
+        ##acont = lm.parsing$form.contrast.mat(fit.with.interaction, "Diet")
         ## z = glht(fit.with.interaction, linfct = acont)
         ## browser()
         if(is.null(geneExp))
@@ -401,9 +401,10 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
     setorder(toflex, "phenotype")
     if(mode==1)
     {
-        pvalcol = c("strain.pval", "diet.pval", "strainByDiet.pval",
-                    "strain.pval.qval.fdr", "diet.pval.qval.fdr", "strainByDiet.pval.qval.fdr")
+        pvalcol = c("strain.pval", "diet.pval", "strainByDiet.pval")
+        qvalcol = c("strain.pval.qval.fdr", "diet.pval.qval.fdr", "strainByDiet.pval.qval.fdr")
     } else {
+        qvalcol = c()
     pvalcol = c('ME - Std','PD - Std','VDD - Std','PD - ME','VDD - ME','VDD - PD',
                 'ME:NODxB6 - Std:NODxB6','PD:NODxB6 - Std:NODxB6','VDD:NODxB6 - Std:NODxB6','PD:NODxB6 - ME:NODxB6','VDD:NODxB6 - ME:NODxB6','VDD:NODxB6 - PD:NODxB6')
 
@@ -414,7 +415,7 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
     }
                 ## 'ME:NODxB6 - Std:NODxB6.qval.fdr','PD:NODxB6 - Std:NODxB6.qval.fdr','VDD:NODxB6 - Std:NODxB6.qval.fdr','PD:NODxB6 - ME:NODxB6.qval.fdr','VDD:NODxB6 - ME:NODxB6.qval.fdr','VDD:NODxB6 - PD:NODxB6.qval.fdr','pipeline.qval.fdr')
     
-    toflex = toflex[,c("pipeline", "experiment", "phenotype", "model", pvalcol), with=F]
+    toflex = toflex[,c("pipeline", "experiment", "phenotype", "model", pvalcol,qvalcol), with=F]
 
     toflex$experiment = factor(toflex$experiment,
                                levels= c("lightdark", "startle", "SIH", "swim", "cocaine","weight",
@@ -520,7 +521,7 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
     parsed = lapply(FUN = f, parsed)
     toflex$model = unlist(parsed)
     
-    for(cname in pvalcol)
+    for(cname in c(pvalcol, qvalcol))
     {
 ##        print(cname)
         stars = gtools::stars.pval(toflex[[cname]])
@@ -553,31 +554,32 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
         rep[["diet.pval.qval.fdr"]] = "Diet"
         rep[["strainByDiet.pval.qval.fdr"]] = "DietxPOE"
     } else {
-        for(acol in pvalcol)
+        for(acol in c(pvalcol, qvalcol))
         {
             rep[[acol]] = gsub(acol, pattern = "\\.\\.\\.", replacement = " - ")
             rep[[acol]] = gsub(rep[[acol]], pattern = "\\.", replacement = ":")
         }
 
     }
-        
+
+    rep2 = rep
     mytab = do.call(set_header_labels, rep)
     mytab = autofit(mytab, 0, 0)
 
     rep[["x"]] = mytab
     if(mode==1)
     {
-        rep[["strain.pval"]] = "p value"
-        rep[["diet.pval"]] = "p value"
-        rep[["strainByDiet.pval"]] = "p value"
-        rep[["strain.pval.qval.fdr"]] = "q value"
-        rep[["diet.pval.qval.fdr"]] = "q value"
-        rep[["strainByDiet.pval.qval.fdr"]] = "q value"
+        rep[["strain.pval"]] = "p-value"
+        rep[["diet.pval"]] = "p-value"
+        rep[["strainByDiet.pval"]] = "p-value"
+        rep[["strain.pval.qval.fdr"]] = "FDR adjusted p-value"
+        rep[["diet.pval.qval.fdr"]] = "FDR adjusted p-value"
+        rep[["strainByDiet.pval.qval.fdr"]] = "FDR adjusted p-value"
     } else
     {
         for(cname in pvalcol)
         {
-            rep[[cname]] = "p value"
+            rep[[cname]] = "p-value"
         }
     }
             
@@ -599,7 +601,7 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
 
 
 ##    browser()
-    for(acol in pvalcol)
+    for(acol in c(pvalcol, qvalcol))
     {
         astr = paste0("~grepl(",acol,", pattern = '\\\\*')")
         frm.i = as.formula(astr)
@@ -614,16 +616,40 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
 
     
     defwid = 7
-
-    
-    if(mode==2)
+    firstqroot = dim(mytab)$widths[qvalcol[1]]
+  ##  browser()
+##    if(mode==2)
     {
         defwid = max(strwidth(toflex[[pvalcol[1]]], font = 10, units = 'in'))
-        newlen = .88*dim(mytab)$widths[pvalcol[[1]]]
-        for(acol in pvalcol)
+        if(mode==2) {pre = .8} else {pre = 1.03}
+            
+        newlen = pre*dim(mytab)$widths[pvalcol[[1]]]
+ 
+        inc = 1
+        for(acol in c(pvalcol,qvalcol))
         {
-            ##maxdig = nchar(toflex[[acol]])
-            colwid = max(strwidth(toflex[[acol]], font = 10, units = 'in'))
+            if(acol %in% pvalcol)
+            {
+                ##maxdig = nchar(toflex[[acol]])
+                
+                aname = rep2[[acol]]
+                colwid = max(strwidth(c(aname, toflex[[acol]]), font = 10, units = 'in'))
+            } else {
+                ##browser()
+                firstq = firstqroot*.47
+                if(inc==2)
+                {
+                    firstq = .78*firstq
+                }
+                if(inc==3)
+                {
+                    firstq = 1.06*firstq
+                }
+                
+                    
+                colwid = firstq
+                inc = inc + 1
+            }
             mult = newlen*colwid/defwid + .01
 
             print(paste0(acol, ",", mult))
@@ -634,13 +660,15 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
 
             astr = paste0("~",acol)
             frm = as.formula(astr)
-##            browser()
+            ##            browser()
+            print(mult)
             mytab = flextable::width(mytab, j = frm,  width = mult)
         }
     }
     mytab = flextable::width(mytab, j = ~ model,  width = dim(mytab)$widths["model"]*.6)
     mytab = flextable::width(mytab, j = ~ experiment,  width = dim(mytab)$widths["experiment"]*.6)
-    ##mytab = flextable::width(mytab, j = ~ phenotype,  width = dim(mytab)$widths["phenotype"]*.6)
+    ## mytab = flextable::width(mytab, j = ~ covariates,  width = dim(mytab)$widths["covariates"]*.9)
+    ## mytab = flextable::width(mytab, j = ~ phenotype,  width = dim(mytab)$widths["phenotype"]*.9)
     
     mytab = border(mytab, border.bottom = officer::fp_border(width = 3), j =1:ncol(toflex), i = 22)
     mytab = border(mytab, border.bottom = officer::fp_border(width = 3), part = "header", i = 2)

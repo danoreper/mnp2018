@@ -286,7 +286,9 @@ parallel$.getOutput <- function(outfile)
 
 
 ##TODO: move mclapply stuff to another file
-parallel$get.mc.accum <- function(func, mc.cores, sharedVariables = list(), mclBatch=100*mc.cores)
+parallel$get.mc.accum <- function(func, mc.cores, sharedVariables = list(),
+                                  mclMult = 10)
+
 {
     accum = new.env(hash=T)
     accum$ready = F
@@ -322,7 +324,9 @@ parallel$get.mc.accum <- function(func, mc.cores, sharedVariables = list(), mclB
         {
             browser()
         }
-        out = parallel$lapply.wrapper(inds, FUN = accum$.funcWrapper, mclBatch = mclBatch, mc.cores = mc.cores)
+        out = parallel$lapply.wrapper(inds, FUN = accum$.funcWrapper,
+                                      mclBatch = min(mc.cores*mclMult, length(accum$funcArgs)),
+                                      mc.cores = mc.cores)
 ##        print("ranall")
         accum$ready = F
         return(out)
@@ -383,7 +387,10 @@ parallel$get.mc.accum <- function(func, mc.cores, sharedVariables = list(), mclB
 ##TODO move lapply stuff to a separate file
 ##FUN must take as its first argument a vector of indexes
 ##and grab the relevant portion of whatever the additional arguments are
-parallel$lapply.wrapper <- function(inds, FUN, mclBatch = 10*mc.cores, mc.cores, ...)
+parallel$lapply.wrapper <- function(inds,
+                                    FUN,
+                                    mclBatch = min(length(inds), 10*mc.cores),
+                                    mc.cores, ...)
 {
     if(mc.cores==1)
     {
@@ -407,6 +414,7 @@ parallel$lapply.wrapper <- function(inds, FUN, mclBatch = 10*mc.cores, mc.cores,
         {
             indsGroup = indexGroups[[i]]
             print(paste0("working on index: ", indsGroup[1]))
+            
             results[[i]] = mclapply(X=indsGroup, FUN=FUN, mc.cores = mc.cores, ...) 
         }
 
