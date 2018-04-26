@@ -28,6 +28,8 @@ dir.create(fp(prop$mnp$output,"micro"), showWarnings = F, recursive = T)
 
 ##load inputs to all analysis; microarray, qpcr, behavior. 
 inp  = loadAllData$createAllInputs()
+
+
 alphas = c(.05)
 
 #Run microarray expression analysis. If fromFile, load it up from file.
@@ -43,7 +45,15 @@ if(!fromFile)
     if(prop$mnp$SSVA.numperm>0)
     {
         print("running all perms")
-        out = micro.analysis$runallPerms(inp)
+        ## out = micro.analysis$runallPerms(inp)
+
+        ## colind = which(grepl(inp$probesetInfo$gene_name, pattern="Lrrc16a")) + 0:5
+        ## inp$exp.mat.2 = inp$exp.mat
+        ## inp$exp.mat = as.matrix(inp$exp.mat[,colind], ncol = 1)
+        ## colnames(inp$exp.mat)= colnames(inp$exp.mat.2)[colind]
+        source("./perm/freedman.R")
+        out = micro.analysis$runallPermsFreed(inp)
+
         print("done all perms")
         util$save(file = outm(fp("micro", "perm.RData")), list = ls())
     }
