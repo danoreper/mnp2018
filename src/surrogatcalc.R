@@ -391,18 +391,15 @@ surrogatcalc$runAnalysis <- function(svFunc,
                                            strategy                 = strategy,
                                            parallelArgs             = parallelArgs)
 
-    ## print("got svinfo")
-
-    results = fit.model.bc$fit(y.mat                = sv.info$exp.mat,
-                               cov.data             = sv.info$cov.data,
-                               covariateModelString = sv.info$covariateModelString,
-                               nullModelString      = nullModelString,
-                               modelParser          = modelParser,
-                               transformParams      = transformParams,
-                               checkAnova           = T,
-                               strategy             = strategy,
-                               parallelArgs         = parallelArgs)
+    results = surrogatcalc$runAnalysisHelper(sv.info = sv.info,
+                                             y.mat = sv.info$exp.mat,
+                                             nullModelString = nullModelString,
+                                             modelParser = modelParser,
+                                             transformParams = transformParams,
+                                             strategy = strategy,
+                                             parallelArgs = parallelArgs)
     
+    ## print("got svinfo")
     ## print(paste0("got fits:", pracma::toc()))
     ## if(T){save(list=ls(), file = fp(prop$mnp$output, "results.RData"))}
 
@@ -412,6 +409,26 @@ surrogatcalc$runAnalysis <- function(svFunc,
                 sv.info         = sv.info))
 
     return(out)
+}
+
+surrogatcalc$runAnalysisHelper <- function(sv.info,
+                                           y.mat,
+                                           nullModelString,
+                                           modelParser,
+                                           transformParams,
+                                           strategy,
+                                           parallelArgs)
+{
+    results = fit.model.bc$fit(y.mat                = y.mat,
+                               cov.data             = sv.info$cov.data,
+                               covariateModelString = sv.info$covariateModelString,
+                               nullModelString      = nullModelString,
+                               modelParser          = modelParser,
+                               transformParams      = transformParams,
+                               checkAnova           = T,
+                               strategy             = strategy,
+                               parallelArgs         = parallelArgs)
+    return(results)
 }
 
 ##wrapper around compute variance components that additionally computes the variance explaned by surrogate variables
