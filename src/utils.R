@@ -111,14 +111,14 @@ util$generateShuffles <- function(trueLabels, numShuffles = 1, subjectTo = NULL,
         }
     }
 
-    for(i in 1:numShuffles)
-    {
-        shuffles[,i] = match(shuffles[,i], trueLabels)
-    }
+    ## for(i in 1:numShuffles)
+    ## {
+    ##     shuffles[,i] = match(shuffles[,i], trueLabels)
+    ## }
 
     if(identityFirst)
     {
-        iden = 1:length(trueLabels)##match(match(trueLabels, unique(trueLabels)), trueLabels)
+        iden = trueLabels##match(match(trueLabels, unique(trueLabels)), trueLabels)
         shuffles           = cbind(iden, shuffles)
     }
     
