@@ -6,6 +6,7 @@ unlink(".RData")
 inFile = parseCommandArgs()$inpArgs[1]
 print(inFile)
 
+
 x = try(load(inFile))
 if(class(x)=="try-error")
 {
@@ -13,6 +14,9 @@ if(class(x)=="try-error")
     stop("failed to load input")
 }
 
+print("to debug, enter:")
+print(interactiveCommand)
+      
 for(sourceFile in filesToSource)
 {
     source(sourceFile)
