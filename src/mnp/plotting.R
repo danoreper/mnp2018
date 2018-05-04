@@ -319,7 +319,7 @@ plotting$plotPermScan <- function(full,
     per.level$coef.Value = per.level$coef.Value
 
     ##TODO fixme
-    for(plot.type in c( "Diet.2", "Diet.4","Diet:Strain", "Strain"))##, "Diet.2", "Diet:Strain")) #, "Diet.1"))
+    for(plot.type in c("Strain", "Diet.2", "Diet.4","Diet:Strain"))##, "Diet.2", "Diet:Strain")) #, "Diet.1"))
     {
         print("plotting type:")
         print(plot.type)
@@ -815,7 +815,7 @@ plotting$plotPermScan <- function(full,
         }
 
         pdf(fname,width=figwid, height=figheight*figh.mult)
-            
+
         ##print(aplot)
         grid.draw(aplot.1)
         dev.off()
