@@ -12,14 +12,14 @@ mnp:
   data:   ../data/mnp
   output: ../output/mnp 
   mc.cores: 1 #5
-  limit: .na
-  SSVA.numperm: 400 #20
+  limit: .na #10 #.na
+  SSVA.numperm: 400 ##400 #20
 
   num.sv: 7
   medianAdjust.p.values: yes
 
   evalprobelimit: .na
-  recomputeProbeInfo: yes #no
+  recomputeProbeInfo: no #yes #no
 
 ##  ssva.resid: 
   freed: no

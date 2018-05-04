@@ -7,6 +7,8 @@ print("starting")
 ##
 ##
 
+library(flextable)
+library(officer)
 try(rm("prop"))
 sources <- function()
 {
@@ -36,11 +38,11 @@ alphas = c(.05)
 fromFile = F
 if(!fromFile)
 {
-    print("running no perm")
-    out = micro.analysis$run.noperm(inp)
-    print("done running no perm")
+    ## print("running no perm")
+    ## out = micro.analysis$run.noperm(inp)
+    ## print("done running no perm")
     
-    util$save(list =ls(), file = outm(fp("micro", "noperm.RData")))
+    ## util$save(list =ls(), file = outm(fp("micro", "noperm.RData")))
     
     if(prop$mnp$SSVA.numperm>0)
     {
@@ -67,8 +69,8 @@ if(!fromFile)
 #Generate plots for microarray analysis
 micro.report$reportAnalysis(inp$exp.mat,
                             inp$cov.data.full,
-                            out$ident.full$results,
-                            ##                            out$results$results,
+##                            out$ident.full$results,
+                            out$results$results,
                             inp$annot.data,
                             inp$probesetInfo,
                             out$threshholds,

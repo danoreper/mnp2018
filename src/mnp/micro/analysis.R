@@ -32,7 +32,7 @@ source("./mnp/loadAllData.R")
 
 micro.analysis <- new.env(hash=T)
 
-micro.analysis$get.SV.func <- function()
+micro.analysis$get.SV.func <- function(local = F)
 {
     surrogat        = prop$mnp$surrogat
     scaleOnForPCA   = T ##prop$mnp$scaleOnForPCA
@@ -44,6 +44,10 @@ micro.analysis$get.SV.func <- function()
     if(surrogat == "SSVA") # uses all control probes
     {
         parallelArgs = micro.analysis$getBestParArgs(100, 3)
+        if(local)
+        {
+            parallelArgs = micro.analysis$getLocalParArgs()
+        }
         if(!is.null(parallelArgs$system.type) && parallelArgs$system.type %in% c("killdevil", "longleaf"))
         {
             parallelArgs$timeLimit.hours = .95
@@ -197,7 +201,7 @@ micro.analysis$run.noperm <- function(inp)
     return(out)
 }
 
-micro.analysis$runallPerms <- function(inp)
+micro.analysis$runallPerms <- function(inp, local = F)
 {
     
     svFunc                   = micro.analysis$get.SV.func()
@@ -214,6 +218,12 @@ micro.analysis$runallPerms <- function(inp)
         print("eliminating lambdas")
         transformParams$lambdasToTry = 1
     }
+    parg = micro.analysis$getBestParArgs(100, 3)
+    if(local)
+    {
+        parg = micro.analysis$getLocalParArgs()
+    }
+    
     print("about to submit sv generation jobs")
     sv.info = surrogatcalc$generate.svinfo(svFunc = svFunc,
                                            exp.mat = inp$exp.mat,
@@ -225,8 +235,8 @@ micro.analysis$runallPerms <- function(inp)
                                            residualizeOutSV = (length(residualizeOutCovariates)>0),
                                            transformParams  = transformParams,
                                            strategy         = strategy,
-                                           parallelArgs        = micro.analysis$getBestParArgs(100, 3))
-##                                           parallelArgs                    = micro.analysis$getLocalParArgs())
+                                           parallelArgs     = parg)
+##             
 
     print("got surrogateVariables")
     modelParser              = lm.parsing$getHeavySingleParser(include.resid = F,
