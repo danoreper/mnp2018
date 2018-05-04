@@ -134,10 +134,18 @@ parallel$get.cluster.accum <- function(system.type,
         filesToSource = accum$.filesToSource
         force(funcArgs)
 
-        ##TODO: change the script to use -P in front of the prop file? or perhaps encode the propFile into the infile, rather than the prop? Or remove the prop?
-        save(file = inFile, list = c("outFile","failFile", "funcArgs",  "funcFile", "prop", "filesToSource"))
-        command = paste0(commandRoot, " ", propFile, " -I",inFile, "' ",clusterScript, " ", routFile)
 
+
+        interactiveCommand = paste0(commandRoot, " ", propFile, " -I",inFile, "' ")
+        interactiveCommand = gsub(pattern = "CMD BATCH", replacement = "", interactiveCommand)[[1]]
+        interactiveCommand = paste(accum$.jobSystem$getInteractiveCommand(timeLimit.hours, cpuMemLimit.GB),
+                                   interactiveCommand)
+                                   
+        ##TODO: change the script to use -P in front of the prop file? or perhaps encode the propFile into the infile, rather than the prop? Or remove the prop?
+        save(file = inFile, list = c("outFile","failFile", "funcArgs",  "funcFile", "prop", "filesToSource", "interactiveCommand"))
+
+        
+        command            = paste0(commandRoot, " ", propFile, " -I",inFile, "' ",clusterScript, " ", routFile)
         accum$.clusterCommands <<- c(accum$.clusterCommands, command)
         accum$.batchLengths = c(accum$.batchLengths, length(accum$.currentBatchArgs))
         accum$.currentBatchArgs <<-list()
@@ -617,7 +625,8 @@ parallel$.run.single.job <- function(submitCommand, jobname, quantcommandset, ou
         qbreak = " \" "
     } else { qbreak = ""}
     fullcommand = paste(submitCommand, qbreak,  paste(quantcommandset, collapse="; "), qbreak)
-##    cat(fullcommand)
+
+    ##    cat(fullcommand)
     x = invisible(system(fullcommand,intern=T, ignore.stdout = T))
     return(x)
 }
@@ -628,7 +637,14 @@ parallel$.run.single.job <- function(submitCommand, jobname, quantcommandset, ou
 killdevil = new.env(hash = T)
 killdevil$thename = "killdevil"
 
-killdevil$getSubmitCommand <- function(time.hours, numProcessPerNode, memoryLimit.GB)
+killdevil$getInteractiveCommand <- function(time.hours, memoryLimit.GB)
+{
+    queue = killdevil$.getQueue(time.hours)
+    command =  paste0("bsub -Ip -R 'span[hosts=1]' -n 1 -M ", ceiling(memoryLimit.GB) ," -q ", queue)
+    return(command)
+}
+
+killdevil$.getQueue <- function(time.hours)
 {
     if(time.hours<1)
     {
@@ -638,7 +654,13 @@ killdevil$getSubmitCommand <- function(time.hours, numProcessPerNode, memoryLimi
     } else {
         queue = "week"
     }
-        
+    return(queue)
+}
+
+
+killdevil$getSubmitCommand <- function(time.hours, numProcessPerNode, memoryLimit.GB)
+{
+    queue = killdevil$.getQueue(time.hours)
     command =  paste0("bsub -R 'span[hosts=1]' -n ", numProcessPerNode, " -M ", ceiling(memoryLimit.GB) ," -q ", queue)
 }
 
@@ -684,6 +706,13 @@ killdevil$checkCompletion <- function(outfile)
 longleaf = new.env(hash = T)
 longleaf$thename = "longleaf"
 
+longleaf$getInteractiveCommand <- function(time.hours, memoryLimit.GB)
+{
+    mem.MB = ceiling(memoryLimit.GB*1024)
+    time.minutes = ceiling(time.hours*60)
+    command = paste0("srun --pty -t ", time.minutes, " -n 1 --mem-per-cpu=",mem.MB)
+}
+    
 longleaf$getSubmitCommand <- function(time.hours, numProcessPerNode, memoryLimit.GB)
 {
 
