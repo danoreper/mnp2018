@@ -1,5 +1,6 @@
 micro.report = new.env(hash=T)
 
+library(ggplot2)
 library(officer)
 library(flextable)
 library(data.table)
@@ -84,7 +85,7 @@ micro.report$reportAnalysis <- function(exp.mat,
     for(analpha in c(.05))##unique(threshholds$permStatistics$alpha))
     {
         
-        for(avar in c("Diet", "Strain", "Diet:Strain"))#unique(threshholds$variable))
+        for(avar in c( "Strain", "Diet", "Diet:Strain"))#unique(threshholds$variable))
         {
             relevantThreshVal = NULL
             print(paste0("working on ", avar))
