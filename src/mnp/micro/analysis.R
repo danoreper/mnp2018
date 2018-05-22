@@ -104,7 +104,7 @@ micro.analysis$formCovariateFullModelString <- function(includeStrainByDiet = T,
     strainDietString = ""
     if(includeStrainByDiet)
     {
-        strainDietString = "Strain:Diet + " 
+        strainDietString = "Diet:Strain + " 
     }
     
     dietStrainAdditive = "Diet + Strain + "
