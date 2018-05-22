@@ -23,6 +23,7 @@ for(sourceFile in filesToSource)
 }
 
 load(funcFile)
+##debug(func)
 
 ## print("**********************************")
 ## print(prop$mnp$limit)
