@@ -1,8 +1,8 @@
 micro.report = new.env(hash=T)
 
 library(ggplot2)
-library(officer)
-library(flextable)
+## library(officer)
+## library(flextable)
 library(data.table)
 source("./mnp/plotting.R")
 source("./mnp/micro/analysis.R")
@@ -17,7 +17,7 @@ micro.report$reportAnalysis <- function(exp.mat,
 {
     reportDir = outm("micro")
     dir.create(reportDir, showWarnings = F)
-
+    
     results = micro.report$postProcessResults(originalResults,
                                               annot.data,
                                               cov.data,
@@ -424,7 +424,7 @@ micro.report$postProcessResults <- function(results,
                                             cov.data,
                                             probesetInfo)
 {
-
+##    browser()
     print("starting post process!!!!")
     
     ## avg level of expression of the B6.NOD vs Nod.B6 per probesetid     
@@ -448,6 +448,7 @@ micro.report$postProcessResults <- function(results,
     results$full = results$per.variable[results$per.probe]
     setkey(results$full, "Probe.Set.ID", "variable")
 
+    results$per.variable[,anova.q.value := p.adjust(anova.p.value , method = "fdr"), by=variable]
     setkey(results$per.variable, "Probe.Set.ID","variable")
     setkey(results$per.probe,    "Probe.Set.ID")
     return(results)
