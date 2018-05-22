@@ -589,7 +589,7 @@ mnp.med$getAllMediationPhenModelSpecs <- function(phenz)
         phen = paste0("mean_", startlechoice, "_",  pp)
         
         modelSpec = list(experiment = "startle", derivedSubset = per.pp, phen = phen,
-                      lmerformula = " ~ 1 + Batch + Diet + Strain + Strain:Diet  + (1 | Dam.ID) ")
+                      lmerformula = " ~ 1 + Batch + Diet + Strain + Diet:Strain  + (1 | Dam.ID) ")
         allmodels = util$appendToList(allmodels, modelSpec)
         
     }
@@ -597,13 +597,13 @@ mnp.med$getAllMediationPhenModelSpecs <- function(phenz)
     modelSpec = list(experiment = "startle",
                   derivedSubset = processBehavior$getAS50(startle, phenz$breedLog, all =F),
                   phen = "as50.Average_normalized",
-                  lmerformula = " ~ 1 + Batch + Diet + Strain + Strain:Diet  + (1 | Dam.ID) ")
+                  lmerformula = " ~ 1 + Batch + Diet + Strain + Diet:Strain  + (1 | Dam.ID) ")
     allmodels = util$appendToList(allmodels, modelSpec)
 
     ## modelSpec = list(experiment = "startle",
     ##                  derivedSubset = processBehavior$getAS50(startle, phenz$breedLog, all =F),
     ##                  phen = "as50.Latency_normalized",
-    ##                  lmerformula = " ~ 1 + Batch + Diet + Strain + Strain:Diet  + (1 | Dam.ID) ")
+    ##                  lmerformula = " ~ 1 + Batch + Diet + Strain + Diet:Strain  + (1 | Dam.ID) ")
 ##    allmodels = util$appendToList(allmodels, modelSpec)
     return(allmodels)
 }
