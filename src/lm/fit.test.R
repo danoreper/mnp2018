@@ -18,7 +18,6 @@ df$err = rnorm(length(x1))
 
 lamb = 2
 df$y = "^"(((df$y.system+df$err)*(1/lamb)),(1/lamb))
-##debug(fit.model.bc$fit)
 
 fit = fit.model.bc$fit(df$y, df, covariateModelString = "~ x1 + x2 + x3", transformParams = tp)
 
