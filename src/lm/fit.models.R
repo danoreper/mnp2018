@@ -28,21 +28,27 @@ fit.modelg$fit.single <- function(y,
                           checkAnova = checkAnova,
                           strategy = strategy)
 
+    if(class(fit)=="try-error")
+    {
+        return(NA)
+    }
+    
     normality.pval = NULL
     if(checkNormality)
     {
-        noiseVector = lm.parsing$getNoiseVector(fit$fit, gurka=gurka)
+        noiseVector = try(lm.parsing$getNoiseVector(fit$fit, gurka=gurka))
+        ## if(class(noiseVector)=="try-error")
+        ## {
+        ##     browser()
+        ## }
         normality.pval = try(shapiro.test(noiseVector)$p.value)
     }
-
+    
+    
     pvals = NULL
     anovaWrapper = NULL
 
     fit$normality.pval = normality.pval
-    ## output = list(fit = fit$fit,
-    ##               anovaWrapper = fit$anovaWrapper,
-    ##               ##       pvals = pvals,
-    ##               normality.pval = normality.pval)
     return(fit)
 }
 
