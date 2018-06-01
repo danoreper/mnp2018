@@ -265,7 +265,7 @@ micro.analysis$collatePermsFreed <- function(accum, outs, numPerm, variableOfInt
         print(paste("bads:", badind))
         perm.pvalues = perm.pvalues[,-badind]
     }
-    perms = perm.pvalues[2:nrow(perm.pvalues),]
+    perms = perm.pvalues[1:nrow(perm.pvalues),]
     ident = perm.pvalues[1,]
     alphas = .05
 
