@@ -6,19 +6,19 @@ micro.analysis$runallPermsFreed <- function(inp)
 ##    permTypes = c("Strain")
 
 ##    covariateModels = list()
-    covariateModels = list(Strain = micro.analysis$formCovariateFullModelString(includeStrainByDiet = F, dietBeforeStrain = T),
-                            Diet   = micro.analysis$formCovariateFullModelString(includeStrainByDiet = F, dietBeforeStrain = F))
+    covariateModels = list(Diet   = micro.analysis$formCovariateFullModelString(includeStrainByDiet = F, dietBeforeStrain = F),
+                           Strain = micro.analysis$formCovariateFullModelString(includeStrainByDiet = F, dietBeforeStrain = T))
+                            
     covariateModels[["Diet:Strain"]] = micro.analysis$formCovariateFullModelString(includeStrainByDiet = T, dietBeforeStrain = T)
 
-    allthresh = list()
-    allperms  = list()
-    alllik    = list()
-
-    dfsimples = list() 
+##    gabba = rnorm(3*20029*10000)
+    dfsimples = list()
     for(permType in names(covariateModels))
     {
         print(paste0("working on permutation for ", permType))
         print(covariateModels[[permType]])
+
+
         
         permOut = micro.analysis$generatePermsFreed(exp.mat              = inp$exp.mat,
                                                     exp.mat.control      = inp$exp.mat.control.full,
@@ -26,34 +26,38 @@ micro.analysis$runallPermsFreed <- function(inp)
                                                     covariateModelString = covariateModels[[permType]],
                                                     variableOfInterest   = permType,
                                                     alpha               = .05)
-
-        
-##        sto,p()
         print("generated all")
-        ##save(list = ls(), file = outm("intermediate", paste0("perm_", permType)))
+        save(list = ls(), file = outm("intermediate", paste0("perm_", permType)))
+        save(list = "permOut", file = outm("intermediate", paste0("permsmall_", permType)))
+        ##need to clear out all memory before starting next set of jobs, or the environment somehow gets loaded into accumulator.
+        ##According to R memory model, this shouldnt happen, but can't find any other explanation.
+        rm(permOut)
+        gc()
+    }
+
+    allthresh = list()
+    allperms  = list()
+    alllik    = list()
+
+    for(permType in names(covariateModels))
+    {
+        load( file = outm("intermediate", paste0("permsmall_", permType)))
         allthresh   = util$appendToList(allthresh, permOut$perms$threshholds)
         allperms[[permType]] = permOut$perms$perms
         alllik  [[permType]] = permOut$perms$lik.rats
 
-
         result = permOut$ident.full$results
         dfsimple = result$dfsimple 
-##        browser()
         dfsimple$variable      = permType
         
         dfsimples = util$appendToList(dfsimples, dfsimple) 
-        
-        ##dfalt    = result$dfalt      
-##        per.variable = dfalt$per.variable[variable == permType]
-        
-        ## browser()
-        
+
         if(permType=="Diet:Strain")
         {
             dfalt = result$dfalt
         }
     }
-   
+    
     threshholds     = rbindlist(allthresh)
     dfsimples       = rbindlist(dfsimples)
     per.variable    = dfalt$per.variable
@@ -87,12 +91,6 @@ micro.analysis$getPermResidParser <- function()
             
             epsilon = resid(fit$fit)
             rands = ranef(fit$fit)
-
-            ##garbage
-
-##            browser()
-
-##            browser()
             ##garbage
             if(class(fit$fit)=="lme")
             {
@@ -102,7 +100,6 @@ micro.analysis$getPermResidParser <- function()
                 frm = attr(fit$fit, "frame")
                 rands = rands[[1]]
             }
-
 
             y.mu = fit$y.transformed - epsilon - rands[frm$Dam.ID, "(Intercept)"]
 
@@ -117,7 +114,7 @@ micro.analysis$getPermResidParser <- function()
         return(list(y.mu = y.mu, epsilon = epsilon, rands = rands, inversionParams=inversionParams))
     }
 
-    parser$collate <- function(outs, accum)
+    parser$collate <- function(outs)
     {
         out = list()
         out$epsilon      = do.call(cbind, lapply(outs, "[[", "epsilon"))
@@ -167,11 +164,10 @@ micro.analysis$generatePermsFreed <- function(exp.mat,
         transformParams$lambdasToTry = 1
     }
 
-    prs = micro.analysis$getBestParArgs(100, 3)
+    prs = micro.analysis$getBestParArgs(50, 3)
 ##    prs = micro.analysis$getLocalParArgs()
     parser      = micro.analysis$getPermResidParser()
     identParser =
-##    browser()
     toperm = surrogatcalc$runAnalysis(svFunc                   = svFunc,
                                       exp.mat                  = exp.mat,
                                       exp.mat.control          = exp.mat.control,
@@ -184,7 +180,7 @@ micro.analysis$generatePermsFreed <- function(exp.mat,
                                       parallelArgs             = prs)$results
 				      
     
-##    browser()
+
     print("running full model")
 
     strategy = fit.modelg$getDefaultModelStrategy(anovaComparison = T, prefer.lme = T)
@@ -199,7 +195,7 @@ micro.analysis$generatePermsFreed <- function(exp.mat,
                                           modelParser              = modelParser,
                                           strategy                 = strategy,
                                           transformParams          = transformParams,
-                                          parallelArgs             = micro.analysis$getBestParArgs(100, 3)))
+                                          parallelArgs             = micro.analysis$getBestParArgs(50, 3)))
 
     ## strategy = fit.modelg$getDefaultModelStrategy(anovaComparison = F, prefer.lme = T)
     ## modelParser = lm.parsing$getHeavySingleParser(include.resid = F, mainEffectContrasts = c())
@@ -215,10 +211,8 @@ micro.analysis$generatePermsFreed <- function(exp.mat,
     ##                                       parallelArgs             = micro.analysis$getBestParArgs(100, 3)))
 
     
-##    browser()
 ##    summaryRprof("prof.out")
     perv = ident.full$results$dfalt$per.variable
-##    browser()    
     
     ## pdf("dietplot.pdf")
     ## hist(perv[variable=="Diet"]$anova.p.value)
@@ -238,22 +232,48 @@ micro.analysis$generatePermsFreed <- function(exp.mat,
     ## hist(multipleTesting$median.correct.2(perv[variable=="Strain"]$anova.p.value))
     ## dev.off()
 
-
-    
-    ## browser()
     save(list=ls(), file = outm("identperm"))
     ##added
-    modelParser = lm.parsing$getHeavyDoubleParser(include.resid = F, mainEffectContrasts = c())
-##    debug(modelParser$collate)
-##    debug(modelParser$parse)
+    modelParser = lm.parsing$getHeavyDoubleParser(include.resid = F, mainEffectContrasts = c(), includeSingle = F)
     strategy = fit.modelg$getDefaultModelStrategy(anovaComparison = T, prefer.lme = T) 
+
+
+    shuffles     = util$generateShuffles(trueLabels = 1:nrow(exp.mat), numShuffles = prop$mnp$SSVA.numperm, identityFirst = T)
+    shuffles.dam = util$generateShuffles(trueLabels = rownames(toperm$rands), numShuffles = prop$mnp$SSVA.numperm, identityFirst = T)
+    numPerm  = ncol(shuffles)
+
     getPermAccum <- function()
     {
-        parallelArgs      = micro.analysis$getBestParArgs(13, mem.gb = 2, timeLimit.hours = 23)
-        parallelArgs$func = surrogatcalc$runAnalysisHelper
-        parallelArgs$sharedVariables = list(sv.info = ident.full$sv.info,
-##                                            nullModelString = NULL,
-                       ##                     nullModelString =  formulaWrapper$removeEffect(variableOfInterest, sv.info$covariateModelString),
+        f = function(shuffles,
+                     shuffles.dam,
+                     shuffleIndex,
+                     toperm,
+                     ...)
+        {
+            print(paste0("adding shuffle:", shuffleIndex))
+            shuffle                = shuffles[,shuffleIndex]
+            
+            shuffle.dam            = shuffles.dam[,shuffleIndex]
+            names(shuffle.dam)     = rownames(toperm$rands)
+            
+            y.shuffled             = toperm$y.mu +
+                                     toperm$epsilon[shuffle,] +
+                                     toperm$rands[shuffle.dam[cov.data$Dam.ID],]
+            
+            rownames(y.shuffled)   = rownames(cov.data)
+            args = list(...)
+            args$y.mat = y.shuffled
+            out = do.call(surrogatcalc$runAnalysisHelper, args)
+            return(out)
+        }
+
+        parallelArgs      = micro.analysis$getBestParArgs(12, mem.gb = 2, timeLimit.hours = 23)
+##        parallelArgs      = micro.analysis$getBestParArgs(13, mem.gb = 2, timeLimit.hours = 23)
+        parallelArgs$func = f #surrogatcalc$runAnalysisHelper
+        parallelArgs$sharedVariables = list(shuffles = shuffles,
+                                            shuffles.dam = shuffles.dam,
+                                            toperm       = toperm,
+                                            sv.info = ident.full$sv.info,
                                             modelParser     = modelParser,
                                             transformParams = NULL, ## apply no transform at all to the y_pi generated by fitting the reduced model
                                             strategy        = strategy,
@@ -263,39 +283,17 @@ micro.analysis$generatePermsFreed <- function(exp.mat,
         return(accum)
     }
 
-
-##    browser()
     accum = getPermAccum()
-    shuffles     = util$generateShuffles(trueLabels = 1:nrow(exp.mat), numShuffles = prop$mnp$SSVA.numperm, identityFirst = T)
-    shuffles.dam = util$generateShuffles(trueLabels = rownames(toperm$rands), numShuffles = prop$mnp$SSVA.numperm, identityFirst = T)
-    numPerm  = ncol(shuffles)
-    
     for(shuffleIndex in 1:numPerm)
     {
-        print(paste0("adding shuffle:", shuffleIndex))
-        shuffle                = shuffles[,shuffleIndex]
-
-##      arser  browser()
-        
-        shuffle.dam            = shuffles.dam[,shuffleIndex]
-        names(shuffle.dam)     = rownames(toperm$rands)
-        
-        y.shuffled             = toperm$y.mu +
-                                 toperm$epsilon[shuffle,] +
-                                 toperm$rands[shuffle.dam[cov.data$Dam.ID],]
-
-        rownames(y.shuffled)   = rownames(cov.data)
-        accum$addCall(funcArgs = list(y.mat = y.shuffled))
-       ## accum$addCall(funcArgs = list(exp.mat = y.shuffled))
+        ##accum$addCall(funcArgs = list(y.mat = y.shuffled))
+        accum$addCall(funcArgs = list(shuffleIndex = shuffleIndex))
     }
 
-    ##    browser()
-##    debug(accum$runAll)
     outs = accum$runAll()
-##    browser()
     perms = micro.analysis$collatePermsFreed(accum, outs, numPerm, variableOfInterest)
    
-    return(list(perms=perms,ident.full = ident.full))
+    return(list(perms=perms,ident.full = ident.full, accum = accum))
 
 }
 
@@ -303,20 +301,16 @@ micro.analysis$generatePermsFreed <- function(exp.mat,
 ##TODO: move to permutation testing?
 micro.analysis$collatePermsFreed <- function(accum, outs, numPerm, variableOfInterest)
 {
-##    browser()
-##    browser()
     print("collating perms")
     iter = accum$getOutputIterator(outs)
     badind = c()
     i= 0
     perm.pvalues = NULL
 
-##    browser()
-##    debug(iter$nextItem)
-    
     while(iter$hasNext())
     {
         i = i+1
+        print(i)
         out = iter$nextItem()
 
          ##GARBAGE
@@ -333,19 +327,11 @@ micro.analysis$collatePermsFreed <- function(accum, outs, numPerm, variableOfInt
 
         if (i %% 1000 == 0) { cat(sep="","[",i,"]") }
 
-        if(class(out)=="try-error")
-        {
-            badind = c(badind, i)
-            print(paste0("permutation failed!!!", i))
-            next
-        }
-
         ##garbage
         ## pvalues          = try(out$per.variable[variable == varOfInterest]$anova.p.value)
         ## namez            = try(out$per.variable[variable == varOfInterest]$Probe.Set.ID)
 
 
-##        browser()
 ##        dfs = try(out$dfsimple)
         ## out$dfsimple$pvalues          = try(unlist(out$dfsimple$p.value))
         ## out$dfsimple$namez            = try(unlist(out$dfsimple$Probe.Set.ID))
@@ -362,14 +348,14 @@ micro.analysis$collatePermsFreed <- function(accum, outs, numPerm, variableOfInt
         {
             lik.rats     = matrix(NA, nrow = numPerm, ncol = nrow(out$dfsimple))
             perm.pvalues = matrix(NA, nrow = numPerm, ncol = nrow(out$dfsimple))
-            colnames(perm.pvalues) = out$dfsimple$namez
-            colnames(lik.rats) = out$dfsimple$namez
+            colnames(perm.pvalues) = out$dfsimple$Probe.Set.ID
+            colnames(lik.rats) = out$dfsimple$Probe.Set.ID
         }
         perm.pvalues[i,] = out$dfsimple$p.value
         lik.rats[i,]     = out$dfsimple$lik.rat
         
     }
-
+    
     if(length(badind)>0)
     {
         print(paste("bads:", badind))
