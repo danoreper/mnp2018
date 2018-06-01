@@ -27,6 +27,7 @@ strain.results$Probe.Set.ID = as.character(strain.results$Probe.Set.ID)
 cands.all  = as.character(strain.results$Probe.Set.ID)
 cands.imp  = as.character(strain.results[imprinted=="Y"]$Probe.Set.ID)
 
+llrc = "10408280"
 cands.lrrc = as.character(strain.results[gene_name=="Lrrc16a"]$Probe.Set.ID)
 cands.airn = "10441787"
 cands.mir341 = as.character(strain.results[gene_name=="Mir341"]$Probe.Set.ID)
