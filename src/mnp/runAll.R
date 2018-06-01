@@ -7,8 +7,8 @@ print("starting")
 ##
 ##
 
-library(flextable)
-library(officer)
+## library(flextable)
+## library(officer)
 try(rm("prop"))
 sources <- function()
 {
@@ -25,6 +25,7 @@ sources <- function()
 }
 
 sources()
+
 dir.create(prop$mnp$output, showWarnings = F, recursive = T)
 dir.create(fp(prop$mnp$output,"micro"), showWarnings = F, recursive = T)
 
@@ -53,9 +54,12 @@ if(!fromFile)
         ## inp$exp.mat.2 = inp$exp.mat
         ## inp$exp.mat = as.matrix(inp$exp.mat[,colind], ncol = 1)
         ## colnames(inp$exp.mat)= colnames(inp$exp.mat.2)[colind]
+
+        ##source("./perm/freedmanexp.R")
         source("./perm/freedman.R")
         out = micro.analysis$runallPermsFreed(inp)
-
+##        browser()
+        
         print("done all perms")
         util$save(file = outm(fp("micro", "perm.RData")), list = ls())
     }
@@ -70,7 +74,7 @@ if(!fromFile)
 micro.report$reportAnalysis(inp$exp.mat,
                             inp$cov.data.full,
 ##                            out$ident.full$results,
-                            out$results$results,
+                            out$results,
                             inp$annot.data,
                             inp$probesetInfo,
                             out$threshholds,

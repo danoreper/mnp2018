@@ -1,3 +1,7 @@
-onCluster: yes #yes
+##onCluster: yes #yes
+output: ../outputl
+onCluster: yes
 system.type: longleaf
 tmpdir: /pine/scr/d/o/doreper/scm_tmpdir
+mnp:
+  output: ../outputl/mnp 

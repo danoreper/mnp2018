@@ -4,7 +4,7 @@ saveIntermediates: yes ##yes
 
 data:   ../data
 tmpdir: /netscr/doreper/tmp
-onCluster: yes  #yes
+onCluster: yes #yes #yes #yes
 system.type: killdevil
 output: ../output ##../outputfinal
 
@@ -12,11 +12,11 @@ mnp:
   data:   ../data/mnp
   output: ../output/mnp 
   mc.cores: 1 #5
-  limit: .na #10 #.na
-  SSVA.numperm: 400 ##400 #20
+  limit: .na #.na #.na #.na #10 #.na
+  SSVA.numperm: 10050 #10050 #.500 #400 #400 ##400 #20
 
-  num.sv: 7
-  medianAdjust.p.values: yes
+  num.sv: 7 #2
+  medianAdjust.p.values: no
 
   evalprobelimit: .na
   recomputeProbeInfo: no #yes #no
@@ -28,7 +28,7 @@ mnp:
 crowley:
   ## The type of surrogate variable computation. Options include SSVA, SVA, and SSVA_perm
   surrogat: SSVA	
-  num.sv: 7 
+  num.sv: 1 
 
   ## Number of probesets which will be modelled, and in which we will test for significance of POE
   limit: 10 #.na ##20  ##.na    ## .na is yaml version of NA
