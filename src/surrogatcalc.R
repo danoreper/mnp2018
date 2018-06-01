@@ -167,7 +167,7 @@ surrogatcalc$get.mm.SSVA.func <- function(num.sv,
                                                            strategy             = strategy,
                                                            parallelArgs         = parallelArgs)
         }
-##        print("got SSVA residuals")
+        ##        print("got SSVA residuals")
         sv.mat   = surrogatcalc$refine.ssva(exp.ssva.mat   = exp.ssva.mat,
                                             num.sv          = num.sv,
                                             scaleOnForPCA   = scaleOnForPCA)
