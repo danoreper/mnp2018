@@ -29,17 +29,16 @@ lm.parsing$getHeavySingleParser <- function(include.resid = F,
                                        varianceComputerList = varianceComputerList))
         if(class(out)=="try-error")
         {
-##            debug(lm.parsing$parseModelFit)
-            lm.parsing$parseModelFit(fit,
-                                     include.resid = include.resid,
-                                     mainEffectContrasts = mainEffectContrasts,
-                                     varianceComputerList = varianceComputerList)
-            
+            ## lm.parsing$parseModelFit(fit,
+            ##                          include.resid = include.resid,
+            ##                          mainEffectContrasts = mainEffectContrasts,
+            ##                          varianceComputerList = varianceComputerList)
+            return(NA)
         }
         return(out)
     }
 
-    parser$collate <- function(outs, accum)
+    parser$collate <- function(outs)
     {
         res = outs
         res.filt = list()
@@ -77,7 +76,6 @@ lm.parsing$getHeavySingleParser <- function(include.resid = F,
         
         return(results)
     }
-##    debug(parser$collate)
     return(parser)
 }
 
@@ -94,48 +92,50 @@ lm.parsing$getHeavyDoubleParser  <- function(include.resid = F,
 
     parser$parse <- function(fit)
     {
-##        browser()
-        alt.vs.null = lm.parsing$getAnovaWrapper(fit$fit, fit$fit.null, type=1)
-##        browser()
-        lik.rat = as.numeric(logLik(fit$fit)) - as.numeric(logLik(fit$fit.null))
-        p.value = try(alt.vs.null$p.value)
-        if(class(p.value)=="try-error")
+        parsehelper=function(fit)
         {
-            p.value = NA
+            alt.vs.null = lm.parsing$getAnovaWrapper(fit$fit, fit$fit.null, type=1)
+            lik.rat = as.numeric(logLik(fit$fit)) - as.numeric(logLik(fit$fit.null))
+            p.value = try(alt.vs.null$p.value)
+            
+            out = NA
+            if(includeSingle)
+            {
+                out = try(lm.parsing$parseModelFit(fit,
+                                                   include.resid = include.resid,
+                                                   mainEffectContrasts = mainEffectContrasts,
+                                                   varianceComputerList = varianceComputerList))
+            }
+            
+            x = list(p.value=p.value, lik.rat = lik.rat, altinfo = out)
+            return(x)
         }
-
-        ## p.value = try(data.frame(p.value = p.value, lambda = fit$lambda))
-        ## if(class(p.value)=="try-error")
-        ## {
-        ##     browser()
-        ##     x = 5
-        ## }
-
-
-        out = NA
-#        browser()
-        if(includeSingle)
+        x = try(parsehelper(fit))
+        if(class(x)=="try-error")
         {
-            out = try(lm.parsing$parseModelFit(fit,
-                                               include.resid = include.resid,
-                                               mainEffectContrasts = mainEffectContrasts,
-                                               varianceComputerList = varianceComputerList))
+            return(NA)
         }
-        
-        x = list(p.value=p.value, lik.rat = lik.rat, altinfo = out)
         return(x)
-    
+        
     }
 
-    parser$collate <- function(outs, accum)
+    parser$collate <- function(outs)
     {
-     
-        dfsimple = data.table(
-            p.value = unlist(lapply(outs, "[[", "p.value")),
-            lik.rat = unlist(lapply(outs, "[[", "lik.rat")),
-            Probe.Set.ID = unlist(names(outs)))
+        f = function(x, field)
+        {
+            out = try(x[[field]])
+            if(class(out)=="try-error")
+            {
+                out = NA
+            }
+            return(out)
+        }
 
-##        browser()
+        dfsimple = data.table(
+            p.value = unlist(lapply(outs, f, "p.value")),
+            lik.rat = unlist(lapply(outs, f, "lik.rat")),
+            Probe.Set.ID = unlist(names(outs)))
+            
         dfalt = NA
         if(includeSingle)
         {
@@ -174,6 +174,10 @@ lm.parsing$getFullSingleParser <- function(includeData=F)
 
     parser$parse <- function(fit)
     {
+        if(is.null(fit) || !goodfit(fit) || class(fit) =="try-error")
+        {
+            return(NA)
+        }
         if(!includeData)
         {
             theclass = class(fit)
@@ -194,7 +198,7 @@ lm.parsing$getFullSingleParser <- function(includeData=F)
         return(fit)
     }
 
-    parser$collate <- function(outs, accum)
+    parser$collate <- function(outs)
     {
         outs1 = outs
         names(outs1) = names(outs)
@@ -211,17 +215,26 @@ lm.parsing$getFullDoubleParser <- function(includeData =F)
 
     parser$parse <- function(lm.out)
     {
-        if(!includeData)
+        helper = function()
         {
-            lm.out$fit$data = NULL
-            lm.out$fit.null$data = NULL
+            if(!includeData)
+            {
+                lm.out$fit$data = NULL
+                lm.out$fit.null$data = NULL
+            }
+            aw = lm.parsing$getAnovaWrapper(lm.out$fit, lm.out$fit.null)
+            lm.out$aw = aw
+            return(lm.out)
         }
-        aw = lm.parsing$getAnovaWrapper(lm.out$fit, lm.out$fit.null)
-        lm.out$aw = aw
+        lmout = try(helper())
+        if(is.null(lm.out)||(!goodfit(lmout))||class(lm.out)=="try-error")
+        {
+            lmout = NA
+        }
         return(lm.out)
     }
 
-    parser$collate <- function(outs, accum)
+    parser$collate <- function(outs)
     {
         outs1 = outs
         names(outs1) = names(outs)
@@ -771,7 +784,7 @@ lm.parsing$getAnovaWrapper <- function(fit, fit.null=NULL, type=1)
     ##                     pvalueCol = "Pr(>F)"))
     ##     } 
     } else {
-#        browser()
+
         if(class(fit) =="lmerMod")
         {
             an = lmerTest::anova(fit, fit.null, type=type)
