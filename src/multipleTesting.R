@@ -1,14 +1,14 @@
 library(evir)
 multipleTesting = new.env(hash=T)
 
-## multipleTesting$median.correct <- function(pvals)
-## {
-##     zscores        = qnorm(pvals)
-##     med            = median(zscores)
-##     zscores        = zscores - med
-##     pvals.adjusted = pnorm(zscores) 
-##     return(pvals.adjusted)
-## }
+multipleTesting$median.correct <- function(pvals)
+{
+    zscores        = qnorm(pvals)
+    med            = median(zscores)
+    zscores        = zscores - med
+    pvals.adjusted = pnorm(zscores) 
+    return(pvals.adjusted)
+}
 
 multipleTesting$median.correct.2 <- function(pvals)
 {
