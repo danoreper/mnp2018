@@ -43,7 +43,7 @@ micro.analysis$get.SV.func <- function(local = F)
 
     if(surrogat == "SSVA") # uses all control probes
     {
-        parallelArgs = micro.analysis$getBestParArgs(100, 3)
+        parallelArgs = micro.analysis$getBestParArgs(50, 3)
         if(local)
         {
             parallelArgs = micro.analysis$getLocalParArgs()
@@ -63,7 +63,7 @@ micro.analysis$get.SV.func <- function(local = F)
         
     } else if(surrogat == "SSVA_PERM_GENERATE") {
         
-        parallelArgs = micro.analysis$getBestParArgs(100, 3)
+        parallelArgs = micro.analysis$getBestParArgs(50, 2)
 
         numPerm       = prop$mnp$SSVA.numperm
         pvalThresh    = prop$mnp$pvalThresh
@@ -73,7 +73,7 @@ micro.analysis$get.SV.func <- function(local = F)
                                                scaleOnForPCA = scaleOnForPCA,
                                                parallelArgs = parallelArgs)
     } else if(surrogat == "SVA") {
-        parallelArgs = micro.analysis$getBestParArgs(100, 3)
+        parallelArgs = micro.analysis$getBestParArgs(50, 2)
         num.sv = prop$mnp$num.sv
         topGenes = prop$mnp$SVA.topgenes
         f  = surrogatcalc$get.mm.SVA.func(num.sv = num.sv,
@@ -193,7 +193,7 @@ micro.analysis$run.noperm <- function(inp)
                                           modelParser              = modelParser,
                                           strategy                 = strategy,
                                           transformParams          = transformParams,
-                                          parallelArgs             = micro.analysis$getBestParArgs(100, 3))
+                                          parallelArgs             = micro.analysis$getBestParArgs(100, 2))
                                           ##parallelArgs                    = micro.analysis$getLocalParArgs())
 
 
