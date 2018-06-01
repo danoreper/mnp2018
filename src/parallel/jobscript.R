@@ -25,6 +25,13 @@ for(sourceFile in filesToSource)
 load(funcFile)
 ##debug(func)
 
+for(sourceFile in filesToSource)
+{
+    source(sourceFile)
+}
+
+
+
 ## print("**********************************")
 ## print(prop$mnp$limit)
 failed = c()
