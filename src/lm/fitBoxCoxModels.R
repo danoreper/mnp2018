@@ -57,13 +57,11 @@ fit.model.bc$fit <- function(y.mat,
                                                                            prefer.lme = T),
                              parallelArgs = parallel$getDefaultLocalArgs())
 {
-
     if(is.vector(y.mat))
     {
         y.mat = as.matrix(ncol = 1, y.mat)
     }
     
-
 
     notlocal = parallel$useCluster(parallelArgs)
     parallelArgs$func = fit.model.bc$fit.single
@@ -81,6 +79,9 @@ fit.model.bc$fit <- function(y.mat,
 
     accum = parallel$getAccum(parallelArgs)
 
+
+
+    ##for(j in 1056:1057)
     for(j in 1:ncol(y.mat))
     {
         y = y.mat[,j]
@@ -100,16 +101,24 @@ fit.model.bc$fit <- function(y.mat,
     outs  = accum$runAll()
     outs  = accum$getAllOutputs(outs, removeFailing = F)
 
+
     ##name every output... this seems like it should go elsewhere perhaps
     cnamez = colnames(y.mat)
     if(is.null(cnamez))
     {
         cnamez = paste0("phen_",1:ncol(y.mat))
     }
-    names(outs) = cnamez
-    outs = modelParser$collate(outs, accum)
+    names(outs) = cnamez ##[1056:1057]
+##    debug(modelParser$collate)
+    outs = modelParser$collate(outs)
 
     return(outs)
+}
+
+goodfit <- function(fit)
+{
+    out = !(length(fit)==1 && is.na(fit))
+    return(out)
 }
 
 fit.model.bc$fit.single <- function(y,
@@ -122,6 +131,8 @@ fit.model.bc$fit.single <- function(y,
                                     strategy = fit.modelg$getDefaultModelStrategy(anovaComparison = !is.null(nullModelString),
                                                                                   prefer.lme = T))
 {
+
+    
     loopOverLambdas <- function(checkAnovaInLoop, lambdasToTry)
     {
          bestFit     = NULL
@@ -139,7 +150,8 @@ fit.model.bc$fit.single <- function(y,
 
              ## if(DEBUG){ print(paste("y.transformed:", paste0(sprintf("%.3f", head(y.transformed, 5)), collapse = ",")))}
              afit = callfit(y.transformed$y, covariateModelString, checkAnova = checkAnovaInLoop)
-             if(!is.null(afit) && class(afit)!="try-error")
+
+             if(goodfit(afit))
              {
                  pval = afit$normality.pval
                  if(DEBUG) { print(paste0("fit lambdaToTry=", lambda, ", shapiro.p = ", pval))}
@@ -153,17 +165,21 @@ fit.model.bc$fit.single <- function(y,
                  }
              } else { if(DEBUG){print(paste0("fit failed, skipping lambdaToTry=", lambda))}}
          }
-         
+
+         if(is.null(bestFit))
+         {
+             return(NA)
+         }
          out = (list(fit = bestFit$fit,
-                    best.pval = best.pval,
-                    lambda = best.lambda,
-                    lambda2       = bestY$lambda2,
-                    y.transformed = bestY$y,
-                    center1       = bestY$center1,
-                    scale1        = bestY$scale1,
-                    center2       = bestY$center2,
-                    scale2        = bestY$scale2,
-                    anovaWrapper = bestAnova))
+                     best.pval = best.pval,
+                     lambda = best.lambda,
+                     lambda2       = bestY$lambda2,
+                     y.transformed = bestY$y,
+                     center1       = bestY$center1,
+                     scale1        = bestY$scale1,
+                     center2       = bestY$center2,
+                     scale2        = bestY$scale2,
+                     anovaWrapper = bestAnova))
          return(out)
     }
 
@@ -185,7 +201,10 @@ fit.model.bc$fit.single <- function(y,
                                         checkAnova           = checkAnova,
                                         checkNormality       = checkNormality,
                                         strategy             = strategy))
-
+        if(class(afit)=="try-error")
+        {
+            return(NA)
+        }
         return(afit)
     }
 
@@ -195,43 +214,58 @@ fit.model.bc$fit.single <- function(y,
         if(DEBUG){print("boxcox: no transform, so running on raw data, without looping")}
            
         bestFit = callfit(y, covariateModelString, checkAnova = checkAnova, checkNormality = F)
-
-        if(class(bestFit)!="try-error")
+        
+        if(goodfit(bestFit))
         {
             out = list(fit = bestFit$fit, best.pval = NA, lambda = NA, y.transformed = y, anovaWrapper = bestFit$anovaWrapper)
             if(!is.null(nullModelString))
             {
-##                browser()
-                out$fit.null = callfit(out$y.transformed, nullModelString, checkAnova = F)$fit
+                nullfit = callfit(out$y.transformed, nullModelString, checkAnova = F, checkNormality= F)
+##                print(nullfit)
+                if(!goodfit(nullfit))
+                {
+                    if(DEBUG){print("no transform, and failed to get null model that would fit, giving up.")}
+                    return(NA)
+                }
+                out$fit.null = nullfit$fit
             }
             parsed   = modelParser$parse(out)
             return(parsed)
         } else {
-            return(bestFit)
+            return(NA)
         }
     }
-
+        
+            
     tp = transformParams
     normalizeBeforeTransform = tp$normalizeBeforeTransform
     normalizeAfterTransform  = tp$normalizeAfterTransform
     extremelb                = tp$extremelb
     extremeub                = tp$extremeub                                   
     lambdasToTry             = tp$lambdasToTry
-
+    
     out = loopOverLambdas(checkAnovaInLoop=F, lambdasToTry = lambdasToTry)
-    orig.lambda = out$lambda
+    
     if(DEBUG) { print(paste0("best lambda without checking anova: ", orig.lambda))}
     
-    if(out$lambda <= extremelb || out$lambda >= extremeub || is.null(out$fit))
+    
+    if(out$lambda <= extremelb || out$lambda >= extremeub || !goodfit(out))
     {
+        ## if(!goodfit(out))
+        ## {
+        ##     browser()
+        ## }
+           
+        orig.lambda = try(out$lambda)
         if(DEBUG) { print(paste0(orig.lambda, " failed or is beyond the bounds", "(",extremelb,",", extremeub, "), use inverse normal instead"))}
         out = loopOverLambdas(checkAnovaInLoop = checkAnova, lambdasToTry = "inverse_normal")
     } else {
         if(checkAnova)
         {
+            orig.lambda = try(out$lambda)
             if(DEBUG) {print("now checking if selected lambda allows anova to be taken")}
             out = loopOverLambdas(checkAnovaInLoop=T, lambdasToTry = orig.lambda)
-            if(is.null(out$fit)||is.null(out$anovaWrapper))
+            if(!goodfit(out)) 
             {
                 if(DEBUG)
                 {
@@ -244,17 +278,28 @@ fit.model.bc$fit.single <- function(y,
             }
         }
     }
-    if(DEBUG) {print(paste0("Best lambda, in the end: ", out$lambda))}
+
+    if(!goodfit(out))
+    {
+        return(NA)
+    } else{
+        if(DEBUG) {print(paste0("Best lambda, in the end: ", try(out$lambda)))}
+    }
     if(!is.null(nullModelString))
     {
         if(DEBUG) {print("after transforming Y by the ALT derived model box cox parameter, do anova againt the null model")}
-        ## debug(callfit)
-        ## browser()
         out$fit.null = callfit(out$y.transformed, nullModelString, checkAnova = F)$fit
+        if(!goodfit(out$fit.null))
+        {
+            return(NA)
+        }
     }
 
+    if(!goodfit(out))
+    {
+        return(NA)
+    }
 
-##    browser()
     parsed   = modelParser$parse(out)
     
     return(parsed)
@@ -272,7 +317,7 @@ fit.model.bc$computeResids <-  function(y.mat,
 
     parser$parse <- function(fit)
     {
-        if(is.null(fit$fit))
+        if(!goodfit(fit))
         {
             return(rep(NA, nrow(y.mat)))
         } else {
@@ -280,7 +325,7 @@ fit.model.bc$computeResids <-  function(y.mat,
         }
     }
 
-    parser$collate <- function(outs, accum)
+    parser$collate <- function(outs)
     {
         out     = do.call(cbind, outs)
         rownames(out) = rownames(y.mat)
