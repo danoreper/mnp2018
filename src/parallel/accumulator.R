@@ -41,6 +41,52 @@ parallel$get.cluster.accum <- function(system.type,
                                        retryFailing           = F,
                                        saveProp               = F)
 {
+    ## Creates an 'accumulator' object that accumulates calls, deploys them across cluster nodes.
+## This is like creating an object which will do the map part of map-reduce. The reduce functionality is elsewhere
+## Args:  
+##   system.type: a string, either "killdevil" or "longleaf"
+##
+##   func: the function which is going to be called repeatedly for different arguments.
+##
+##   sharedVariables: a list of the named arguments to 'func' which are shared accross invocations of func;
+##                    the intent is to avoid saving and loading big things like data frames many times,
+##                    when it only needs to be done once. This can speed things up a lot.
+##
+##   filesToSource: a vector of paths (relative to ./src/) to R files;
+##                  whatever R files func depends on
+##                  (including at a minimum, the file func is originally defined in) must be included here.
+##
+##   batchSize: the number of calls which will be batched on a single node
+##
+##   timeLimit.hours: the amount of time in hours allocated in the cluster per job.
+##
+##   coresPerJob:     the number of cores that will be used per job
+##
+##   maxSimulJobs:    A buffering parameter, which doesnt allow any more than maxSimulJobs to
+##                    be submit at the same time. It will slowly submit more jobs as old ones are finished
+##                    Primary intent is to avoid overwhelming the bsub/slurm queue and angering cluster admin
+##
+##   systemOpts: longleaf (slurm) and killdevil (lsf) have additional optional submit params. Add them as a vector of strings here.
+##
+##   outdir: the folder where temporary files are serialized and deserialized to facilitate job submission and collation
+##
+##   retryFailing: Sometimes, we run jobs which are known to occasionally randomly fail.
+##                 If it is desired to simply try running the job again automatically, set this to T.
+##
+##   saveProp:     Leave this alone for now.
+##
+## Returns:
+##   An accumulator object with, addCall, runAll, getAllOutputs, getOutputIterator methods.
+##   Use accum$addCall to queue up jobs for parallelization,
+##       accum$runAll to kick off the jobs once all calls have been added.
+##       accum$getOutputs to load ALL outputs into memory at once, once runAll has been called
+##       accum$getOutputIterator to load outputs into memory one at a time once runAll
+##             has been called (see that method for more detail)
+##
+##
+## See ./parallel/accum.example.R for examples.
+    
+    
     ##Consider getting rid of these as arguements to change.... probably a good idea to package them up into a class like thing, including the script.
     
     getInFile     = parallel$.getDefaultInputFile
@@ -55,13 +101,17 @@ parallel$get.cluster.accum <- function(system.type,
     accum$.jobSubmitCommand = accum$.jobSystem$getSubmitCommand(time.hours = timeLimit.hours,
                                                                 numProcessPerNode = coresPerJob,
                                                                 memoryLimit.GB = cpuMemLimit.GB)
-    if(!is.null(systemOpts)) {accum$.jobSubmitCommand = paste(accum$.jobSubmitCommand, paste(systemOpts, collapse = " "))}   
+    if(!is.null(systemOpts))
+    {
+        accum$.jobSubmitCommand = paste(accum$.jobSubmitCommand, paste(systemOpts, collapse = " "))
+    }   
     
     accum$.sleepCheck=15
     accum$.filesToSource = filesToSource
     accum$.batchSize = batchSize
     accum$.jobsLimit = maxSimulJobs
 
+  
 
     accum$.currentBatchArgs = list()
     accum$.clusterCommands = c()
@@ -89,6 +139,13 @@ parallel$get.cluster.accum <- function(system.type,
     
     accum$addCall <- function(funcArgs, propObj=NULL)
     {
+        ## Args:
+        ##      Add function calls to be submitted to the job accumulator.
+        ##
+        ##      funcArgs: a named list of the arguments to func which change from call to call;
+        ##                i.e., don't include the sharedVariables which were defined when accumulator was created
+        ##      propObj: leave this alone for now.
+        ##
         if(!accum$.ready)
         {
             stop("create a new accumulator, this one has already been run.")
@@ -106,6 +163,7 @@ parallel$get.cluster.accum <- function(system.type,
         if(length(accum$.currentBatchArgs)==(accum$.batchSize))
         {
             accum$.save.current.batch()
+            
         } 
     }
     
@@ -153,6 +211,12 @@ parallel$get.cluster.accum <- function(system.type,
     
     accum$runAll <- function()
     {
+        ## Runs all the jobs that have been queued up in the accumulator.
+        ## Requires addCall to have been called first
+        ##
+        ## Return a list of output files, containing in their totality all the results. when batchsize>1,
+        ## More than one result is stored per file.
+        ## 
         print(paste0("running all jobs; temp files for debugging stored in ", accum$.outdir))
         accum$.save.current.batch()
         
@@ -189,8 +253,34 @@ parallel$get.cluster.accum <- function(system.type,
         return(outfiles)
     }
 
+    
     accum$getOutputIterator <- function(outputs)
     {
+        ## Creates an iterator for walking over the results of runAll, one at a time.
+        ## Primarily useful when loading all results at once is too memory intesnive.
+        ## Otherwise, just use getAllOutputs
+        ##
+        ## Args:
+        ##    Outputs: the output from calling runAll.
+        ##
+        ## Returns:
+        ##    An environment with 2 methods: nextItem, and hasNext
+        ##
+        ## When nextItem() is called, the iterator returns the next output, and moves one forward
+        ## along the list of results.
+        ## hasNext() checks as to whether there are any more results to return
+        ## e.g., do something like this:
+        ##
+        ## iter = accum$getOutputIterator(outputs)
+        ## while(iter$hasNext())
+        ## {
+        ##      item = iter$nextItem()
+        ##      print(item)
+        ## }
+        ##
+        ## See parallel/accum.example.R for further detail
+
+        
         i  = 1
         j  = 1
         batch.i = try(parallel$.getOutput(outputs[[i]]))
@@ -450,6 +540,7 @@ parallel$.submitCommands <- function(jobSystem, jobSubmitCommand, clusterCommand
     submitted.jobs = list()
     for(i in 1:length(clusterCommands))
     {
+        
         while(jobSystem$countActiveJobs(names(submitted.jobs))>=maxNumJobs)
         {
             numActive = jobSystem$countActiveJobs(names(submitted.jobs))
@@ -460,9 +551,10 @@ parallel$.submitCommands <- function(jobSystem, jobSubmitCommand, clusterCommand
         jobname        = paste0(start.time, ".", i)
         submitted.jobs[[jobname]] = clusterCommands[i]
 
+        
         jobSystem$run.single.job(jobSubmitCommand, jobname, clusterCommands[i], cluster.outdir)
     }
-    print(paste0("submitted all jobs started at ", start.time))
+    print(paste0("submitted all ", length(clusterCommands), " jobs, started at ", start.time))
 
     if(!is.null(sleepCheck))
     {
