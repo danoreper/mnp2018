@@ -83,6 +83,7 @@ parallel$get.cluster.accum <- function(system.type,
     accum$.funcFile = fp(accum$.outdir, "func.RData")
     otherGlobals = sharedVariables
 
+##    browser()
     save(list=c("func","otherGlobals"), file = accum$.funcFile)
     
     accum$.ready =  T
@@ -222,9 +223,25 @@ parallel$get.cluster.accum <- function(system.type,
 
         iter$nextItem <- function()
         {
+            if(i==120 && j == 13)
+            {
+                browser()
+            }
+            print(paste(i,j,sep=","))
+           
             if(class(batch.i)!="try-error")
             {
-                out     = batch.i[[j]]
+                out     = try(batch.i[[j]])
+                if(class(out)=="try-error")
+                {
+                    msg = (attr(out, "condition"))[["message"]]
+                    if(msg=="subscript out of bounds")
+                    {
+                        print(paste0("warning: batch ", i, ",",j, " has failed.")) 
+                        ##print(accum$.batchLengths)
+                        
+                    }
+                }
             } else {
                 print(paste0("skipping (",i,",",j,")"))
                 out = try(stop("nofile", call.=F))
@@ -636,6 +653,7 @@ parallel$.getDefaultROutFile <- function(outdir, i)
 
 parallel$.run.single.job <- function(submitCommand, jobname, quantcommandset, outputlocaldir, outflag, errorflag, quoteCommand)
 {
+    ##browser()
     submitCommand = paste0(submitCommand, " -J ", jobname)
     if(!is.null(outputlocaldir))
     {
@@ -650,8 +668,9 @@ parallel$.run.single.job <- function(submitCommand, jobname, quantcommandset, ou
     fullcommand = paste(submitCommand, qbreak,  paste(quantcommandset, collapse="; "), qbreak)
 
     ##    cat(fullcommand)
-    x = invisible(system(fullcommand,intern=T, ignore.stdout = T))
-    return(x)
+    invisible(system(fullcommand,intern=F, ignore.stdout = T))
+    ##browser()
+    ##return(x)
 }
 
 
@@ -702,13 +721,14 @@ killdevil$countActiveJobs <- function(submitted.jobs)
     {
         return(0)
     }
-    a = try(system("bjobs -w", intern=T))
+    jobids = try(system("bjobs -o JOB_NAME", intern=T))
     
-    tokens = strsplit(a[1], "\\s+")[[1]]
-    colind = which(tokens == "JOB_NAME") 
-    jobids = strsplit(a[2:length(a)], "\\s+")
-    jobids = unlist(lapply(jobids, "[", colind))
+    ## tokens = strsplit(a[1], "\\s+")[[1]]
+    ## colind = which(tokens == "JOB_NAME") 
+    ## jobids = strsplit(a[2:length(a)], "\\s+")
+    ## jobids = unlist(lapply(jobids, "[", colind))
     numActive = length(intersect(jobids, submitted.jobs))
+
     return(numActive)
 }
 
