@@ -84,8 +84,9 @@ loadAllData$createAllInputs <- function()
     ##for testing purposes, we sometimes want to limt the size of the data set
     if(!is.na(prop$mnp$limit))
     {
-        annot.data = annot.data[1:prop$mnp$limit,]
-        annot.data.control = annot.data.control[1:prop$mnp$limit,]
+##        browser()
+        annot.data = annot.data[1:min(prop$mnp$limit,length(unique(annot.data$Probe.Set.ID))),]
+        annot.data.control = annot.data.control[1:min(prop$mnp$limit,length(unique(annot.data.control$Probe.Set.ID))),]
 
     }
 

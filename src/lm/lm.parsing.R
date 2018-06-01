@@ -29,7 +29,7 @@ lm.parsing$getHeavySingleParser <- function(include.resid = F,
                                        varianceComputerList = varianceComputerList))
         if(class(out)=="try-error")
         {
-            debug(lm.parsing$parseModelFit)
+##            debug(lm.parsing$parseModelFit)
             lm.parsing$parseModelFit(fit,
                                      include.resid = include.resid,
                                      mainEffectContrasts = mainEffectContrasts,
@@ -64,6 +64,7 @@ lm.parsing$getHeavySingleParser <- function(include.resid = F,
         results$per.variable = rbindlist(lapply(res.filt, "[[", "per.variable"))
         results$per.level    = rbindlist(lapply(res.filt, "[[", "per.level"))
 
+##        browser()
         if(medianAdjust.p.value)
         {
             ## results$old.p.value = results$p.value
@@ -83,7 +84,8 @@ lm.parsing$getHeavySingleParser <- function(include.resid = F,
 
 lm.parsing$getHeavyDoubleParser  <- function(include.resid = F,
                                              mainEffectContrasts = c(),
-                                             varianceComputerList = lm.parsing$getDefaultVarianceComputer())
+                                             varianceComputerList = lm.parsing$getDefaultVarianceComputer(),
+                                             includeSingle = F)
 {
     force(include.resid)
     force(mainEffectContrasts)
@@ -92,23 +94,73 @@ lm.parsing$getHeavyDoubleParser  <- function(include.resid = F,
 
     parser$parse <- function(fit)
     {
-        alt.vs.null = lm.parsing$getAnovaWrapper(fit$fit, fit$nullFit, type=1)
-        p.value = try(alt.vs.null$an[[alt.vs.null$pvalueCol]][2])
+##        browser()
+        alt.vs.null = lm.parsing$getAnovaWrapper(fit$fit, fit$fit.null, type=1)
+##        browser()
+        lik.rat = as.numeric(logLik(fit$fit)) - as.numeric(logLik(fit$fit.null))
+        p.value = try(alt.vs.null$p.value)
         if(class(p.value)=="try-error")
         {
             p.value = NA
         }
-        p.value = data.frame(p.value = p.value, lambda = fit$selectedLambda)
-        return(p.value)
+
+        ## p.value = try(data.frame(p.value = p.value, lambda = fit$lambda))
+        ## if(class(p.value)=="try-error")
+        ## {
+        ##     browser()
+        ##     x = 5
+        ## }
+
+
+        out = NA
+#        browser()
+        if(includeSingle)
+        {
+            out = try(lm.parsing$parseModelFit(fit,
+                                               include.resid = include.resid,
+                                               mainEffectContrasts = mainEffectContrasts,
+                                               varianceComputerList = varianceComputerList))
+        }
+        
+        x = list(p.value=p.value, lik.rat = lik.rat, altinfo = out)
+        return(x)
+    
     }
 
     parser$collate <- function(outs, accum)
     {
-        res = outs
-        res              = do.call(rbind, res)
-        cnamez           = names(outs)
-        res$Probe.Set.ID = names(outs)
-        return(res)    
+     
+        dfsimple = data.table(
+            p.value = unlist(lapply(outs, "[[", "p.value")),
+            lik.rat = unlist(lapply(outs, "[[", "lik.rat")),
+            Probe.Set.ID = unlist(names(outs)))
+
+##        browser()
+        dfalt = NA
+        if(includeSingle)
+        {
+            dfalts = list()
+            
+            for(nm in names(outs))
+            {
+                dfalt = outs[[nm]]$altinfo
+                dfalt$per.variable$Probe.Set.ID = nm
+                dfalt$per.level$Probe.Set.ID = nm
+                dfalt$per.probe$Probe.Set.ID = nm
+                dfalts = util$appendToList(dfalts, dfalt)
+            }
+
+
+            per.variable = rbindlist(lapply(dfalts, "[[", "per.variable"))
+            per.level = rbindlist(lapply(dfalts, "[[", "per.level"))
+            per.probe = rbindlist(lapply(dfalts, "[[", "per.probe"))
+
+            dfalt = list(per.variable = per.variable,
+                         per.probe    = per.probe,
+                         per.level    = per.level)
+        } 
+        
+        return(list(dfsimple = dfsimple, dfalt = dfalt))
     }
 
     return(parser)        
@@ -216,13 +268,14 @@ lm.parsing$parseModelFit <- function(fullfit,
     
     per.variable = data.table(aw$an)
     ##TODO why is this needed suddenly??
+##    browser()
     setnames(per.variable, aw$pvalueCol, "p.value")
 
     
     setnames(per.variable, old = colnames(per.variable), new = paste0("anova.", colnames(per.variable)))
     per.variable$variable = rownames(aw$an)
 
-        
+
     w = lm.parsing$getTsWrapper(fullfit$fit)
     per.level  = data.table(w$ts)
     setnames(per.level, old = colnames(per.level), new = paste0("coef.", colnames(per.level)))
@@ -712,27 +765,18 @@ lm.parsing$getAnovaWrapper <- function(fit, fit.null=NULL, type=1)
             return(list(an = stats::anova(fit),
                         pvalueCol = "p-value"))
         }
-    ## } else {
     ##     if(class(fit) =="merModLmerTest")
     ##     {
     ##         return(list(an = lmerTest::anova(fit, fit.null, type=type),
     ##                     pvalueCol = "Pr(>F)"))
-    ##     } else if(class(fit)=="lm")
-    ##     {
-    ##         return(list(an = stats::anova(fit, fit.null),
-    ##                     pvalueCol = "Pr(>F)"))
-    ##     } else {
-    ##         ##Default anova does NOT allow specification of type... not sure what to do here
-    ##         return(list(an = stats::anova(fit, fit.null),
-    ##                     pvalueCol = "p-value"))
-    ##     }
-    ## }
+    ##     } 
     } else {
-        if(class(fit) =="merModLmerTest")
+#        browser()
+        if(class(fit) =="lmerMod")
         {
             an = lmerTest::anova(fit, fit.null, type=type)
             return(list(an = an,
-                        p.value = an[2,"Pr(>F)"],
+                        p.value = as.numeric(an[2,"Pr(>Chisq)"]),
                         F.stat = an[2, "F"]))
          } else if(class(fit)=="lm")
          {
@@ -744,7 +788,7 @@ lm.parsing$getAnovaWrapper <- function(fit, fit.null=NULL, type=1)
              ##Default anova does NOT allow specification of type... not sure what to do here
              an = stats::anova(fit, fit.null)
              return(list(an = an, 
-                         p.value = an[2,"Pr(>F)"],
+                         p.value = as.numeric(an[2,"p-value"]),
                          F.stat = an[2, "F"]))
              
          }

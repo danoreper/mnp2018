@@ -311,7 +311,7 @@ surrogatcalc$generate.svinfo <- function(svFunc,
 
     if(!is.null(nullModelString))
     {
-        nullModelString = formulaWrapper$insertEffect(svString, 2, covariateModelString)$modified.string
+        nullModelString = formulaWrapper$insertEffect(svString, 2, nullModelString)$modified.string
     }
     
     ## Residualize out nuisance variables first if necessary.
@@ -393,7 +393,6 @@ surrogatcalc$runAnalysis <- function(svFunc,
 
     results = surrogatcalc$runAnalysisHelper(sv.info = sv.info,
                                              y.mat = sv.info$exp.mat,
-                                             nullModelString = nullModelString,
                                              modelParser = modelParser,
                                              transformParams = transformParams,
                                              strategy = strategy,
@@ -406,26 +405,31 @@ surrogatcalc$runAnalysis <- function(svFunc,
 ############### Generate permutation thresholds
     pracma::tic()
     out = (list(results = results,
-                sv.info         = sv.info))
+                sv.info = sv.info))
 
     return(out)
 }
 
 surrogatcalc$runAnalysisHelper <- function(sv.info,
                                            y.mat,
-                                           nullModelString,
+                      #                     nullModelString,
                                            modelParser,
                                            transformParams,
                                            strategy,
                                            parallelArgs)
 {
+    checkAnova = F
+    if(is.null(sv.info$nullModelString))
+    {
+        checkAnova = T
+    }
     results = fit.model.bc$fit(y.mat                = y.mat,
                                cov.data             = sv.info$cov.data,
                                covariateModelString = sv.info$covariateModelString,
-                               nullModelString      = nullModelString,
+                               nullModelString      = sv.info$nullModelString,
                                modelParser          = modelParser,
                                transformParams      = transformParams,
-                               checkAnova           = T,
+                               checkAnova           = checkAnova, ##garbage #T,
                                strategy             = strategy,
                                parallelArgs         = parallelArgs)
     return(results)

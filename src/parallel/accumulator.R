@@ -136,6 +136,7 @@ parallel$get.cluster.accum <- function(system.type,
     save(list=c("func","otherGlobals"), file = accum$.funcFile)
     
     accum$.ready =  T
+    accum$.curind = 0
     
     accum$addCall <- function(funcArgs, propObj=NULL)
     {
@@ -157,19 +158,28 @@ parallel$get.cluster.accum <- function(system.type,
                 accum$.propObj = prop ##use the default property object defined globally.
             }
         }
+        accum$.curind = accum$.curind+1
+        accum$.currentBatchArgs[[accum$.curind]] = funcArgs
+  
         
         ##IF the current Batch is full, save it, start a new batch
-        accum$.currentBatchArgs = util$appendToList(accum$.currentBatchArgs, funcArgs)
-        if(length(accum$.currentBatchArgs)==(accum$.batchSize))
+##        accum$.currentBatchArgs = util$appendToList(accum$.currentBatchArgs, funcArgs)
+  ##      if(length(accum$.currentBatchArgs)==(accum$.batchSize))
+        if(accum$.curind == accum$.batchSize)
         {
             accum$.save.current.batch()
-            
-        } 
+            accum$.curind = 0
+        }
+        
+       
+     
+        
     }
     
     accum$.save.current.batch <- function()
     {
-        if(length(accum$.currentBatchArgs)==0)
+##        if(length(accum$.currentBatchArgs)==0)
+        if(accum$.curind==0)
         {
             return()
         }
@@ -187,7 +197,8 @@ parallel$get.cluster.accum <- function(system.type,
         failFile = getFailFile(accum$.outdir,i)
         routFile = getROutFile(accum$.outdir,i)
         
-        funcArgs = accum$.currentBatchArgs
+        ##        funcArgs = accum$.currentBatchArgs
+        funcArgs = accum$.currentBatchArgs[1:accum$.curind]
         funcFile = accum$.funcFile
         filesToSource = accum$.filesToSource
         force(funcArgs)
@@ -205,8 +216,9 @@ parallel$get.cluster.accum <- function(system.type,
         
         command            = paste0(commandRoot, " ", propFile, " -I",inFile, "' ",clusterScript, " ", routFile)
         accum$.clusterCommands <<- c(accum$.clusterCommands, command)
-        accum$.batchLengths = c(accum$.batchLengths, length(accum$.currentBatchArgs))
-        accum$.currentBatchArgs <<-list()
+        accum$.batchLengths = c(accum$.batchLengths, accum$.curind)
+        ##length(accum$.currentBatchArgs))
+##        accum$.currentBatchArgs <<-list()
     }
     
     accum$runAll <- function()
@@ -219,6 +231,11 @@ parallel$get.cluster.accum <- function(system.type,
         ## 
         print(paste0("running all jobs; temp files for debugging stored in ", accum$.outdir))
         accum$.save.current.batch()
+        if(length(accum$.clusterCommands)==0)
+        {
+            browser()
+            stop("run called without any calls added")
+        }
         
         localf = function(clusterCommands)
         {
@@ -425,7 +442,8 @@ parallel$get.mc.accum <- function(func, mc.cores, sharedVariables = list(),
         out = parallel$lapply.wrapper(inds, FUN = accum$.funcWrapper,
                                       mclBatch = min(mc.cores*mclMult, length(accum$funcArgs)),
                                       mc.cores = mc.cores)
-##        print("ranall")
+        ##        print("ranall")
+        ##browser()
         accum$ready = F
         return(out)
     }

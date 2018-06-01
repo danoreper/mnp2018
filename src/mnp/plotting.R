@@ -783,7 +783,7 @@ plotting$plotPermScan <- function(full,
         aplot = aplot + ylab(ylab.str)
         aplot = aplot + theme(panel.grid.minor.x = element_blank())
         aplot = aplot + theme(panel.grid.minor.y = element_blank())
-        
+
 
         ##print(aplot)
         aplot.1 = ggplot_gtable(ggplot_build(aplot))

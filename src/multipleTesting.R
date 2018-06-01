@@ -12,6 +12,7 @@ multipleTesting$median.correct <- function(pvals)
 
 multipleTesting$median.correct.2 <- function(pvals)
 {
+##    browser()
     zscores        = qchisq(pvals, df=1)
     med            = median(zscores)/.4549
     zscores        = zscores/med
@@ -64,10 +65,10 @@ multipleTesting$get.empirical.one.tail.thresh.foralpha <- function(nulldist, alp
 ##perm.p.value is a matrix represnting multiple tests under permutation of labels, where perm.p.value[i,j] corresponds to the p-value computed for the ith permutation of labels, and for the jth phenotype.
 ##noperm.p.value is a vector of length equal to the number of phenotype which corresponds to the pvalues computed with
 ## the original labels and without permutation.
-multipleTesting$evaluate.perms <- function(perm.p.value, noperm.p.value, alpha, direction)
+multipleTesting$evaluate.perms <- function(perm.p.value, alpha, direction)
 {
     perm.p.value   = perm.p.value * direction
-    noperm.p.value = noperm.p.value * direction
+    ##noperm.p.value = noperm.p.value * direction
 
     ## filter out failing permutations
     badPerms = apply(perm.p.value, 1, function(x){all(is.na(x))})
@@ -81,15 +82,15 @@ multipleTesting$evaluate.perms <- function(perm.p.value, noperm.p.value, alpha, 
     
     out = list()
     
-    out$empirical.local.p.value  = unlist(lapply(1:length(local.ecdf),
-                                                 FUN = function(j, local.ecdf, noperm.p.value){local.ecdf[[j]](noperm.p.value[j])},
-                                                 local.ecdf, noperm.p.value))
+    ## out$empirical.local.p.value  = unlist(lapply(1:length(local.ecdf),
+    ##                                              FUN = function(j, local.ecdf, noperm.p.value){local.ecdf[[j]](noperm.p.value[j])},
+    ##                                              local.ecdf, noperm.p.value))
     
     minp = apply(perm.p.value, 1, min, na.rm = T)
     global.ecdf = ecdf(minp)
-    out$empirical.global.p.value =
-        unlist(lapply(noperm.p.value,
-                      FUN = function(noperm.p.value, global.ecdf){global.ecdf(noperm.p.value)}, global.ecdf))
+    ## out$empirical.global.p.value =
+    ##     unlist(lapply(noperm.p.value,
+    ##                   FUN = function(noperm.p.value, global.ecdf){global.ecdf(noperm.p.value)}, global.ecdf))
      
     out$empirical.global.threshhold = unname(quantile(minp, alpha, na.rm =T))
     out$empirical.global.gev.threshhold = try( multipleTesting$minp.gev(minp, alpha), silent =T)

@@ -60,7 +60,7 @@ qpcr.analysis$run <- function(inp)
         alldata$batchplate = as.factor(paste(alldata$Batch, alldata$Plate, sep="_"))
         alldata = alldata[!is.na(alldata$Delta.Ct)]
 
-        m.string = " ~ 1  + Pipeline + Diet + Strain + Strain:Diet + (1|Dam.ID) + (1|batchplate)"
+        m.string = " ~ 1  + Pipeline + Diet + Strain + Diet:Strain + (1|Dam.ID) + (1|batchplate)"
 
         regresstypes = list(full = alldata,
                             old = alldata[!is.na(Carmil1.mic)],

@@ -5,7 +5,6 @@ source("./utils.R")
 source("./lm/fit.models.R")
 source("./parallel/accumulator.R")
 DEBUG = F
-
 fit.model.bc = new.env(hash=T)
 
 
@@ -58,7 +57,7 @@ fit.model.bc$fit <- function(y.mat,
                                                                            prefer.lme = T),
                              parallelArgs = parallel$getDefaultLocalArgs())
 {
-    
+
     if(is.vector(y.mat))
     {
         y.mat = as.matrix(ncol = 1, y.mat)
@@ -202,6 +201,7 @@ fit.model.bc$fit.single <- function(y,
             out = list(fit = bestFit$fit, best.pval = NA, lambda = NA, y.transformed = y, anovaWrapper = bestFit$anovaWrapper)
             if(!is.null(nullModelString))
             {
+##                browser()
                 out$fit.null = callfit(out$y.transformed, nullModelString, checkAnova = F)$fit
             }
             parsed   = modelParser$parse(out)
@@ -248,10 +248,13 @@ fit.model.bc$fit.single <- function(y,
     if(!is.null(nullModelString))
     {
         if(DEBUG) {print("after transforming Y by the ALT derived model box cox parameter, do anova againt the null model")}
-        out$fit.null = callfit(out$y.transformed$y, nullModelString, checkAnova = F)$fit
+        ## debug(callfit)
+        ## browser()
+        out$fit.null = callfit(out$y.transformed, nullModelString, checkAnova = F)$fit
     }
 
-    
+
+##    browser()
     parsed   = modelParser$parse(out)
     
     return(parsed)

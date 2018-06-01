@@ -46,6 +46,7 @@ fit.modelg$fit.single <- function(y,
     return(fit)
 }
 
+
 fit.modelg$getDefaultModelStrategy <- function(anovaComparison,
                                                prefer.lme)
 {
@@ -59,7 +60,7 @@ fit.modelg$getDefaultModelStrategy <- function(anovaComparison,
         {
             funcName = "lm"
         } else {
-            if(!checkAnova)
+            if(!checkAnova & !anovaComparison)
             {
                 funcName = "lme4::lmer"  # "lme" #
             } else {
