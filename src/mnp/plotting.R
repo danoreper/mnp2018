@@ -318,6 +318,8 @@ plotting$plotPermScan <- function(full,
 
     per.level$coef.Value = per.level$coef.Value
 
+    
+    
     ##TODO fixme
     for(plot.type in c("Strain", "Diet.2", "Diet.4","Diet:Strain"))##, "Diet.2", "Diet:Strain")) #, "Diet.1"))
     {
@@ -343,6 +345,7 @@ plotting$plotPermScan <- function(full,
         }
         if(vartype=="Diet")
         {
+            browser()
             ##TODO extract this into a method for results writing
             v1 = per.level[variable.level=="DietME", j = list(level1 = coef.Value, Probe.Set.ID)]
             v2 = per.level[variable.level=="DietVDD",    j = list(level1 = coef.Value, Probe.Set.ID)]
@@ -411,7 +414,6 @@ plotting$plotPermScan <- function(full,
 
         }
 
-        
         
         partial.inf      = allpoints[allpoints$isinf,]
         p.thresh.for.q = multipleTesting$get.empirical.p.value.for.q(allpoints$anova.p.value,
