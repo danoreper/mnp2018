@@ -441,6 +441,9 @@ micro.report$postProcessResults <- function(results,
     results$per.probe = probesetInfo[results$per.probe]
 
     results$per.level$lambda = results$per.probe$lambda[match(results$per.level$Probe.Set.ID, results$per.probe$Probe.Set.ID)]
+
+
+    results$per.variable[,anova.q.value := p.adjust(anova.p.value , method = "fdr"), by=variable]
     
     setkey(results$per.probe,    "Probe.Set.ID")
     setkey(results$per.variable, "Probe.Set.ID")
