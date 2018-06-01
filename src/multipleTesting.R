@@ -42,7 +42,6 @@ multipleTesting$get.empirical.p.value.for.q <- function(pvals, qvals, alphalevel
     } else {
         return(NA)
     }
-    
 }
 
 multipleTesting$get.empirical.one.tail.p.value <- function(nulldist, stat, direction)
