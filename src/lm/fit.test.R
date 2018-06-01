@@ -27,3 +27,18 @@ z1 = df$y
 
 z2 = fit.model.bc$transform.by.lambda(z1, lambda = 2, normalizeBeforeTransform = T, normalizeAfterTransform=T)
 z1.p = fit.model.bc$invert(z2)
+
+modelParser = new.env(hash=T)
+
+modelParser$parse=function(fit)
+{
+    pval = fit$anovaWrapper$an["x3", "Pr(>F)"]
+    return(pval)
+}
+
+modelParser$collate=function(parsedouts)
+{
+    return(parsedouts)
+}
+
+pvalz = fit.model.bc$fit(df$y, df, covariateModelString = "~ x1 + x2 + x3", transformParams = tp, modelParser=modelParser)
