@@ -4,4 +4,5 @@ onCluster: yes
 system.type: longleaf
 tmpdir: /pine/scr/d/o/doreper/scm_tmpdir
 mnp:
-  output: ../outputl/mnp 
+  output: ../outputl/mnp
+  SSVA.numperm: 400
