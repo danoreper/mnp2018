@@ -1,0 +1,8 @@
+
+J = 10
+a = rnorm(J)
+A = 2
+b = rnorm(J)
+B = 4
+n = 100
+
