@@ -158,7 +158,7 @@ micro.analysis$generatePermsFreed <- function(exp.mat,
     
     transformParams          = fit.model.bc$getDefaultTransformParams()
     ##TODO remove
-    ##transformParams$lambdasToTry = -3
+##    transformParams$lambdasToTry = -3
     if(prop$mnp$tiny)
     {
         transformParams$lambdasToTry = 1
@@ -267,6 +267,7 @@ micro.analysis$generatePermsFreed <- function(exp.mat,
             return(out)
         }
 
+##        parallelArgs      = micro.analysis$getBestParArgs(6, mem.gb = 2, timeLimit.hours = 23)
         parallelArgs      = micro.analysis$getBestParArgs(12, mem.gb = 2, timeLimit.hours = 23)
 ##        parallelArgs      = micro.analysis$getBestParArgs(13, mem.gb = 2, timeLimit.hours = 23)
         parallelArgs$func = f #surrogatcalc$runAnalysisHelper
