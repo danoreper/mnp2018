@@ -35,10 +35,11 @@ plotgene <- function(psid, varabletype, inp)
 
 
 ident = 1
-##vr = "Diet:Strain"
+
 limit = 10001
 ##vr = "Diet"
-vr = "Strain"
+##vr = "Strain"
+vr = "Diet:Strain"
 
 if(vr=="Strain")
 {
@@ -105,6 +106,7 @@ for(i in 1:nrow(dfsimple))
  #   p.lik.p.emp[i] = 1 - sum(perm.lik.p[,nm]>=ident.lik.p, na.rm=T)/nrow(perm.lik.p)
 }
 
+##p.anova.emp = multipleTesting$median.correct(p.anova.emp)
 
 setorder(dfsimple, p.value)
 
