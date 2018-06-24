@@ -196,7 +196,7 @@ beh.analysis$run = function(phen, geneExp = NULL)
 ## Model every phenotype in allPhenNames using the same covariates
 ##
 beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSet, geneExp = NULL) 
-{
+{ 
     ##    if(anexpType=="SIH"|anexpType=="startle")
     ## if(anexpType=="startle")
     ## {
@@ -241,7 +241,7 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
                                       checkAnova       = T,
                                       strategy = fit.modelg$getDefaultModelStrategy(anovaComparison = !is.null(nullModelString),
                                                                                     prefer.lme = F))[["phen_1"]]
-        
+
         if(is.null(fit.lambda))
         {
             failingphen = c(failingphen, paste0(anexptype, "-", pheno))
@@ -253,7 +253,7 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
         anov = fit.lambda$anovaWrapper
         print(anov)
 
-        acont = lm.parsing$form.contrast.mat(fit.with.interaction, "Diet")
+        ##acont = lm.parsing$form.contrast.mat(fit.with.interaction, "Diet")
         ## z = glht(fit.with.interaction, linfct = acont)
         ## browser()
         if(is.null(geneExp))
@@ -389,7 +389,7 @@ beh.analysis$fitFreqModel <- function(amodel, dataSet)
 
 beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1) 
 {
-    
+
     library(flextable)
     library(officer)
 
@@ -401,15 +401,15 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
     setorder(toflex, "phenotype")
     if(mode==1)
     {
-        pvalcol = c("strain.pval", "diet.pval", "strainByDiet.pval",
-                    "strain.pval.qval.fdr", "diet.pval.qval.fdr", "strainByDiet.pval.qval.fdr")
+         pvalcol = c("strain.pval", "diet.pval", "strainByDiet.pval",
+                     "strain.pval.qval.fdr", "diet.pval.qval.fdr", "strainByDiet.pval.qval.fdr")
     } else {
-    pvalcol = c('ME - Std','PD - Std','VDD - Std','PD - ME','VDD - ME','VDD - PD',
-                'ME:NODxB6 - Std:NODxB6','PD:NODxB6 - Std:NODxB6','VDD:NODxB6 - Std:NODxB6','PD:NODxB6 - ME:NODxB6','VDD:NODxB6 - ME:NODxB6','VDD:NODxB6 - PD:NODxB6')
-
-    pvalcol = gsub(pvalcol, pattern = " - ", replacement = "...")
-    pvalcol = gsub(pvalcol, pattern = ":", replacement = ".")
-  ##  colnames(toflex) = gsub(colnames(toflex), pattern = " ", replacement = "") 
+        pvalcol = c('ME - Std','PD - Std','VDD - Std','PD - ME','VDD - ME','VDD - PD',
+                    'ME:NODxB6 - Std:NODxB6','PD:NODxB6 - Std:NODxB6','VDD:NODxB6 - Std:NODxB6','PD:NODxB6 - ME:NODxB6','VDD:NODxB6 - ME:NODxB6','VDD:NODxB6 - PD:NODxB6')
+        
+        pvalcol = gsub(pvalcol, pattern = " - ", replacement = "...")
+        pvalcol = gsub(pvalcol, pattern = ":", replacement = ".")
+        ##  colnames(toflex) = gsub(colnames(toflex), pattern = " ", replacement = "") 
     
     }
                 ## 'ME:NODxB6 - Std:NODxB6.qval.fdr','PD:NODxB6 - Std:NODxB6.qval.fdr','VDD:NODxB6 - Std:NODxB6.qval.fdr','PD:NODxB6 - ME:NODxB6.qval.fdr','VDD:NODxB6 - ME:NODxB6.qval.fdr','VDD:NODxB6 - PD:NODxB6.qval.fdr','pipeline.qval.fdr')
@@ -519,20 +519,34 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
     parsed = lapply(FUN = formulaWrapper$parseCovariateString, toflex$model)
     parsed = lapply(FUN = f, parsed)
     toflex$model = unlist(parsed)
+
+    tobold = pvalcol
+    if(mode==1)
+    {
+        tobold = c("strain.pval.qval.fdr", "diet.pval.qval.fdr", "strainByDiet.pval.qval.fdr")
+    }
     
     for(cname in pvalcol)
     {
-##        print(cname)
-        stars = gtools::stars.pval(toflex[[cname]])
-        stars[stars ==" "] = ""
+        ##        print(cname)
+        if(cname %in% tobold)
+        {
+            stars = util$stars.pval(toflex[[cname]], cutpoints = c(0, .001, .01, .05, .2,1))
+            stars[stars ==" "] = ""
+        }
+        
         toflex[[cname]] =  signif(toflex[[cname]], digits = sigfig)
-        toflex[[cname]] = paste0(toflex[[cname]], stars)
+        if(cname %in% tobold)
+        {
+            toflex[[cname]] = paste0(toflex[[cname]], stars)
+        }
         toflex[[cname]][toflex[[cname]]=="1"] = "<1"
     }
 
     formulaWrapper$parseCovariateString(toflex$model)
     
     mytab = regulartable(data=toflex)
+    mytab = theme_box(mytab)
     mytab = bold(mytab, part = "header")
     mytab = bold(mytab,    j = ~ pipeline)  
     mytab = align( mytab, align = "center", part = "all")
@@ -598,8 +612,8 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
 
 
 
-##    browser()
-    for(acol in pvalcol)
+    ##    browser()
+    for(acol in tobold)
     {
         astr = paste0("~grepl(",acol,", pattern = '\\\\*')")
         frm.i = as.formula(astr)
@@ -608,6 +622,18 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
         frm.j = as.formula(astr)
         mytab = bold(mytab, i = frm.i, j = frm.j)
     }
+
+    ##browser()
+    for(acol in tobold)
+    {
+        astr = paste0("~grepl(",acol,", pattern = '\\\\.$')")
+        frm.i = as.formula(astr)
+
+        astr = paste0("~", acol)
+        frm.j = as.formula(astr)
+        mytab = bold(mytab, i = frm.i, j = frm.j)
+    }
+
 
   ##  mytab = fontsize(mytab, size = 11)
     mytab = autofit(mytab, 0, 0)
