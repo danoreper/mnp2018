@@ -172,7 +172,8 @@ micro.report$reportAnalysis <- function(exp.mat,
                     toReport(largeness)
                 }
                 
-                cz  = c(setdiff(colnames(df), c("-log10.pval", "-log10.qval")), c("-log10.pval", "-log10.qval"))
+##                cz  = c(setdiff(colnames(df), c("-log10.pval", "-log10.qval")), c("-log10.pval", "-log10.qval"))
+                cz  = c(setdiff(colnames(df), c("-log10.pval")), c("-log10.pval"))
                 df = df[,cz, with=F]
 
                 toReport("#p-value table")
@@ -183,8 +184,9 @@ micro.report$reportAnalysis <- function(exp.mat,
                 write.table(file=pfile, df, row.names=FALSE, sep="\t")
 
                 
-                setnames(df, old = c("-log10.qval", "-log10.pval"), new = c("log10.qval", "log10.pval"))
-                theorder = c("gene_name", "chrom", "probesetStart", "Probe.Set.ID", "imprinted", "log10.pval", "log10.qval")
+                ##                setnames(df, old = c("-log10.qval", "-log10.pval"), new = c("log10.qval", "log10.pval"))
+                setnames(df, old = c("-log10.pval"), new = c("log10.pval"))
+                theorder = c("gene_name", "chrom", "probesetStart", "Probe.Set.ID", "imprinted", "log10.pval")
 
                 if(avar == "Diet")
                 {
@@ -199,13 +201,14 @@ micro.report$reportAnalysis <- function(exp.mat,
 
                 setcolorder(df, theorder)
                 
-                ## browser()
+                ##browser()
                 df$chrom = factor(df$chrom, levels = c(as.character(1:19), "X", "Y"))
                 setorder(df, "chrom", "probesetStart")
                 df$chrom = as.character(df$chrom)
 
                 
                 mytab = regulartable( data = df)
+                mytab = theme_box(mytab)
                 mytab = bold(mytab, part = "header")
                 mytab = align( mytab, align = "center", part = "all")
                 rep = list()
@@ -215,8 +218,8 @@ micro.report$reportAnalysis <- function(exp.mat,
                 rep[["Probe.Set.ID"]]  = "Probeset ID"
                 rep[["probesetStart"]] = "Probeset Location"
                 rep[["imprinted"]]     = "Imprinted"
-                rep[["log10.qval"]]    = "q value"
-                rep[["log10.pval"]]    = "p value"
+##                rep[["log10.qval"]]    = "q value"
+                rep[["log10.pval"]]    = "-log10(p-value)"
                 if(avar == "Diet")
                 {
                     rep[["methyl.rank"]] = "ME Group Rank"                
@@ -228,13 +231,13 @@ micro.report$reportAnalysis <- function(exp.mat,
                 mytab = do.call(set_header_labels, rep)
 
                 
-                rep[["x"]]             = mytab
-                rep[["log10.qval"]]    = "-log10"
-                rep[["log10.pval"]]    = "-log10"
-                mytab = do.call(add_header, rep)
+##                 rep[["x"]]             = mytab
+## ##                rep[["log10.qval"]]    = "-log10"
+##                 rep[["log10.pval"]]    = "-log10"
+##                 mytab = do.call(add_header, rep)
 
-                mytab = merge_h(mytab, part="header")
-                mytab = merge_v(mytab, part="header")
+##                mytab = merge_h(mytab, part="header")
+##                mytab = merge_v(mytab, part="header")
                 mytab <- italic(mytab, j = ~ gene_name, italic = TRUE)
                 mytab = autofit(mytab, 0, 0)
 
@@ -278,7 +281,8 @@ micro.report$reportAnalysis <- function(exp.mat,
 
             df1 = df
 ##            df1$Probe.Set.ID = NULL
-            cz  = c(setdiff(colnames(df1), c("-log10.pval", "-log10.qval")), c("-log10.pval", "-log10.qval"))
+            ##            cz  = c(setdiff(colnames(df1), c("-log10.pval", "-log10.qval")), c("-log10.pval", "-log10.qval"))
+            cz  = c(setdiff(colnames(df1), c("-log10.pval")), c("-log10.pval"))
             df1 = df1[,cz, with=F]
             if(!is.null(threshholds))
             {
@@ -336,8 +340,8 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
                     "minDistToImprinted",
                  ##   "imprintedMGI",
                  ##   "Crowley_Expressed.allele",
-                    "anova.p.value",
-                    "anova.q.value"
+                    "anova.p.value"
+##                    "anova.q.value"
                     )
 
 
@@ -398,7 +402,7 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
     }
     
     setorder(limitedTable, "chrom","probesetStart")
-    limitedTable$anova.q.value = sprintf( "%.1f",-log10(limitedTable$anova.q.value))
+##    limitedTable$anova.q.value = sprintf( "%.1f",-log10(limitedTable$anova.q.value))
     limitedTable$anova.p.value = sprintf("%.1f",-log10(limitedTable$anova.p.value))
     
     ## limitedTable$anova.q.value = -log10(limitedTable$anova.q.value)
@@ -408,8 +412,8 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
     ## limitedTable$anova.p.value = as.character(signif(limitedTable$anova.p.value, digits = 3))
     
     setnames(limitedTable,
-             old = c("anova.p.value","anova.q.value"),#, "imprintedMGI"),
-             new = c("-log10.pval", "-log10.qval"))#, "nearestImprinted"))
+             old = c("anova.p.value"),##,"anova.q.value"),#, "imprintedMGI"),
+             new = c("-log10.pval"))##, "-log10.qval"))#, "nearestImprinted"))
 
 
     print(paste0("done formatting ", variable))
@@ -425,7 +429,7 @@ micro.report$postProcessResults <- function(results,
 {
 
     print("starting post process!!!!")
-    
+    ##browser()
     ## avg level of expression of the B6.NOD vs Nod.B6 per probesetid     
     expressSummary = micro.report$.getExpressSummary(annot.data, cov.data)
     ## avg level of various diets per probeset id
@@ -487,7 +491,7 @@ micro.report$.writeLimitedCols <- function(sigpq, siglevel)
     ##TODO include a column for the effect size... after ive got residualized working
     limitedCols = c("variable",
                     "anova.p.value",
-                    "anova.q.value",
+##                    "anova.q.value",
                     "gene_id",
                     "gene_name",
                     "Probe.Set.ID",
