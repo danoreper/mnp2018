@@ -641,7 +641,7 @@ lm.parsing$.getLevz <- function(fit.with.interaction, var1)
 ##TODO, make this work for lme
 lm.parsing$form.interaction.contrast.mat <- function( fit.with.interaction, var1, var2)
 {
-
+    
     var1.levelz = lm.parsing$.getLevz(fit.with.interaction, var1)
     var2.levelz = lm.parsing$.getLevz(fit.with.interaction, var2)
 ##    var2.levelz = var2.levelz[-length(var2.levelz)]
@@ -699,10 +699,12 @@ lm.parsing$getAnovaWrapper <- function(fit, fit.null=NULL, type=1)
 {
     if(is.null(fit.null))
     {
-        if(class(fit) =="merModLmerTest")
+        if(class(fit) =="lmerModLmerTest")
         {
-            return(list(an = lmerTest::anova(fit, type=type),
+            ##browser()
+            return(list(an = anova(fit, type=type),
                         pvalueCol = "Pr(>F)"))
+            
         } else if(class(fit)=="lm")
         {
             return(list(an = stats::anova(fit),
@@ -728,7 +730,7 @@ lm.parsing$getAnovaWrapper <- function(fit, fit.null=NULL, type=1)
     ##     }
     ## }
     } else {
-        if(class(fit) =="merModLmerTest")
+        if(class(fit) =="lmerModLmerTest")
         {
             an = lmerTest::anova(fit, fit.null, type=type)
             return(list(an = an,
@@ -754,7 +756,7 @@ lm.parsing$getAnovaWrapper <- function(fit, fit.null=NULL, type=1)
 lm.parsing$getTsWrapper <- function(fit)
 {
 
-    if(class(fit) =="merModLmerTest")
+    if(class(fit) =="lmerModLmerTest")
     {
         return(list(
             ts        = coefficients(summary(fit)),
