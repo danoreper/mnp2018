@@ -8,6 +8,15 @@ util$save <- function(list, file)
     save(list = list, file = file)
 }
 
+util$stars.pval <- function(p.value,
+                            cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+                            symbols = c("***", "**", "*", "\u2020", " "))
+{
+    unclass(symnum(p.value, corr = FALSE, na = FALSE,
+                   cutpoints = cutpoints,
+                   symbols = symbols))
+}
+
 ##NB the append function seems to do wierd things when additional is a dataframe.
 util$appendToList <- function(existingList, additional)
 {
