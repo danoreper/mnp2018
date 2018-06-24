@@ -451,15 +451,17 @@ plotting$plotPermScan <- function(full,
             xoffset = 60000000/8.5 * figwid
             textmult = 5.5##3.5
 
-            y.breaks = c(lower.bound,2, seq(6, max(max(allpoints$y),8), by = 2))
+            
+            y.breaks = c(lower.bound,2, seq(4, max(max(allpoints$y),8), by = 2))
             y.labels = as.character(y.breaks)
 
+            print("tried to comment out")
             ##include? or comment out?
-            y.breaks = c(y.breaks, -log10(p.thresh.for.q))
-            y.labels = c(y.labels, "")
+##            y.breaks = c(y.breaks, -log10(p.thresh.for.q))
+##            y.labels = c(y.labels, "")
 
             y.breaks = c(y.breaks, -log10(thresh.alpha.gev))
-            y.labels = c(y.labels, "")
+            y.labels = c(y.labels, sprintf("%.1f", -log10(thresh.alpha.gev)))
 
             
             aplot = ggplot(belowThresh, aes(color = as.factor(as.integer(chrom)%%2)))
@@ -470,15 +472,15 @@ plotting$plotPermScan <- function(full,
             aplot = aplot + scale_shape_manual(labels = c("B6xNOD > NODxB6"," NODxB6 > B6xNOD"), values = c(1,15), guide = guide_legend(title=""))
 
             
-            aplot = aplot + annotation_custom(textGrob(sprintf("%.1f", -log10(p.thresh.for.q)), gp = gpar(col = "black")), 
-                                              xmin=-xoffset, xmax=-xoffset,
-                                              ymin=-log10(p.thresh.for.q)-.25,
-                                              ymax=-log10(p.thresh.for.q)-.25)
+            ## aplot = aplot + annotation_custom(textGrob(sprintf("%.1f", -log10(p.thresh.for.q)), gp = gpar(col = "black")), 
+            ##                                   xmin=-xoffset, xmax=-xoffset,
+            ##                                   ymin=-log10(p.thresh.for.q)-.25,
+            ##                                   ymax=-log10(p.thresh.for.q)-.25)
 
-            aplot = aplot + annotation_custom(textGrob(sprintf("%.1f", -log10(thresh.alpha.gev)), gp = gpar(col = "black")), 
-                                              xmin=-xoffset, xmax=-xoffset,
-                                              ymin=-log10(thresh.alpha.gev)+.25,
-                                              ymax=-log10(thresh.alpha.gev)+.25)
+            ## aplot = aplot + annotation_custom(textGrob(sprintf("%.1f", -log10(thresh.alpha.gev)), gp = gpar(col = "black")), 
+            ##                                   xmin=-xoffset, xmax=-xoffset,
+            ##                                   ymin=-log10(thresh.alpha.gev)+.25,
+            ##                                   ymax=-log10(thresh.alpha.gev)+.25)
             
             ##aplot = aplot + guides(shape =F)
 
@@ -509,8 +511,8 @@ plotting$plotPermScan <- function(full,
             y.breaks = default.y.breaks
             y.labels = default.y.labels
 
-            y.breaks = c(y.breaks, -log10(p.thresh.for.q))
-            y.labels = c(y.labels, sprintf("%.1f", -log10(p.thresh.for.q)))
+            ## y.breaks = c(y.breaks, -log10(p.thresh.for.q))
+            ## y.labels = c(y.labels, sprintf("%.1f", -log10(p.thresh.for.q)))
 
             if(modetype == 2)
             {
@@ -613,8 +615,9 @@ plotting$plotPermScan <- function(full,
             y.breaks = default.y.breaks
             y.labels = default.y.labels
 
-            y.breaks = c(y.breaks, -log10(p.thresh.for.q))
-            y.labels = c(y.labels, sprintf("%.1f", -log10(p.thresh.for.q)))
+            ## y.breaks = c(y.breaks, -log10(p.thresh.for.q))#Generate plots for microarray analysis
+
+            ## y.labels = c(y.labels, sprintf("%.1f", -log10(p.thresh.for.q)))
             
             y.breaks = c(y.breaks, -log10(thresh.alpha.gev))
             y.labels = c(y.labels, sprintf("%.1f", -log10(thresh.alpha.gev)))
@@ -639,6 +642,7 @@ plotting$plotPermScan <- function(full,
             ## aboveThresh[Probe.Set.ID == "10384579"]$offset.y = +.06
 
             ## aboveThresh[Probe.Set.ID == "10407907"]$offset.y = +.065
+
 
 
             ## aboveThresh[Probe.Set.ID == "10434285"]$offset.y = +.025
@@ -670,7 +674,7 @@ plotting$plotPermScan <- function(full,
         
         
         
-        aplot = aplot + geom_hline(yintercept=-log10(p.thresh.for.q), linetype="longdash")
+        aplot = aplot + geom_hline(yintercept=-log10(p.thresh.for.q), linetype="blank")
 ##        aplot = aplot + geom_hline(yintercept=-log10(p.thresh.for.BY), linetype="longdash", color = "green")
 
         
@@ -775,8 +779,8 @@ plotting$plotPermScan <- function(full,
             titl = "Parent-of-origin"
         }
         
-        
         aplot = aplot + ggtitle(titl)
+##        aplot = aplot + theme(plot.title = element_text(hjust = 0.5))
         aplot = aplot + xlab("chromosome")
         aplot = aplot + ylab(ylab.str)
         aplot = aplot + theme(panel.grid.minor.x = element_blank())
