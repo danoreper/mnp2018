@@ -237,6 +237,7 @@ micro.analysis$runallPerms <- function(inp)
     print("got surrogateVariables")
     modelParser              = lm.parsing$getHeavySingleParser(include.resid = F,
                                                                mainEffectContrasts  = micro.analysis$getMainEffectContrasts(),
+                                                               interactionContrasts = micro.analysis$getInteractionContrasts(),
                                                                medianAdjust.p.value = prop$mnp$medianAdjust.p.values)
     
     
