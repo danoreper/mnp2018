@@ -267,7 +267,7 @@ lm.parsing$parseModelFit <- function(fullfit,
         var1 = interactionContrasts[[i]][1]
         var2 = interactionContrasts[[i]][2]
 
-        browser()
+        ##browser()
         fit.with.interaction = fullfit$fit
         contrast.mat = lm.parsing$form.interaction.contrast.mat(fit.with.interaction, var1, var2)
         glht.out = glht(fit.with.interaction, linfct = contrast.mat)
