@@ -129,6 +129,12 @@ micro.analysis$getMainEffectContrasts <- function()
     return(c("Diet"))
 }
 
+micro.analysis$getInteractionContrasts <- function()
+{
+    return(list(c("Diet","Strain")))
+}
+
+
 ##TODO use this in surrogatcalc
 micro.analysis$getBestParArgs <- function(batchSize=1, mem.gb = 22, timeLimit.hours = 23)
 {
@@ -165,6 +171,7 @@ micro.analysis$run.noperm <- function(inp)
     residualizeOutCovariates = micro.analysis$getResidualizeOutCovariates()
     modelParser              = lm.parsing$getHeavySingleParser(include.resid = F,
                                                                mainEffectContrasts  = micro.analysis$getMainEffectContrasts(),
+                                                               interactionContrasts = micro.analysis$getInteractionContrasts(),
                                                                medianAdjust.p.value = prop$mnp$medianAdjust.p.values)
         
     strategy = fit.modelg$getDefaultModelStrategy(anovaComparison = !is.null(nullModelString), prefer.lme = T) 
