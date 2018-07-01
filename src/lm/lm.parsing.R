@@ -9,6 +9,7 @@ lm.parsing = new.env(hash=T)
 
 lm.parsing$getHeavySingleParser <- function(include.resid = F,
                                             mainEffectContrasts = c(),
+                                            interactionContrasts = list(),
                                             varianceComputerList = lm.parsing$getDefaultVarianceComputer(),
                                             medianAdjust.p.value = T,
                                             computeFDR = T)
@@ -26,6 +27,7 @@ lm.parsing$getHeavySingleParser <- function(include.resid = F,
         out = try(lm.parsing$parseModelFit(fit,
                                        include.resid = include.resid,
                                        mainEffectContrasts = mainEffectContrasts,
+                                       interactionContrasts = interactionContrasts,
                                        varianceComputerList = varianceComputerList))
         if(class(out)=="try-error")
         {
@@ -33,6 +35,7 @@ lm.parsing$getHeavySingleParser <- function(include.resid = F,
             lm.parsing$parseModelFit(fit,
                                      include.resid = include.resid,
                                      mainEffectContrasts = mainEffectContrasts,
+                                     interactionContrasts = interactionContrasts,
                                      varianceComputerList = varianceComputerList)
             
         }
@@ -188,6 +191,7 @@ lm.parsing$getFullDoubleParser <- function(includeData =F)
 lm.parsing$parseModelFit <- function(fullfit,
                                      include.resid = F,
                                      mainEffectContrasts=c(),
+                                     interactionContrasts = list(),
                                      varianceComputerList=lm.parsing$getDefaultVarianceComputer())
 {
     per.probe    = data.frame(lambda = fullfit$lambda)
@@ -258,13 +262,25 @@ lm.parsing$parseModelFit <- function(fullfit,
     ##TODO bring this back
     ##Refactor into a method.
     ## TODO reimplement strain-by-diet contrasts
-    ## var1 = "Diet"
-    ## var2 = "Sire.is.b6"
-    ## contrast.mat = lm.parsing$form.interaction.contrast.mat(fit.with.interaction, var1, var2)
-    ## glht.out = glht(fit.with.interaction, linfct = contrast.mat)
-    ## tukeyDietByStrains =  summary(glht.out)$test$pvalues
-    ## names(tukeyDietByStrains) = names(((summary(glht.out))$test)$coefficients)
-    ## tukeyDietByStrains = data.frame(as.list(tukeyDietByStrains))
+    for(i in 1:length(interactionContrasts))
+    {
+        var1 = interactionContrasts[[i]][1]
+        var2 = interactionContrasts[[i]][2]
+
+        browser()
+        fit.with.interaction = fullfit$fit
+        contrast.mat = lm.parsing$form.interaction.contrast.mat(fit.with.interaction, var1, var2)
+        glht.out = glht(fit.with.interaction, linfct = contrast.mat)
+        tukeyDietByStrains =  (summary(glht.out)$test$pvalues)
+        names(tukeyDietByStrains) = names(((summary(glht.out))$test)$coefficients)
+        
+        names(tukeyDietByStrains) = gsub(names(tukeyDietByStrains), pattern = var2, replacement = "")
+        names(tukeyDietByStrains) = gsub(names(tukeyDietByStrains), pattern = var1, replacement = "")
+        tukeyDietByStrains = data.frame(as.list(tukeyDietByStrains), check.names = T)
+        ## varExp = lm.parsing$varexp(fit.with.interaction)
+        ## varExp = var(varExp$components)/var(as.vector(varExp$response))
+        per.probe = cbind(per.probe, tukeyDietByStrains)
+    }
 
     ##clean up column names
     for(fram in list(per.variable, per.level))
@@ -621,9 +637,16 @@ lm.parsing$lmer.vartable <- function(fit.lmer, pctvar=TRUE)
 
 lm.parsing$.getLevz <- function(fit.with.interaction, var1)
 {
+    if(class(fit.with.interaction)=="lme")
+    {
+        adat = fit.with.interaction$data   
+    } else {
+        adat = attr(fit.with.interaction, "frame")
+    }
+    
     var1.levelz = var1
-    acol = attr(fit.with.interaction, "frame")[[var1]]
-
+    acol = adat[[var1]]
+    
     if(is.factor(acol[1]))
     {
         var1.levelz = paste0(var1, levels(factor(acol)))
@@ -641,7 +664,8 @@ lm.parsing$.getLevz <- function(fit.with.interaction, var1)
 ##TODO, make this work for lme
 lm.parsing$form.interaction.contrast.mat <- function( fit.with.interaction, var1, var2)
 {
-    
+
+    ##browser()
     var1.levelz = lm.parsing$.getLevz(fit.with.interaction, var1)
     var2.levelz = lm.parsing$.getLevz(fit.with.interaction, var2)
 ##    var2.levelz = var2.levelz[-length(var2.levelz)]
