@@ -14,6 +14,32 @@ micro.report$reportAnalysis <- function(exp.mat,
                                         threshholds,
                                         karyo)
 {
+    browser()
+
+    d.contrast =
+        c("Probe.Set.ID",
+          "ME.vs.Std.p.value",      
+          "PD.vs.Std.p.value",      
+          "VDD.vs.Std.p.value",     
+          "PD.vs.ME.p.value",
+          "VDD.vs.ME.p.value",
+          "VDD.vs.PD.p.value")
+
+    
+    df.d.contrast = originalResults$per.probe[,d.contrast, with=F]
+    df.d.contrast$gene_name = probesetInfo$gene_name[match(df.d.contrast$Probe.Set.ID, probesetInfo$Probe.Set.ID)]
+    
+    d.by.s.contrast = c("Probe.Set.ID",
+                        "ME.NOD.B6...Std.NOD.B6",
+                        "PD.NOD.B6...Std.NOD.B6",   
+                        "VDD.NOD.B6...Std.NOD.B6",  
+                        "PD.NOD.B6...ME.NOD.B6",    
+                        "VDD.NOD.B6...ME.NOD.B6", 
+                        "VDD.NOD.B6...PD.NOD.B6")
+    df.d.by.s.contrast = originalResults$per.probe[,d.contrast, with=F]
+    df.d.by.s.contrast$gene_name = probesetInfo$gene_name[match(df.d.by.s.contrast$Probe.Set.ID, probesetInfo$Probe.Set.ID)]
+
+    
     reportDir = outm("micro")
     dir.create(reportDir, showWarnings = F)
 
@@ -188,7 +214,8 @@ micro.report$reportAnalysis <- function(exp.mat,
                 setnames(df, old = c("-log10.pval"), new = c("log10.pval"))
                 theorder = c("gene_name", "chrom", "probesetStart", "Probe.Set.ID", "imprinted", "log10.pval")
 
-                if(avar == "Diet")
+                browser()
+                if(avar %in% c("Diet", "Diet:Strain"))
                 {
                     theorder = util$insertAtIndex(theorder, index = 5, elem = "methyl.rank")
                     df$methyl.rank = as.character(df$methyl.rank)
@@ -246,7 +273,7 @@ micro.report$reportAnalysis <- function(exp.mat,
                     newlen = dim(mytab)$widths["larger.expression"]
                     mytab = flextable::width(mytab, j = ~ larger.expression, width = newlen/2)
                 }
-                if(avar=="Diet")
+                if(avar %in% c("Diet", "Diet:Strain"))
                 {
                     newlen = dim(mytab)$widths["methyl.rank"]
                     mytab = flextable::width(mytab, j = ~ methyl.rank, width = newlen/2)
@@ -359,7 +386,8 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
     {
         print("evaluating diet")
 
-    
+        browser()
+        
         v1 = per.level[variable.level=="DietME", j = list(level1 = coef.Value, Probe.Set.ID)]
         v2 = per.level[variable.level=="DietVDD",    j = list(level1 = coef.Value, Probe.Set.ID)]
         v3 = per.level[variable.level=="DietPD",     j = list(level1 = coef.Value, Probe.Set.ID)]
@@ -371,6 +399,33 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
 
         methsuff.colz  = c("ME.vs.Std.p.value",  "PD.vs.ME.p.value",  "VDD.vs.ME.p.value")
         otherdiet.colz = c("VDD.vs.Std.p.value", "VDD.vs.PD.p.value", "PD.vs.Std.p.value")
+
+##        table(rowSums((subd[,methsuff.colz, with = F]<=alphalevel)))
+##        table(rowSums((subd[,otherdiet.colz, with = F]<=alphalevel)))
+
+        alphalevel = .05
+        ## sigpq$significant.methyl.contrasts     = rowSums((sigpq[,methsuff.colz, with = F]<=alphalevel))
+        ## sigpq$significant.non.methyl.contrasts = rowSums((sigpq[,otherdiet.colz, with = F]<=alphalevel))
+        
+        sigpq = justvar[sigpq]
+        limitedCols = c(limitedCols, c("methyl.rank"))#, "significant.methyl.contrasts", "significant.non.methyl.contrasts"))
+    } else if (variable == "Diet:Strain")
+    {
+        print("evaluating diet:strain")
+
+        browser()
+        
+        v1 = per.level[variable.level=="DietME:StrainNOD.B6",  j = list(level1 = coef.Value, Probe.Set.ID)]
+        v2 = per.level[variable.level=="DietVDD:StrainNOD.B6", j = list(level1 = coef.Value, Probe.Set.ID)]
+        v3 = per.level[variable.level=="DietPD:StrainNOD.B6",  j = list(level1 = coef.Value, Probe.Set.ID)]
+
+        justvar = data.table(Probe.Set.ID = v1$Probe.Set.ID,
+                             methyl.rank = 4 - ((v1$level1>0)*1 + ((v1$level1 - v2$level1)>0)*1 + ((v1$level1 - v3$level1)>0)*1))
+                
+        setkey(justvar, "Probe.Set.ID")
+
+        ## methsuff.colz  = c("ME.vs.Std.p.value",  "PD.vs.ME.p.value",  "VDD.vs.ME.p.value")
+        ## otherdiet.colz = c("VDD.vs.Std.p.value", "VDD.vs.PD.p.value", "PD.vs.Std.p.value")
 
 ##        table(rowSums((subd[,methsuff.colz, with = F]<=alphalevel)))
 ##        table(rowSums((subd[,otherdiet.colz, with = F]<=alphalevel)))
