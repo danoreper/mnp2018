@@ -22,13 +22,15 @@ fit.modelg$fit.single <- function(y,
     cov.data[["y"]]=y
 
 
+    ##undebug(fit.modelg$.fit)
     fit = fit.modelg$.fit(pheno = "y",
                           covariateModelString = covariateModelString,
                           cov.data = cov.data,
                           checkAnova = checkAnova,
                           strategy = strategy)
 
-    normality.pval = NULL
+##    browser()
+    
     if(checkNormality)
     {
         noiseVector = lm.parsing$getNoiseVector(fit$fit, gurka=gurka)
