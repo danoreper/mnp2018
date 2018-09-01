@@ -14,7 +14,7 @@ micro.report$reportAnalysis <- function(exp.mat,
                                         threshholds,
                                         karyo)
 {
-    browser()
+    ##browser()
 
     d.contrast =
         c("Probe.Set.ID",
@@ -214,7 +214,6 @@ micro.report$reportAnalysis <- function(exp.mat,
                 setnames(df, old = c("-log10.pval"), new = c("log10.pval"))
                 theorder = c("gene_name", "chrom", "probesetStart", "Probe.Set.ID", "imprinted", "log10.pval")
 
-                browser()
                 if(avar %in% c("Diet", "Diet:Strain"))
                 {
                     theorder = util$insertAtIndex(theorder, index = 5, elem = "methyl.rank")
@@ -247,7 +246,7 @@ micro.report$reportAnalysis <- function(exp.mat,
                 rep[["imprinted"]]     = "Imprinted"
 ##                rep[["log10.qval"]]    = "q value"
                 rep[["log10.pval"]]    = "-log10(p-value)"
-                if(avar == "Diet")
+                if(avar %in% c("Diet", "Diet:Strain"))
                 {
                     rep[["methyl.rank"]] = "ME Group Rank"                
                 }
@@ -386,8 +385,6 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
     {
         print("evaluating diet")
 
-        browser()
-        
         v1 = per.level[variable.level=="DietME", j = list(level1 = coef.Value, Probe.Set.ID)]
         v2 = per.level[variable.level=="DietVDD",    j = list(level1 = coef.Value, Probe.Set.ID)]
         v3 = per.level[variable.level=="DietPD",     j = list(level1 = coef.Value, Probe.Set.ID)]
@@ -413,8 +410,7 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
     {
         print("evaluating diet:strain")
 
-        browser()
-        
+                
         v1 = per.level[variable.level=="DietME:StrainNOD.B6",  j = list(level1 = coef.Value, Probe.Set.ID)]
         v2 = per.level[variable.level=="DietVDD:StrainNOD.B6", j = list(level1 = coef.Value, Probe.Set.ID)]
         v3 = per.level[variable.level=="DietPD:StrainNOD.B6",  j = list(level1 = coef.Value, Probe.Set.ID)]
@@ -424,8 +420,8 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
                 
         setkey(justvar, "Probe.Set.ID")
 
-        ## methsuff.colz  = c("ME.vs.Std.p.value",  "PD.vs.ME.p.value",  "VDD.vs.ME.p.value")
-        ## otherdiet.colz = c("VDD.vs.Std.p.value", "VDD.vs.PD.p.value", "PD.vs.Std.p.value")
+        ## methsuff.colz  = c("ME.vs.Ctl.p.value",  "PD.vs.ME.p.value",  "VDD.vs.ME.p.value")
+        ## otherdiet.colz = c("VDD.vs.Ctl.p.value", "VDD.vs.PD.p.value", "PD.vs.Ctl.p.value")
 
 ##        table(rowSums((subd[,methsuff.colz, with = F]<=alphalevel)))
 ##        table(rowSums((subd[,otherdiet.colz, with = F]<=alphalevel)))
