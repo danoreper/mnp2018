@@ -5,6 +5,7 @@ source("./mnp/micro/preprocess/evalprobes2.R")
 library(ggplot2)
 
 qpcr.analysis = new.env(hash=T)
+outdir = outm("qPCR")
 
 ## reportDir = outm("report")
 ## dir.create(reportDir, showWarnings = F)
@@ -81,6 +82,12 @@ qpcr.analysis$run <- function(inp)
                                                     phen=phen,
                                                     m.string=m.string))
 
+                tofile = regressData[,c("ID", "goi.taq", "control.taq", "Delta.Ct", "Plate", "Strain", "Batch", "Pipeline", "Diet", "Strain", "Dam.ID")]
+                tofile$y.transformed = m$y.transformed
+                dir.create(fp(outdir,"zenodo"), showWarnings=F)
+                afile = fp(outdir, "zenodo", paste(assay, regtype, phen, "txt", sep="."))
+                fwrite(file = afile, tofile)
+                
                 if(assay == "Carmil1")
                 {
                     p.val = m$anovaWrapper$an["Strain", m$anovaWrapper$pvalueCol]
@@ -155,7 +162,7 @@ qpcr.analysis$run <- function(inp)
     toflex[assay =="Meg3"]$Effect    = "DietxPOE on Meg3"
     toflex = toflex[,c("Effect", "dataset", "n.pups", "pvalue")]
     
-    browser()
+    
     mytab = regulartable(data = toflex)
     mytab = bold(mytab, part = "header")
     mytab = align( mytab, align = "center", part = "all")
@@ -170,7 +177,7 @@ qpcr.analysis$run <- function(inp)
 
     doc = read_docx(fp("./mnp/template.docx"))
     doc = body_add_flextable(doc, mytab)
-    print(doc, target = fp(outdir, paste0("qPCR/qpcr.docx")))
+    print(doc, target = fp(outdir, paste0("qpcr.docx")))
     
     return(resultsAll)
 }
