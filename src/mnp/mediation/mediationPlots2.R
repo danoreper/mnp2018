@@ -220,7 +220,7 @@ writeSig <- function(df.m, outcome.type)
     rep[["p.value.cprime"]]="CTP"
     rep[["suppressor"]]="Suppressor"
     if(outcome.type=="behavior"){rep[["outcome"]] = "Behavior"}
-
+    
     mytab = do.call(set_header_labels, rep)
     mytab = autofit(mytab, 0, 0)
 
