@@ -5,8 +5,8 @@ loadBehavior = new.env(hash = T)
 
 datp <- function(...)
 {
-    dat("mnp/phenotypes", ...)
-##    fp(newdat, ...)
+##    dat("mnp/phenotypes", ...)
+    fp(prop$output, "newdat/mnp/phenotypes", ...)
 }
 
 loadBehavior$getPhenotypeRepository <- function()
