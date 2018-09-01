@@ -45,6 +45,8 @@ run <- function()
     source("./mnp/micro/report.R")
     source("./mnp/qpcr/analysis.R")
 
+    ## qpcr.analysis$run(inp)
+
     micro.report$reportAnalysis(inp$exp.mat,
                             inp$cov.data.full,
                             out$ident.full$results,
@@ -53,6 +55,7 @@ run <- function()
                             inp$probesetInfo,
                             out$threshholds,
                             inp$karyo)
+
     
     ## phenz = loadBehavior$getPhenotypeRepository();
     ## beh.analysis$runAll(phenz)
