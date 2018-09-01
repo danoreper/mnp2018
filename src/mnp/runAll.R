@@ -70,8 +70,6 @@ qpcr.analysis$run(inp)
 ##Run behavior analysis
 beh.analysis$runAll(inp$phens)
 
-
-
 print("done with behavior")
 
 ##Run mediation analysis.
