@@ -88,7 +88,7 @@ plotting$pcaExpression <- function(exp.mat, cov.data, output)
     fullthing = cbind(cov.data, pcRes$x)
     fullthing$label = as.character(fullthing$Diet)
     fullthing$label[as.character(fullthing$label)=="PD"]  = "p"
-    fullthing$label[as.character(fullthing$label)=="Std"] = "s"
+    fullthing$label[as.character(fullthing$label)=="Ctl"] = "c"
     fullthing$label[as.character(fullthing$label)=="VDD"] = "d"
     fullthing$label[as.character(fullthing$label)=="ME"]  = "m"
     
@@ -376,8 +376,18 @@ plotting$plotPermScan <- function(full,
         if(vartype=="Diet:Strain")
         {
             ##TODO: implement properly when strain by diet contrast tests implemented.
-            justvar = per.level[variable.level=="StrainNOD.B6", j=list(level1 = coef.Value, Probe.Set.ID)]
+            ## justvar = per.level[variable.level=="StrainNOD.B6", j=list(level1 = coef.Value, Probe.Set.ID)]
+            ## setkey(justvar, "Probe.Set.ID")
+            v1 = per.level[variable.level=="DietME:StrainNOD.B6", j = list(level1 = coef.Value, Probe.Set.ID)]
+            v2 = per.level[variable.level=="DietVDD:StrainNOD.B6",    j = list(level1 = coef.Value, Probe.Set.ID)]
+            v3 = per.level[variable.level=="DietPD:StrainNOD.B6",     j = list(level1 = coef.Value, Probe.Set.ID)]
+
+            justvar = data.table(Probe.Set.ID = v1$Probe.Set.ID,
+                                 methyl.more = (v1$level1>0)*1 + ((v1$level1 - v2$level1)>0)*1 + ((v1$level1 - v3$level1)>0)*1,
+                                 methyl.less = (v1$level1<0)*1 + ((v1$level1 - v2$level1)<0)*1 + ((v1$level1 - v3$level1)<0)*1)
+                
             setkey(justvar, "Probe.Set.ID")
+
         }
 
         allpoints        = justvar[subd.n.mids$subd]
@@ -401,11 +411,15 @@ plotting$plotPermScan <- function(full,
                 if(vartype != "Diet:Strain")
                 {
                     aboveThresh      = allpoints[allpoints$y>-log10(thresh.alpha.gev),]
+
                 } else {
                     aboveThresh      = allpoints[allpoints$y>-log10(thresh.alpha.gev)
                                                  |allpoints$gene_name=="Meg3",]
+                    ## belowThresh      = allpoints[allpoints$y<=-log10(thresh.alpha.gev)
+                    ##                              &allpoints$gene_name!="Meg3",]                    
                 }
                 belowThresh      = allpoints[allpoints$y<=-log10(thresh.alpha.gev),]
+
 
             }
 
@@ -559,7 +573,7 @@ plotting$plotPermScan <- function(full,
                     aboveThresh[Probe.Set.ID == "10360806"]$offset.y = -.05
 ##                    aboveThresh[Probe.Set.ID == "10485514"]$offset.y = +.02
 
-
+                    
                     aboveThresh[grepl(gene_name, pattern = "Rif1")]$offset.x =  -2*20000000
                     aboveThresh[grepl(gene_name, pattern = "Rif1")]$offset.y = .06
                     
@@ -623,9 +637,24 @@ plotting$plotPermScan <- function(full,
             y.labels = c(y.labels, sprintf("%.1f", -log10(thresh.alpha.gev)))
 
             textmult = 3.5##3.5
-            aplot = ggplot(allpoints, aes(color = as.factor(as.integer(chrom)%%2)))
+            aplot = ggplot(belowThresh, aes(color = as.factor(as.integer(chrom)%%2)))
+##            aplot = ggplot(belowThresh, aes(color = as.factor(as.integer(chrom)%%2)))
             aplot = aplot + geom_point(aes_string(x=xVar, y=yVar), size=2*sz)
+
             
+
+            aboveThresh$methyl.more = as.character(aboveThresh$methyl.more)
+            if(any(aboveThresh$methyl.more %in% c(1,2)))
+            {
+                aboveThresh$methyl.more[aboveThresh$methyl.more %in% c("1","2")] = "neither"
+                aboveThresh$methyl.more = factor(aboveThresh$methyl.more, c("0", "3", "neither"))
+                shapes = c(6,17,3)
+                shapeLabels = c("Methyl < every other diet", "Methyl > every other diet", "Neither True")
+            } else {
+                aboveThresh$methyl.more = factor(aboveThresh$methyl.more, c("0", "3"))
+                shapes = c(6,17)
+                shapeLabels = c("Methyl < every other diet", "Methyl > every other diet")
+            }
 
             
             aboveThresh$offset.x = 0
@@ -691,7 +720,22 @@ plotting$plotPermScan <- function(full,
                                            label = labz),
                                        fontface = "italic",
                                        size=textmult*sz, hjust = 0)
+
+
         }
+
+        if(vartype=="Diet:Strain")
+        {
+
+            ##browser()
+            aplot = aplot + geom_point(data = aboveThresh, aes(x=x.man, y=y, shape = methyl.more), size=sz*2.0)
+            aplot = aplot + scale_shape_manual(values = shapes,
+                                               labels = shapeLabels,
+                                               guide = guide_legend(title ="", reverse = T))
+
+            
+        }
+
         ## else {
         ##     aplot = aplot +  geom_text_repel(data = aboveThresh,
         ##                                      aes(x= x.man, y=y, label=labz),
@@ -765,6 +809,12 @@ plotting$plotPermScan <- function(full,
         aplot = aplot + theme(legend.text = element_text(size = 12))
         aplot = aplot + theme(legend.title=element_blank())
 
+        if(vartype=="Diet:Strain")
+        {
+##            aplot = aplot + theme(legend.text = element_text(size = 7))
+            ##          aplot = aplot + theme(legend.position=c(.7,1.02))
+            aplot = aplot + theme(legend.position=c(.7,.25))
+        }
 
         
 ##        aplot = aplot + theme_bw()
