@@ -42,6 +42,9 @@ beh.analysis$runAll <- function(phens)
 
 beh.analysis$run = function(phen, geneExp = NULL)
 {
+    writefold = outm("behavior", "zenodo")
+    dir.create(writefold, recursive = T, showWarnings = F)
+    
     startlechoice = "Average"
     thename = "nogene"
     if(!is.null(geneExp))
@@ -60,9 +63,13 @@ beh.analysis$run = function(phen, geneExp = NULL)
     
     covariates = " ~ 1 +  as.factor(Batch)  + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID)"
     dataSet = phen$getExperiment(anexpType)
-
-    df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-            
+    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
+    df = rbind(df, out$results)
+    tofile    = cbind(phen$getExperiment(anexpType, useBreedLog=F), out$y.transformed)
+    writefile = fp(writefold, paste0(anexpType, ".txt")) 
+    fwrite(tofile, file=writefile)
+        
+    
     allPhenNames = c("totdist", 
                      "pctctr",
                      "avgvel",
@@ -73,9 +80,13 @@ beh.analysis$run = function(phen, geneExp = NULL)
     covariates = " ~ 1 +  as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
     anexpType  =  "openfield"
     dataSet = phen$getExperiment(anexpType)
-    df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-##beh.analysis$.plotPhens(allPhenNames = allPhenNames, anexpType = anexpType, dataSet = dataSet, prefix = thename)
-
+    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
+    df = rbind(df, out$results)
+    tofile    = cbind(phen$getExperiment(anexpType, useBreedLog=F), out$y.transformed)
+    writefile = fp(writefold, paste0(anexpType, ".txt")) 
+    fwrite(tofile, file=writefile)
+    
+    
     allPhenNames = c("D3.less.D2",
         "dist_d1",
         "dist_d2",
@@ -85,53 +96,70 @@ beh.analysis$run = function(phen, geneExp = NULL)
     anexpType  = "cocaine"
 
     dataSet = phen$getExperiment(anexpType)
-    df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-
+    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
+    df = rbind(df, out$results)
+    tofile    = cbind(phen$getExperiment(anexpType, useBreedLog=F), out$y.transformed)
+    writefile = fp(writefold, paste0(anexpType, ".txt")) 
+    fwrite(tofile, file=writefile)
     
+    
+   
     allPhenNames = c("Ten.min", "baseline", "Ten.min.less.baseline")
     covariates   = " ~ 1 +  as.factor(Batch) + Order + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
     anexpType    = "cort"
     dataSet      = phen$getExperiment(anexpType)
 
-    mdl = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
-    df = rbind(df, mdl)
-
+    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
+    df = rbind(df, out$results)
+    tofile    = cbind(phen$getExperiment(anexpType, useBreedLog=F), out$y.transformed)
+    writefile = fp(writefold, paste0(anexpType, ".txt")) 
+    fwrite(tofile, file=writefile)
+    
     
     allPhenNames = c("PctFreeze.120.less.240sec")
     covariates   = " ~ 1 +  as.factor(Batch) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
     anexpType    = "tail"
 
     dataSet      = phen$getExperiment(anexpType)
-    df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-
+    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
+    df = rbind(df, out$results)
+    tofile    = cbind(phen$getExperiment(anexpType, useBreedLog=F), out$y.transformed)
+    writefile = fp(writefold, paste0(anexpType, ".txt")) 
+    fwrite(tofile, file=writefile)
+    
     
     allPhenNames = c("pctimmob")
     covariates   = " ~ 1 +  as.factor(Batch) + as.factor(Arena) + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
     anexpType    = "swim"
     dataSet      = phen$getExperiment(anexpType)
-    df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-
+    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
+    df = rbind(df, out$results)
+    tofile    = cbind(phen$getExperiment(anexpType, useBreedLog=F), out$y.transformed)
+    writefile = fp(writefold, paste0(anexpType, ".txt")) 
+    fwrite(tofile, file=writefile)
+    
     
     allPhenNames = c("temp.1","temp.2","Difference")
     covariates   = "~ 1 +  as.factor(Batch) + Order + Diet   + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID)"
     anexpType    = "SIH"
     dataSet      = phen$getExperiment(anexpType)
-    df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
-
+    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
+    df = rbind(df, out$results)
+    tofile    = cbind(phen$getExperiment(anexpType, useBreedLog=F), out$y.transformed)
+    writefile = fp(writefold, paste0(anexpType, ".txt")) 
+    fwrite(tofile, file=writefile)
+    
     
     allPhenNames = c("PctStranger", "TRANSTOTAL")
     covariates   = " ~ 1 +  as.factor(Batch) + Box.Stranger + Diet + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
     anexpType    = "sociability" 
     dataSet      = phen$getExperiment(anexpType)
-    out =  beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
-    df = rbind(df, out)
-
+    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
+    df = rbind(df, out$results)
+    tofile    = cbind(phen$getExperiment(anexpType, useBreedLog=F), out$y.transformed)
+    writefile = fp(writefold, paste0(anexpType, ".txt")) 
+    fwrite(tofile, file=writefile)
     
-    ## allPhenNames = startlechoice
-    ## covariates   = " ~ 1 + as.factor(Batch) + Group  + Diet + Sire.is.b6  + Group:Sire.is.b6+ Diet:Sire.is.b6 + (1|Chamber) + (1 | Dam.ID) +(1|ID) "
-    ## anexpType    = "startle"
-    ## dataSet      = phen$getExperiment(anexpType)
-    ## df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
 
     
     allPhenNames = c( "as50.Average_normalized",
@@ -141,8 +169,15 @@ beh.analysis$run = function(phen, geneExp = NULL)
     anexpType    = "startle"
     dataSet      =  phen$getExperiment(anexpType)
     dataSet      = dataSet[!duplicated(dataSet$ID)]
-    df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
 
+    
+    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
+    df = rbind(df, out$results)
+    tofile    = cbind(dataSet[,c("ID", "Chamber", "as50.Average_normalized", "as50.Latency_normalized")], out$y.transformed)
+    writefile = fp(writefold, paste0("startle_as50.txt")) 
+    fwrite(tofile, file=writefile)
+
+    
     for(pp in c("PP74", "PP78", "PP82", "PP86", "PP90"))
     {
         print(pp)
@@ -151,12 +186,15 @@ beh.analysis$run = function(phen, geneExp = NULL)
         anexpType    = "startle"
         dataSet      = phen$getExperiment(anexpType)
         dataSet      = dataSet[dataSet$Group==pp]
-
         
         out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
-        out$phenotype = paste0(out$phenotype, "ppi", substr(pp, 3,4))
-    
-        df = rbind(df, out)
+        out$results$phenotype = paste0(out$phenotype, "ppi", substr(pp, 3,4))
+        tofile    = cbind(dataSet[,c("ID", "Chamber", "Average")], out$y.transformed)
+        writefile = fp(writefold, paste0("startle_", pp, ".txt")) 
+        fwrite(tofile, file = writefile)
+        
+        
+        df = rbind(df, out$results)
     }
 
 
@@ -164,8 +202,13 @@ beh.analysis$run = function(phen, geneExp = NULL)
     covariates   = " ~ 1 +  as.factor(Batch) + Diet  + Sire.is.b6  + Diet:Sire.is.b6 + (1 | Dam.ID) "
     anexpType    = "weight"
     dataSet      =phen$getExperiment(anexpType)
-    df = rbind(df, beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp))
+    out = beh.analysis$.modelPhens(allPhenNames = allPhenNames, anexpType = anexpType, covariates = covariates, dataSet = dataSet, geneExp = geneExp)
+    df = rbind(df, out$results)
+    tofile    = cbind(phen$getExperiment(anexpType, useBreedLog=F), out$y.transformed)
+    writefile = fp(writefold, paste0(anexpType, ".txt")) 
+    fwrite(tofile, file=writefile)
 
+    
 
 
     pipel1Exp = c("lightdark", "startle", "startleByGroup", "SIH", "swim", "cocaine","weight")
@@ -196,7 +239,8 @@ beh.analysis$run = function(phen, geneExp = NULL)
 ## Model every phenotype in allPhenNames using the same covariates
 ##
 beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSet, geneExp = NULL) 
-{ 
+{
+    
     ##    if(anexpType=="SIH"|anexpType=="startle")
     ## if(anexpType=="startle")
     ## {
@@ -222,12 +266,9 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
     }
 
     dfs = list()
+    y.transformed = list()
     for(pheno in allPhenNames)
     {
-        ##if(pheno=="temp.2")
-        ##{
-        ##    browser()
-        ##}
         print("****************************")
         print(anexpType)
         print(pheno)
@@ -242,6 +283,7 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
                                       strategy = fit.modelg$getDefaultModelStrategy(anovaComparison = !is.null(nullModelString),
                                                                                     prefer.lme = F))[["phen_1"]]
 
+        
         if(is.null(fit.lambda))
         {
             failingphen = c(failingphen, paste0(anexptype, "-", pheno))
@@ -250,12 +292,14 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
         
         print("just fit")
         fit.with.interaction = fit.lambda$fit
+        y.transformed[[paste0(pheno,".transformed" )]] = fit.lambda$y.transformed
+        
+        
         anov = fit.lambda$anovaWrapper
         print(anov)
 
         ##acont = lm.parsing$form.contrast.mat(fit.with.interaction, "Diet")
         ## z = glht(fit.with.interaction, linfct = acont)
-        ## browser()
         if(is.null(geneExp))
         {
             dietComps = glht(fit.with.interaction, linfct = mcp(Diet="Tukey"))
@@ -337,14 +381,13 @@ beh.analysis$.modelPhens <- function(allPhenNames, anexpType, covariates, dataSe
         print("FAILING PHEN:::")
         print(failingphen)
     }
-    
-    return(dfs)
+
+    return(list(results=dfs, y.transformed = data.frame(y.transformed)))
 }
 
 beh.analysis$.adjust.pvals <- function(df, phen)
 {
     df = copy(df)
-
     pvalcols = c("strain.pval","diet.pval", "strainByDiet.pval", colnames(df)[18:29])
     for(p in c(1,2))
     {
@@ -404,15 +447,15 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
          pvalcol = c("strain.pval", "diet.pval", "strainByDiet.pval",
                      "strain.pval.qval.fdr", "diet.pval.qval.fdr", "strainByDiet.pval.qval.fdr")
     } else {
-        pvalcol = c('ME - Std','PD - Std','VDD - Std','PD - ME','VDD - ME','VDD - PD',
-                    'ME:NODxB6 - Std:NODxB6','PD:NODxB6 - Std:NODxB6','VDD:NODxB6 - Std:NODxB6','PD:NODxB6 - ME:NODxB6','VDD:NODxB6 - ME:NODxB6','VDD:NODxB6 - PD:NODxB6')
+        pvalcol = c('ME - Ctl','PD - Ctl','VDD - Ctl','PD - ME','VDD - ME','VDD - PD',
+                    'ME:NODxB6 - Ctl:NODxB6','PD:NODxB6 - Ctl:NODxB6','VDD:NODxB6 - Ctl:NODxB6','PD:NODxB6 - ME:NODxB6','VDD:NODxB6 - ME:NODxB6','VDD:NODxB6 - PD:NODxB6')
         
         pvalcol = gsub(pvalcol, pattern = " - ", replacement = "...")
         pvalcol = gsub(pvalcol, pattern = ":", replacement = ".")
         ##  colnames(toflex) = gsub(colnames(toflex), pattern = " ", replacement = "") 
     
     }
-                ## 'ME:NODxB6 - Std:NODxB6.qval.fdr','PD:NODxB6 - Std:NODxB6.qval.fdr','VDD:NODxB6 - Std:NODxB6.qval.fdr','PD:NODxB6 - ME:NODxB6.qval.fdr','VDD:NODxB6 - ME:NODxB6.qval.fdr','VDD:NODxB6 - PD:NODxB6.qval.fdr','pipeline.qval.fdr')
+                ## 'ME:NODxB6 - Ctl:NODxB6.qval.fdr','PD:NODxB6 - Ctl:NODxB6.qval.fdr','VDD:NODxB6 - Ctl:NODxB6.qval.fdr','PD:NODxB6 - ME:NODxB6.qval.fdr','VDD:NODxB6 - ME:NODxB6.qval.fdr','VDD:NODxB6 - PD:NODxB6.qval.fdr','pipeline.qval.fdr')
     
     toflex = toflex[,c("pipeline", "experiment", "phenotype", "model", pvalcol), with=F]
 
@@ -612,7 +655,7 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
 
 
 
-    ##    browser()
+
     for(acol in tobold)
     {
         astr = paste0("~grepl(",acol,", pattern = '\\\\*')")
@@ -623,7 +666,6 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
         mytab = bold(mytab, i = frm.i, j = frm.j)
     }
 
-    ##browser()
     for(acol in tobold)
     {
         astr = paste0("~grepl(",acol,", pattern = '\\\\.$')")
@@ -660,7 +702,6 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
 
             astr = paste0("~",acol)
             frm = as.formula(astr)
-##            browser()
             mytab = flextable::width(mytab, j = frm,  width = mult)
         }
     }
@@ -674,10 +715,8 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
     
 
     
-    ##    browser()
     tmplate = ifelse(mode==1, fp("./mnp/template2.docx"), fp("./mnp/template3.docx"))
     doc = read_docx(tmplate)
-    ##browser()
     doc = body_add_flextable(doc, mytab)
     if(mode==1)
     {
@@ -722,7 +761,6 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
 
 mergeIntoPipelines <- function(phen)
 {
-    browser()
     prepend = function(fram, prefix)
     {
 
