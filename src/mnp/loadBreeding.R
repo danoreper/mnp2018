@@ -15,7 +15,7 @@ read.full.cov <- function()
 
     
     ##TODO figure out what order names to use here.
-    dietMap = c("Std", "ME", "PD", "VDD")
+    dietMap = c("Ctl", "ME", "PD", "VDD")
     names(dietMap) = c( "Control B: Vit D, Low Pro", "Control A : Methyl", "Low Protien", "Vitamin D Deficient")
     breedLog$Diet = dietMap[breedLog$Diet]
     breedLog$Diet       = factor(breedLog$Diet, levels = unname(dietMap))
