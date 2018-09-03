@@ -33,6 +33,8 @@ mnp2018\_LOCATION/src$ bsub -M 20 -q week R CMD BATCH '--args ../config/defaultC
 
 
 # Directory structure
+
+* mnp2018\_LOCATION/external: external tools that are packaged with this code; specifically the particular version of Affymetrix Power Tools that we used. 
 * mnp2018\_LOCATION/src: All source code
 * mnp2018\_LOCATION/src/genomerep: code to do general computations about the genome, such as where variants are
 * mnp2018\_LOCATION/src/lm: code to do various sorts of linear modelling, including transformation, mixed models, multivariate models, etc. Also code to parse there various models.

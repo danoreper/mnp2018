@@ -1,4 +1,4 @@
-source("./loadParamsFunc.R")
+source("./util/loadParamsFunc.R")
 unlink(".RData")
 
 ###REPLACE_inFile###

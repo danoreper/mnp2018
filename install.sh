@@ -1,12 +1,13 @@
 datadir=./data2/
 
-rm -rf $datadir
+#rm -rf $datadir
 
 mkdir $datadir
 #mkdir $datadir/zenodo
 mkdir $datadir/b6_reference/
 mkdir $datadir/b6_reference/mus_musculus.GRCm38.75/
 mkdir $datadir/imprinted_genes_list/
+mkdir $datadir/mpd
 mkdir $datadir/mnp
 mkdir $datadir/mnp/microarray_lib_files
 mkdir $datadir/mnp/qpcr
