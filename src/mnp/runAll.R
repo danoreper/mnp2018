@@ -64,7 +64,7 @@ micro.report$reportAnalysis(inp$exp.mat,
                             inp$karyo)
 
 ##Run qpcr analysis, and also generate plots for Carmil1 and meg3, (on microarray data too)
-qpcr.analysis$run(inp)
+##qpcr.analysis$run(inp)
 
 ##Run behavior analysis
 beh.analysis$runAll(inp$phens)

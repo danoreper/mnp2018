@@ -29,7 +29,8 @@ mnp.med$get.BD.inputBuilder <- function(M.measures, Y.measures, discardMissingGe
     cov.data    = raw.data$phens$breedLog
     qpcr.data   = getRawTaqData(merge.qpcr.plate)
 
-    micro.data  = mnp.med$get.sv.corrected.genes(raw.data, T)$exp.mat
+    fromFile = F
+    micro.data  = mnp.med$get.sv.corrected.genes(raw.data, fromFile)$exp.mat
     phen.data   = NULL
     if(modelBehavior)
     {

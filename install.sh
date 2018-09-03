@@ -1,8 +1,9 @@
-datadir=./data/
+datadir=./data2/
 
 rm -rf $datadir
 
 mkdir $datadir
+mkdir $datadir/zenodo
 mkdir $datadir/b6_reference/
 mkdir $datadir/b6_reference/mus_musculus.GRCm38.75/
 mkdir $datadir/imprinted_genes_list/
@@ -21,11 +22,16 @@ mkdir $datadir/mnp/phenotypes/Startle_PPI
 mkdir $datadir/mnp/phenotypes/TailSuspension
 
 #replace with wget or curl to zenodo
-cp -r ~/Desktop/zenodo/ $datadir/zenodo
-cd $datadir/zenodo
-datadir=../
 
-mv File_S2_mm10.chrom.sizes.txt       $datadir/b6_reference/mm10.chrom.sizes
+
+cd $datadir
+wget -m -nH --cut-dirs=1 -np -A 'File_*.csv, File_*.txt' -r https://zenodo.org/record/1343994/
+#wget -m -nH --cut-dirs=1 -np -A 'File_*.zip, File_*.csv, File_*.txt' -r https://zenodo.org/record/1343994/
+
+cd ./1343994/files
+datadir=../../
+
+mv File_S2_mm10.chrom.sizes.txt       $datadir/b6_reference/mm10.chrom.sizes.txt
 
 unzip File_S3_Mus_musculus.GRCm38.75.gtf.zip; mv File_S3_Mus_musculus.GRCm38.75.gtf $datadir/b6_reference/mus_musculus.GRCm38.75/Mus_musculus.GRCm38.75.gtf
 

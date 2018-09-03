@@ -1,7 +1,7 @@
 # 
 # Script for loading params from yaml file.
 ###############################################################################
-source("./loadParamsFunc.R")
+source("./util/loadParamsFunc.R")
 
 prop = loadParams()
 for (aname in ls(prop))

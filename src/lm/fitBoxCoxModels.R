@@ -1,7 +1,7 @@
 source("./util/loadParams.R")
 source("./lm/formulaWrapper.R")
 source("./lm/lm.parsing.R")
-source("./utils.R")
+source("./util/utils.R")
 source("./lm/fit.models.R")
 source("./parallel/accumulator.R")
 DEBUG = F

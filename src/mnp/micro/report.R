@@ -18,9 +18,9 @@ micro.report$reportAnalysis <- function(exp.mat,
 
     d.contrast =
         c("Probe.Set.ID",
-          "ME.vs.Std.p.value",      
-          "PD.vs.Std.p.value",      
-          "VDD.vs.Std.p.value",     
+          "ME.vs.Ctl.p.value",      
+          "PD.vs.Ctl.p.value",      
+          "VDD.vs.Ctl.p.value",     
           "PD.vs.ME.p.value",
           "VDD.vs.ME.p.value",
           "VDD.vs.PD.p.value")
@@ -30,9 +30,9 @@ micro.report$reportAnalysis <- function(exp.mat,
     df.d.contrast$gene_name = probesetInfo$gene_name[match(df.d.contrast$Probe.Set.ID, probesetInfo$Probe.Set.ID)]
     
     d.by.s.contrast = c("Probe.Set.ID",
-                        "ME.NOD.B6...Std.NOD.B6",
-                        "PD.NOD.B6...Std.NOD.B6",   
-                        "VDD.NOD.B6...Std.NOD.B6",  
+                        "ME.NOD.B6...Ctl.NOD.B6",
+                        "PD.NOD.B6...Ctl.NOD.B6",   
+                        "VDD.NOD.B6...Ctl.NOD.B6",  
                         "PD.NOD.B6...ME.NOD.B6",    
                         "VDD.NOD.B6...ME.NOD.B6", 
                         "VDD.NOD.B6...PD.NOD.B6")
@@ -394,8 +394,8 @@ micro.report$.formatTable <- function(sigpq, per.variable, per.level, variable, 
                 
         setkey(justvar, "Probe.Set.ID")
 
-        methsuff.colz  = c("ME.vs.Std.p.value",  "PD.vs.ME.p.value",  "VDD.vs.ME.p.value")
-        otherdiet.colz = c("VDD.vs.Std.p.value", "VDD.vs.PD.p.value", "PD.vs.Std.p.value")
+        methsuff.colz  = c("ME.vs.Ctl.p.value",  "PD.vs.ME.p.value",  "VDD.vs.ME.p.value")
+        otherdiet.colz = c("VDD.vs.Ctl.p.value", "VDD.vs.PD.p.value", "PD.vs.Ctl.p.value")
 
 ##        table(rowSums((subd[,methsuff.colz, with = F]<=alphalevel)))
 ##        table(rowSums((subd[,otherdiet.colz, with = F]<=alphalevel)))

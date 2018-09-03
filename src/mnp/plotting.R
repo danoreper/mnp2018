@@ -357,8 +357,8 @@ plotting$plotPermScan <- function(full,
             setkey(justvar, "Probe.Set.ID")
 
             
-            methsuff.colz  = c("ME.vs.Std.p.value",  "PD.vs.ME.p.value",  "VDD.vs.ME.p.value")
-            otherdiet.colz = c("VDD.vs.Std.p.value", "VDD.vs.PD.p.value", "PD.vs.Std.p.value")
+            methsuff.colz  = c("ME.vs.Ctl.p.value",  "PD.vs.ME.p.value",  "VDD.vs.ME.p.value")
+            otherdiet.colz = c("VDD.vs.Ctl.p.value", "VDD.vs.PD.p.value", "PD.vs.Ctl.p.value")
 
 
             table(rowSums((subd[,methsuff.colz, with = F]<=alphalevel)))
