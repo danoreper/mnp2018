@@ -17,8 +17,8 @@ reveal parent-of-origin and perinatal diet effects on behavior and expression' (
 Git clone from the following url: https://github.com/danoreper/mnp2018.git
 
 # Install
-Enter the following at the command line, using working directory mnp2018\_LOCATION (the cloned, local mnp2018 repository):
-mnp2018\_LOCATION\$ bash install.sh 
+Enter the following at the command line, using working directory mnp2018\_LOCATION (the cloned, local mnp2018 repository):  
+```mnp2018_LOCATION\$ bash install.sh``` 
 
 For now, this install script only downloads data files (that are too large for github), and places them in their expected location relative to source code. jags, R, Python, and Python/R libraries need to be self-installed by the user.
 
