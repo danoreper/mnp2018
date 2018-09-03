@@ -1,5 +1,5 @@
 library(stringr)
-source("./utils.R")
+source("./util/utils.R")
 
 formulaWrapper = new.env(hash=T)
 ##expects a covariate string (without the outcome part) of lmer form, e.g., "~ 1 + X1 +X2 + X1:X2 + (Z|X1)"

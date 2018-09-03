@@ -1,4 +1,4 @@
-source("./loadParams.R")
+source("./util/loadParams.R")
 
 useCurrentSamples = prop$mnp$useCurrentSamples
 

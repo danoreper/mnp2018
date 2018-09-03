@@ -1,5 +1,5 @@
-source("./loadParams.R")
-source("./loadParams.R")
+source("./util/loadParams.R")
+source("./util/loadParams.R")
 source("./mnp/loadAllData.R")
 source("./lm/formulaWrapper.R")
 source("./mnp/behavior/processPhenData.R")

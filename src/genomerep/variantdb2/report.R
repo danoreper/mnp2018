@@ -1,7 +1,7 @@
 
 library(data.table)
 library(ggplot2)
-source("./loadParams.R")
+source("./util/loadParams.R")
 source("./genomerep/variantdb2/dump_parser.R")
 
 outputdir = fp(prop$output, "isvdb_test_pub")

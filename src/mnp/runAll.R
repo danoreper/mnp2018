@@ -12,7 +12,7 @@ sources <- function()
 {
     if(!exists("prop"))
     {
-        source("./loadParams.R")
+        source("./util/loadParams.R")
     }    
     source("./mnp/loadAllData.R")
     source("./mnp/behavior/analysis.R")

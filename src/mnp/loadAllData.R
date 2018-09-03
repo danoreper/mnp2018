@@ -1,9 +1,9 @@
 ##TODO: wrap functions up in the environment
-source("./loadParams.R")
+source("./util/loadParams.R")
 source("./mnp/behavior/loadData.R")
 source("./mnp/micro/preprocess/evalprobes2.R")
 source("./mnp/loadBreeding.R")
-source("./utils.R")
+source("./util/utils.R")
 source("./mnp/general.R")
 
 loadAllData = new.env(hash=T)

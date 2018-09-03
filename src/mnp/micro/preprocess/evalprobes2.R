@@ -11,7 +11,7 @@ library(GenomicRanges)
 library(data.table)
 
 
-source("./loadParams.R")
+source("./util/loadParams.R")
 source("./genomerep/buildGenomeData2.R")
 source("./mnp/micro/preprocess/affylibReader.R")
 

@@ -9,8 +9,8 @@ library("Biostrings")
 library("rtracklayer")
 
 source("./genomerep/buildImprintedGenes.R")
-source("./loadParams.R")
-source("./utils.R")
+source("./util/loadParams.R")
+source("./util/utils.R")
 
 buildGenomeData = new.env()
 

@@ -2,7 +2,7 @@ library(nlme)
 library(lmerTest)
 library(data.table)
 
-source("./utils.R")
+source("./util/utils.R")
 
 
 lm.parsing = new.env(hash=T)

@@ -1,6 +1,6 @@
 source("./lm/formulaWrapper.R")
 source("./lm/lm.parsing.R")
-source("./utils.R")
+source("./util/utils.R")
 
 ##TODO: rename environment
 fit.modelg = new.env(hash=T)

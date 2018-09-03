@@ -1,4 +1,4 @@
-source("./loadParams.R")
+source("./util/loadParams.R")
 source("./mnp/micro/analysis.R")
 source("./mnp/loadAllData.R")
 source("./mnp/micro/preprocess/evalprobes2.R")

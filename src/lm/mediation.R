@@ -1,5 +1,5 @@
 source("./lm/fitBoxCoxModels.R")
-source("./utils.R")
+source("./util/utils.R")
 lm.mediation = new.env(hash=T)
 
 lm.mediation$simpleTest = function(outcome.vec,

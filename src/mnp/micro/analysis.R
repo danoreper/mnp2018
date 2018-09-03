@@ -12,7 +12,7 @@ library("biomaRt")
 options(warn=1)
 
 
-source("./utils.R") 
+source("./util/utils.R") 
 source("./genomerep/buildGenomeData2.R")
 source("./multipleTesting.R")
 source("./lm/fitBoxCoxModels.R")

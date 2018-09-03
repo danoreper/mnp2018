@@ -5,7 +5,7 @@ library(officer)
 source("./mnp/loadAllData.R")
 source("./mnp/mediation/mediationBayes3.R")
 source("./mnp/mediation/BDmodel2.R")
-source("./utils.R")
+source("./util/utils.R")
 source("./mnp/micro/preprocess/extractFromProbes.R")
 
 ## discardMissing = T

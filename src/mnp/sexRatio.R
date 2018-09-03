@@ -1,6 +1,6 @@
 ##Sex ratio analysis.
 library(data.table)
-source("./loadParams.R")
+source("./util/loadParams.R")
 
 ## df = fread(dat("./mnp/male_female_breeding.csv"))
 ##  df = df[,c("Pipeline", "Breeding Batch", "Diet", "Strain", "Dam ID", "Litter", "Litter DOB", "Litter Size", "Pups Survived","# M pups wean", "# F pups wean")]

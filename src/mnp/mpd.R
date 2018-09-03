@@ -42,7 +42,7 @@ library(flextable)
 library(officer)
 
 source("./lm/fitBoxCoxModels.R")
-source("./loadParams.R")
+source("./util/loadParams.R")
 source("./mnp/general.R")
 
 
