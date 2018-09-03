@@ -32,7 +32,7 @@ Note that running locally will not generate permutation testing threshholds, as 
 To use an LSF based system, enter the following:  
 ```mnp2018_LOCATION/src$ bsub -M 20 -q week R CMD BATCH '--args ../config/defaultCluster.yaml' ./mnp/runAll.R```
 To use a slurm based system, enter the following:  
-~~~sbatch -t 5000 --mem-per-cpu=20000 R CMD BATCH --no-restore '--args ../config/defaultCluster.yaml ../config/defaultLongleaf.yaml' ./mnp/runAll.R```
+```sbatch -t 5000 --mem-per-cpu=20000 R CMD BATCH --no-restore '--args ../config/defaultCluster.yaml ../config/defaultLongleaf.yaml' ./mnp/runAll.R```
 
 
 
