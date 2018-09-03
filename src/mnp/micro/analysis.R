@@ -11,18 +11,12 @@ library("biomaRt")
 ##library(lmerTest) #for lmerTest, caTools, bitOps, and possibly others need to be intentionally installed, automatic dependency checking doesnt work right. really annoying.
 options(warn=1)
 
-## if(!exists("prop"))
-## {
-##     stop("master script must load default params")
-## }
 
 source("./utils.R") 
 source("./genomerep/buildGenomeData2.R")
 source("./multipleTesting.R")
 source("./lm/fitBoxCoxModels.R")
-
 source("./lm/multivariate.lm.R")
-source("./enrichmentTesting.R")
 source("./surrogatcalc.R")
 
 source("./mnp/plotting.R")

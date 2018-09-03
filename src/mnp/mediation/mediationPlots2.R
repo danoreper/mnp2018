@@ -2,8 +2,6 @@ library(data.table)
 library(Cairo)
 library(flextable)
 library(officer)
-##library(ReporteRs)
-source("./enrichmentTesting.R")
 source("./mnp/loadAllData.R")
 source("./mnp/mediation/mediationBayes3.R")
 source("./mnp/mediation/BDmodel2.R")
@@ -252,6 +250,22 @@ getBehLevels <- function()
 {
     nameMap = unname(getNameMap())
     return(nameMap)
+}
+
+
+enrichmentTesting = new.env(hash=T)
+
+enrichmentTesting$fisherCombined <- function(pvals)
+{
+    chisq.stat.part    = -2*log(pvals)
+    chisq.stat         = sum(chisq.stat.part)
+    chisq.analytic.p   = 1 - pchisq(chisq.stat, df=2*length(pvals))
+    df = list(
+      #chisq.stat.part = chisq.stat.part,
+                    chisq.stat = chisq.stat,
+                    chisq.analytic.p = chisq.analytic.p)
+    
+    return(df)
 }
 
 
