@@ -1,3 +1,4 @@
+##use mirhub to check enrichment for diet-by-POE among mir431 targets
 library(data.table)
 curwd = getwd()
 mirhubPath = "../../../resources/miRhub"

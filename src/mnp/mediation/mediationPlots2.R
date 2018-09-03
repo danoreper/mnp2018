@@ -241,7 +241,7 @@ writeSig <- function(df.m, outcome.type)
     mytab = flextable::width(mytab, j = ~ coef.ab,     width = newlen*1.1)
     mytab = flextable::width(mytab, j = ~ coef.cprime, width = newlen*1.1)
         
-    doc = read_docx(fp("./mnp/template.docx"))
+    doc = read_docx(fp("./mnp/tableTemplates/template.docx"))
     doc = body_add_flextable(doc, mytab)
     print(doc, target = fp(outdir, paste0(outcome,"_sig.pvalues.docx")))
 }
@@ -396,7 +396,7 @@ for(outcome in c( "behavior", "micro"))
         mytab = merge_v(mytab, part="header")
         mytab <- italic(mytab, j = ~ mediator, italic = TRUE)
         mytab = autofit(mytab, 0, 0)
-        doc = read_docx(fp("./mnp/template.docx"))
+        doc = read_docx(fp("./mnp/tableTemplates/template.docx"))
         doc = body_add_flextable(doc, mytab)
         print(doc, target = fp(outdir, paste0(outcome,"_top3.pvalues.docx")))
     }

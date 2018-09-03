@@ -1,4 +1,4 @@
-
+## function to parse probesetInfo metadata about microarray probesets
 getProbesetId <- function(probesetInfo, geneName, like = F)
 {
     f = function(avec)

@@ -282,7 +282,7 @@ micro.report$reportAnalysis <- function(exp.mat,
                 mytab = flextable::width(mytab, j = ~ probesetStart, width = newlen*.6)
 
                 
-                doc = read_docx(fp("./mnp/template.docx"))
+                doc = read_docx(fp("./mnp/tableTemplates/template.docx"))
                 doc = body_add_flextable(doc, mytab)
                 pfile = gsub(pfile, pattern = "csv", replacement = "docx")
                 print(doc, target = pfile)

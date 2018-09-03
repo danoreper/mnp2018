@@ -1,4 +1,4 @@
-# TODO: Add comment
+# read in and parse affymetrix library files.
 # 
 # Author: doreper
 ###############################################################################

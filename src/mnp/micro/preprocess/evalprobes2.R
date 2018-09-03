@@ -1,4 +1,4 @@
-# TODO: Add comment
+# Generate masked set of probesets and all probe info. saves it to computeProbeDataDir
 # 
 # Author: doreper
 ###############################################################################

@@ -715,7 +715,7 @@ beh.analysis$.dispSignificantPhen <- function(df,outfile, mode=1)
     
 
     
-    tmplate = ifelse(mode==1, fp("./mnp/template2.docx"), fp("./mnp/template3.docx"))
+    tmplate = ifelse(mode==1, fp("./mnp/tableTemplates/template2.docx"), fp("./mnp/tableTemplates/template3.docx"))
     doc = read_docx(tmplate)
     doc = body_add_flextable(doc, mytab)
     if(mode==1)

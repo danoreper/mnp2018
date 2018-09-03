@@ -1,3 +1,6 @@
+##Mouse phenome database analyses
+
+##Passed up datasets
 ##df = fread(dat("mpd/Chesler3.csv")) ##no locomotor activity assesed for B6 or NOD
 ##df = fread(dat("mpd/Crowley1.csv")) ## all male mice, only 10
 ##df = fread(dat("mpd/Donahue3.csv")) ## only b6 mice
@@ -156,7 +159,7 @@ mytab = autofit(mytab, 0, 0)
 wid = max(strwidth(tabls[["anova.pval"]], font = 10, units = 'in'))
 mytab = flextable::width(mytab, j = as.formula("~anova.pval"),  width = wid)
 
-tmplate = fp("./mnp/template2.docx")
+tmplate = fp("./mnp/tableTemplates/template2.docx")
 doc = read_docx(tmplate)
 ##browser()
 doc = body_add_flextable(doc, mytab)

@@ -175,7 +175,7 @@ qpcr.analysis$run <- function(inp)
     mytab = do.call(set_header_labels, rep)
     mytab = autofit(mytab)
 
-    doc = read_docx(fp("./mnp/template.docx"))
+    doc = read_docx(fp("./mnp/tableTemplates/template.docx"))
     doc = body_add_flextable(doc, mytab)
     print(doc, target = fp(outdir, paste0("qpcr.docx")))
     

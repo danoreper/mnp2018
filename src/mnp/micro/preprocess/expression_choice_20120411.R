@@ -1,6 +1,8 @@
-library(WVmisc)
+##library(WVmisc)
 source("./datacleaning.R")
 source("./loadAllData.R")
+
+
 dat <- read.csv(file.path(data, "allcovariates_2011_12_08.csv"))[,1:6]
 dat <- trim.factor.levels(dat)
 dat$Diet <- merge.factor.levels(lookup=list(stdctrl="StdCtrl"), dat$Diet)

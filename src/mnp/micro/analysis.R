@@ -17,7 +17,7 @@ source("./genomerep/buildGenomeData2.R")
 source("./multipleTesting.R")
 source("./lm/fitBoxCoxModels.R")
 source("./lm/multivariate.lm.R")
-source("./surrogatcalc.R")
+source("./mnp/surrogatcalc.R")
 
 source("./mnp/plotting.R")
 source("./mnp/micro/preprocess/evalprobes2.R")
