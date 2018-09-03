@@ -25,12 +25,11 @@ For now, this install script only downloads data files (that are too large for g
 
 # Run
 1. To run locally:  
-```mnp2018\_LOCATION/src$ R CMD BATCH ./mnp/runAll.R```  
+```mnp2018_LOCATION/src$ R CMD BATCH ./mnp/runAll.R```  
 Note that running locally will not generate permutation testing threshholds, as it is too slow to be feasible.
 
 2. Running locally will require up to 2 days, even without the permutation testing. If you have access to an LSF based cluster, computation will also finish in a few days, but for 400 permutations. To use an LSF based system, enter the following:  
-
-```mnp2018\_LOCATION/src$ bsub -M 20 -q week R CMD BATCH '--args ../config/defaultCluster.yaml' ./mnp/runAll.R```
+```mnp2018_LOCATION/src$ bsub -M 20 -q week R CMD BATCH '--args ../config/defaultCluster.yaml' ./mnp/runAll.R```
 
 
 # Directory structure
