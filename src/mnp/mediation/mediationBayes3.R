@@ -1,6 +1,5 @@
 library(rjags)
 source("./loadParams.R")
-source("./bayes/processSamples.R")
 
 source("./parallel/accumulator.R")
 source("./lm/fitBoxCoxModels.R")

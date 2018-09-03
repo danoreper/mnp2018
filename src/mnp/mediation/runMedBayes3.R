@@ -14,7 +14,6 @@ source("./mnp/loadAllData.R")
 source("./utils.R")
 source("./lm/fitBoxCoxModels.R")
 source("./multipleTesting.R")
-source("./bayes/processSamples.R")
 source("./mnp/mediation/mediationBayes3.R")
 source("./genomerep/buildGenomeData2.R")
 
