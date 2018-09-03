@@ -1,3 +1,4 @@
+##function for doing multiple testing correction
 library(evir)
 multipleTesting = new.env(hash=T)
 

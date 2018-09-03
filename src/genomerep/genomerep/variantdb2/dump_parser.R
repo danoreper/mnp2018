@@ -44,13 +44,29 @@ db_builder$get.db.lite <- function(dbdir, serverLocation="", cacheServerData = F
                                chrs = dblite[[type]]$getChrs(strain1s[1]),
                                select = NULL,
                                zipped = T,
-                               accum = NULL, ##parallel$get.mc.accumulator(mc.cores = 1),
                                iterator = F)    
     {
         outs = list()
         force(parseFunc)
+
+        if(prop$onCluster)
+        {
+            accum = parallel$.cluster.accum(system.type = = prop$system.type,
+                                            func = dblite$.callparse,
+                                            sharedVariables= list(parseFunc = parseFunc, type = type),
+                                            coresPerJob = 1,
+                                            cpuMemLimit.GB = 20,
+                                            timeLimit.hours = 23)
+        } else {
         
-        accum$init(func = dblite$.callparse, otherGlobals= list(parseFunc = parseFunc, type = type))
+            corez = 1 #prop$mnp$mc.cores
+            batchSize = corez*100
+            accum = parallel$get.mc.accum(func = func, mc.cores = 1,
+                                          sharedVariables= list(parseFunc = parseFunc, type = type))
+                                          
+        }
+            
+                         
         for(i in 1:length(strain1s))
         {
             strain1 = strain1s[i]
@@ -264,13 +280,31 @@ db_builder$getInstance <- function(tabledir, type, serverLocation = "", cacheSer
                              chrs = inst$getChrs(strain = strains[1]),
                              select = NULL,
                              zipped = T,
-                             accum = bsub$get.mc.accumulator(mc.cores = 1),
+                             accum = parallel$get.mc.accum(mc.cores = 1),
                              iterator = F)    
     {
         outs = list()
         force(parseFunc)
+
+
+        if(prop$onCluster)
+        {
+            accum = parallel$.cluster.accum(system.type = = prop$system.type,
+                                            func = inst$.callparse,
+                                            sharedVariables= list(parseFunc = parseFunc, zipped = zipped, select = select),
+                                            coresPerJob = 1,
+                                            cpuMemLimit.GB = 20,
+                                            timeLimit.hours = 23)
+        } else {
         
-        accum$init(func = inst$.callparse, otherGlobals= list(parseFunc = parseFunc, zipped = zipped, select = select))
+            corez = 1 #prop$mnp$mc.cores
+            batchSize = corez*100
+            accum = parallel$get.mc.accum(func = func, mc.cores = 1,
+                                          sharedVariables= list(parseFunc = parseFunc, zipped = zipped, select = select)
+                                          
+        }
+
+        
         for(strain in strains)
         {
             for(chr in chrs)

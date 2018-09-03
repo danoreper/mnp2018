@@ -15,17 +15,21 @@ source("./genomerep/variantdb2/dump_parser.R")
 
 buildVariantDb = new.env(hash=T)
 
-getIterAccumulator <- function(batchSize=1, mem.gb = 20)
+getIterAccumulator <- function(func, batchSize=1, mem.gb = 20, sharedVariables = list())
 {
     if(prop$onCluster)
     {
-        bsubCommand = bsub$get.default.killdevil.bsub(numProcessPerNode = 1, memoryLimit.GB = mem.gb, queue="day")
-        accum = bsub$get.bsub.accumulator("./genomerep/variantdb2/buildVariantDb.R", bsubCommand, batchSize=batchSize)
+        accum = parallel$get.cluster.accum(system.type = prop$system.type,
+                                           func = dunc,
+                                           sharedVariables = sharedVariables
+                                           coresPerJob = 1,
+                                           cpuMemLimit.GB = mem.gb,
+                                           timeLimit.hours = 23)
     } else {
         
         corez = 1 #prop$mnp$mc.cores
         batchSize = corez*100
-        accum = bsub$get.mc.accumulator(mc.cores= corez)
+        accum = parallel$get.mc.accum(func = func, mc.cores = corez, sharedVariables = sharedVariables)
     }
     return(accum)
 }
@@ -132,23 +136,22 @@ buildVariantDb$buildSingleVariantDb <- function(db,
         chrsToBuild = karyotype$chrname
     }
     ##build an accumulator for parallelizing jobs
-    accum = getIterAccumulator()
-    ##accum = bsub$get.stub.accum()
+
 
     ##Rebuild founder genotypes
     pracma::tic()
     if(rebuildFounder)
     {
         print("rebuilding founder data")
-        accum$init(func = buildVariantDb$buildFounderGenotypes,
-                   otherGlobals = list(db              = db,
-                                       founders        = founders,
-                                       vcfdir          = vcfdir,
-                                       karyotype       = karyotype,
-                                       ranges          = ranges,
-                                       transcriptsFile = transcriptsFile,
-                                       limit           = limit,
-                                       rebuildVCF      = rebuildVCF))
+        accum = getIterAccumulator(func = buildVariantDb$buildFounderGenotypes,
+                                   sharedVariables = list(db              = db,
+                                                          founders        = founders,
+                                                          vcfdir          = vcfdir,
+                                                          karyotype       = karyotype,
+                                                          ranges          = ranges,
+                                                          transcriptsFile = transcriptsFile,
+                                                          limit           = limit,
+                                                          rebuildVCF      = rebuildVCF))
         for(chr in chrsToBuild)
         {
             accum$addCall(list(chr = chr))
@@ -161,17 +164,17 @@ buildVariantDb$buildSingleVariantDb <- function(db,
 
     
     ##Rebuild CC info
-    ##accum = bsub$get.stub.accum()
     ##chrsToBuild = "MT"
-    accum = getIterAccumulator(mem.gb=25)##getIterAccumulator(mem.gb = 20, batchSize = 10)
+
     pracma::tic(); print("began building ccdb")
     if(rebuildCC)
     {
-        accum$init(func = buildVariantDb$build_CC_info,
-                   otherGlobals = list(db = db,
-                                       founders = founders,
-                                       rilHaplotypeProbsDir = rilHaplotypeProbsDir,
-                                       karyotype = karyotype))
+        accum = getIterAccumulator(func = buildVariantDb$build_CC_info,
+                                   mem.gb = 20,
+                                   sharedVariables= list(db = db,
+                                                         founders = founders,
+                                                         rilHaplotypeProbsDir = rilHaplotypeProbsDir,
+                                                         karyotype = karyotype))
         
         for(i in 1:length(chrsToBuild))
         {
@@ -199,7 +202,7 @@ buildVariantDb$updateFounderVariantIDs <- function(db, founders)
         db$genotype$write(strain,chr,df)
     }
 
-    accum = getIterAccumulator(batchSize=8, mem.gb = 6) ##bsub$get.stub.accum() 
+    accum = getIterAccumulator(batchSize=8, mem.gb = 6)
     db$iterate("genotype", parseFunc = helper.func, accum = accum, strain1s = founders)
 }
 
