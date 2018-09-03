@@ -1,4 +1,3 @@
-## If this flag is true, only get expression and covariate data for those animals for which we still have samples; some of them don't exist anymore.
 source("./loadParams.R")
 
 useCurrentSamples = prop$mnp$useCurrentSamples

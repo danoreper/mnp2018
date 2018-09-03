@@ -1,3 +1,5 @@
+##Various plotting functions for mnp
+
 library(corrplot)
 library(ggplot2)
 library(data.table)
