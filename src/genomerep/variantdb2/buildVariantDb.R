@@ -4,11 +4,11 @@ library(data.table)
 library(reshape2)
 library("Biostrings")
 
-source("./loadParams.R")
+source("./util/loadParams.R")
 source("./genomerep/cc_founderProbs.R")
 source("./genomerep/filtervcf.R")
 source("./genomerep/buildGenomeData2.R")
-source("./stringutils.R")
+source("./util/stringutils.R")
 source("./genomerep/cc_founderProbs.R")
 source("./genomerep/variantdb2/dump_parser.R")
 

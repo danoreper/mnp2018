@@ -1,4 +1,4 @@
-source("./loadParams.R")
+source("./util/loadParams.R")
 source("./lm/formulaWrapper.R")
 source("./lm/lm.parsing.R")
 source("./utils.R")

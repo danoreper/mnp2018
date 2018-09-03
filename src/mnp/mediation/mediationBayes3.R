@@ -1,5 +1,5 @@
 library(rjags)
-source("./loadParams.R")
+source("./util/loadParams.R")
 
 source("./parallel/accumulator.R")
 source("./lm/fitBoxCoxModels.R")
@@ -17,7 +17,6 @@ mnp.med = new.env(hash=T)
 
 ##Stored in mnp.med
 source("./mnp/mediation/BDmodel2.R")
-##source("./mnp/FGHmodel.R")
 
 ##TODO store outcome.id in inputBuilder?
 mnp.med$run <- function(inputBuilder,  mediator.ids,  original.strain.results)

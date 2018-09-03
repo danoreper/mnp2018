@@ -1,6 +1,6 @@
-source("./loadParams.R")
+source("./util/loadParams.R")
 source("./parallel/accumulator.R")
-##source("./utils.R")
+##source("./util/utils.R")
 
 
 

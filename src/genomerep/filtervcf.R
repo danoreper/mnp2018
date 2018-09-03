@@ -3,7 +3,7 @@
 ## we only are interested in 7.
 ## Author: doreper
 ###############################################################################
-source("./stringutils.R")
+source("./util/stringutils.R")
 filterVCF = new.env(hash=T)
 
 

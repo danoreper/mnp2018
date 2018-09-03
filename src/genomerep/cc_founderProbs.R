@@ -12,7 +12,7 @@ library("stringr")
 library("data.table")
 library("GenomicRanges")
 
-source("./stringutils.R")
+source("./util/stringutils.R")
 
 buildFounderProbs = new.env(hash=T)
 
