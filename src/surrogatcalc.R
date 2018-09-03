@@ -1,4 +1,7 @@
+##Function for computing surrogate variables, as in Leek and Storey, 2007
+
 surrogatcalc = new.env(hash=T)
+
 
 surrogatcalc$refine.ssva <- function(exp.ssva.mat, num.sv, scaleOnForPCA)
 {
