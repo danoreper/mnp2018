@@ -1,7 +1,7 @@
 # MNP
 Code to generate results for 'Reciprocal F1 hybrids of two inbred mouse strains
 reveal parent-of-origin and perinatal diet effects on behavior and expression' (Oreper, Schoenrock, 2018)
-Includes code to model behavior, microarray, and qPCR data.
+Includes code to model behavior, microarray, and qPCR data. Publication can be found at https://www.ncbi.nlm.nih.gov/pubmed/30171036
 
 
 # Requirements
